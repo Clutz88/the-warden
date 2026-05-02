@@ -62,6 +62,15 @@ Adding a Day-N mechanic should NOT require engine changes. Pattern:
 - Keyboard: `P` = PASS, `1/2/3` = PCN buttons in order, `Enter` = advance briefing/summary.
 - Player wage: +£10 correct, −£8 wrong. End-of-day rent in `DAYS[i].rent` — fail to make rent → game over.
 
+## Versioning
+
+Bump `package.json` (and matching `package-lock.json` entries) on meaningful change:
+- **Minor** (`0.X.0`) — new Day shipped, new rule/mechanic, new doc type, or other player-visible feature slice.
+- **Patch** (`0.x.Y`) — bug fixes, balance tweaks, copy edits, refactors with no player-visible change.
+- Pre-1.0 while gameplay scope still in flux. `1.0.0` reserved for the first "complete" release.
+
+Bump as part of the same change that introduces the feature/fix — not a separate commit.
+
 ## Known quirks
 
 - `bindGlobalEvents` is guarded by `window.__wardenBound` so Vite HMR re-running `main.ts` doesn't double-bind click/key handlers.
