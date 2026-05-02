@@ -1,33 +1,25 @@
 import type { Car } from "../game/types";
-
-const COLOUR_HEX: Record<string, string> = {
-  Red: "#a82c2c",
-  Blue: "#2c4ea8",
-  Black: "#222",
-  Silver: "#bcc1c4",
-  White: "#e9e6df",
-  Green: "#2c6e3a",
-  Grey: "#5a5e63",
-};
+import { renderCarSprite } from "./sprites/car";
+import { renderKerbSprite } from "./sprites/kerb";
 
 export function renderScene(car: Car | null): string {
   if (!car) {
-    return `<div class="scene"><div class="kerb"></div></div>`;
+    return `<div class="scene"><div class="kerb-scene empty"></div></div>`;
   }
-  const kerbCls = car.street.kind;
+  const carHtml = `
+    <div class="car-rig">
+      <div class="model-label">${car.colour} ${car.model}</div>
+      ${renderCarSprite(car)}
+      <div class="plate">${car.plate}</div>
+    </div>
+  `;
   return `
     <div class="scene">
       <div class="street-label">Now inspecting</div>
       <div class="street-name">${car.street.name}${
         car.street.zone ? ` — Zone ${car.street.zone}` : ""
       }</div>
-      <div class="kerb ${kerbCls}">
-        <div class="car" style="--col:${COLOUR_HEX[car.colour] ?? "#888"}">
-          <div class="model-label">${car.colour} ${car.model}</div>
-          <div class="windscreen"></div>
-          <div class="plate">${car.plate}</div>
-        </div>
-      </div>
+      ${renderKerbSprite(car.street, carHtml)}
     </div>
   `;
 }

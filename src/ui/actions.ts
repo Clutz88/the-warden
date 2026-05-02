@@ -1,4 +1,5 @@
 import { PCN_CODES, activeRules } from "../game/rules";
+import { stampTick, stampX } from "./sprites/icons";
 
 const CODE_ORDER = ["01", "12", "25", "40"];
 
@@ -15,6 +16,7 @@ export function renderActions(day: number, disabled: boolean): string {
   return `
     <div class="actions">
       <button class="btn pass" data-action="pass" ${disabled ? "disabled" : ""}>
+        <span class="btn-icon">${stampTick()}</span>
         PASS <span class="kbd">P</span>
       </button>
       <div class="pcn-picker">
@@ -22,6 +24,7 @@ export function renderActions(day: number, disabled: boolean): string {
           .map(
             (c, i) => `
               <button class="btn pcn" data-action="pcn" data-code="${c}" ${disabled ? "disabled" : ""}>
+                <span class="btn-icon">${stampX()}</span>
                 PCN ${c} — ${PCN_CODES[c]} <span class="kbd">${i + 1}</span>
               </button>
             `,
