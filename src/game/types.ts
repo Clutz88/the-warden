@@ -30,7 +30,13 @@ export type DocBlueBadge = {
   clockSetAt: number | null;
 };
 
-export type Doc = DocPayDisplay | DocPermit | DocBlueBadge;
+export type DocNote = {
+  type: "note";
+  from: string;
+  text: string;
+};
+
+export type Doc = DocPayDisplay | DocPermit | DocBlueBadge | DocNote;
 
 export type Violation = { code: string; label: string };
 
@@ -42,6 +48,7 @@ export type Car = {
   street: Street;
   docs: Doc[];
   truth: Violation[];
+  residentId?: string;
 };
 
 export type RuleCtx = {
@@ -55,6 +62,11 @@ export type Rule = {
   check: (ctx: RuleCtx) => Violation | null;
 };
 
+export type SupervisorConfig = {
+  sampleSize: number;
+  penaltyPerWrong: number;
+};
+
 export type DayDef = {
   day: number;
   briefing: string;
@@ -62,6 +74,9 @@ export type DayDef = {
   carCount: number;
   streets: string[];
   rent: number;
+  residentChance?: number;
+  residentPool?: string[];
+  supervisor?: SupervisorConfig;
 };
 
 export type ShiftLog = {
@@ -75,6 +90,18 @@ export type PlayerAction =
   | { kind: "pass" }
   | { kind: "pcn"; code: string };
 
+export type ResidentEncounter = {
+  day: number;
+  action: PlayerAction;
+  correct: boolean;
+};
+
+export type StoredSupervisorReview = {
+  sample: ShiftLog[];
+  wrongInSample: number;
+  penalty: number;
+};
+
 export type GameState = {
   day: number;
   clock: number;
@@ -83,5 +110,7 @@ export type GameState = {
   wages: number;
   mistakes: number;
   log: ShiftLog[];
-  phase: "briefing" | "shift" | "summary" | "gameover";
+  phase: "briefing" | "shift" | "summary" | "supervisor" | "gameover";
+  residentHistory: Record<string, ResidentEncounter[]>;
+  supervisorReview?: StoredSupervisorReview;
 };

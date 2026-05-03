@@ -277,6 +277,22 @@ body { background: var(--bg); }
 .doc.pd { background: #d6cfa8; }
 .doc.permit { background: #c5cda3; }
 .doc.blue-badge { background: #b4c2d6; }
+.doc.note { background: #e8e0c2; font-family: "VT323", "Courier New", monospace; }
+.doc.note .note-from {
+  font-family: "Silkscreen";
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #4a4233;
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+.doc.note .note-text {
+  font-style: italic;
+  color: #2a2415;
+  font-size: 17px;
+  line-height: 1.2;
+  white-space: pre-wrap;
+}
 .doc-body { padding: 10px 14px 12px; }
 .doc-perf {
   height: 8px;
@@ -456,6 +472,26 @@ body { background: var(--bg); }
   margin-top: 12px;
 }
 .modal .btn:hover { background: #d4be7e; color: #1a1a17; }
+
+/* SUPERVISOR */
+.supervisor h1 { color: #5a1a17; border-bottom-color: #5a1a17; }
+.supervisor .case {
+  border: 1px dashed #5a3a17;
+  padding: 6px 10px;
+  margin: 6px 0;
+  background: rgba(0,0,0,0.04);
+}
+.supervisor .case.bad { border-color: var(--bad); background: rgba(154,58,44,0.08); }
+.supervisor .case.good { border-color: var(--good); background: rgba(107,138,74,0.08); }
+.supervisor .verdict {
+  font-family: "Silkscreen";
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.supervisor .verdict.bad { color: var(--bad); }
+.supervisor .verdict.good { color: var(--good); }
+.supervisor .penalty { margin-top: 12px; }
 
 /* FEEDBACK */
 .feedback {

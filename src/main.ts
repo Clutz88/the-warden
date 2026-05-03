@@ -1,8 +1,17 @@
 import "./style.css";
-import { getState, setState, resetGame, subscribe } from "./game/state";
+import {
+  getState,
+  setState,
+  resetGame,
+  subscribe,
+  persistState,
+  loadState,
+  hydrate,
+} from "./game/state";
 import { generateCars } from "./game/cars";
 import { getDay, DAYS } from "./game/days";
-import type { PlayerAction, ShiftLog } from "./game/types";
+import { reviewShift } from "./game/supervisor";
+import type { PlayerAction, ShiftLog, ResidentEncounter } from "./game/types";
 import { renderHud } from "./ui/hud";
 import { renderScene } from "./ui/scene";
 import { renderDocs } from "./ui/docs";
@@ -11,6 +20,7 @@ import { renderActions } from "./ui/actions";
 import {
   renderBriefing,
   renderSummary,
+  renderSupervisor,
   renderGameComplete,
 } from "./ui/briefing";
 
@@ -28,6 +38,7 @@ function startDay(day: number): void {
     shiftStart: SHIFT_START,
     seed: 1000 * day + Math.floor(Math.random() * 1000),
   });
+  const prev = getState();
   setState({
     day,
     clock: SHIFT_START,
@@ -37,6 +48,8 @@ function startDay(day: number): void {
     mistakes: 0,
     log: [],
     phase: "briefing",
+    residentHistory: prev.residentHistory,
+    supervisorReview: undefined,
   });
 }
 
@@ -64,6 +77,16 @@ function judge(action: PlayerAction): void {
   const carIndex = s.carIndex + 1;
   const clock = s.clock + PER_CAR_MINUTES;
 
+  let residentHistory = s.residentHistory;
+  if (car.residentId) {
+    const entry: ResidentEncounter = { day: s.day, action, correct };
+    const existing = residentHistory[car.residentId] ?? [];
+    residentHistory = {
+      ...residentHistory,
+      [car.residentId]: [...existing, entry],
+    };
+  }
+
   flashFeedback(correct, truth, action);
 
   if (carIndex >= s.cars.length) {
@@ -74,6 +97,7 @@ function judge(action: PlayerAction): void {
       carIndex,
       clock,
       phase: "summary",
+      residentHistory,
     });
   } else {
     setState({
@@ -82,6 +106,7 @@ function judge(action: PlayerAction): void {
       mistakes,
       carIndex,
       clock,
+      residentHistory,
     });
   }
 }
@@ -97,7 +122,7 @@ function flashFeedback(
     el.textContent = action.kind === "pass" ? "✓ Correct — clean car" : `✓ Correct — PCN ${action.code}`;
   } else {
     if (action.kind === "pass" && truth.length) {
-      el.textContent = `✗ Missed PCN ${truth[0].code}: ${truth[0].label}`;
+      el.textContent = `✗ Missed PCN ${truth[0]!.code}: ${truth[0]!.label}`;
     } else if (action.kind === "pcn" && !truth.length) {
       el.textContent = `✗ Wrongful PCN — car was clean`;
     } else if (action.kind === "pcn") {
@@ -108,6 +133,23 @@ function flashFeedback(
   setTimeout(() => el.remove(), 1700);
 }
 
+function advanceFromSummary(): void {
+  const s = getState();
+  if (s.phase !== "summary") return;
+  const def = getDay(s.day);
+  if (!def.supervisor) {
+    nextDay();
+    return;
+  }
+  const review = reviewShift(s.log, def.supervisor, Math.random);
+  const wagesAfter = s.wages - review.penalty;
+  setState({
+    phase: "supervisor",
+    wages: wagesAfter,
+    supervisorReview: review,
+  });
+}
+
 function nextDay(): void {
   const s = getState();
   if (s.day >= DAYS.length) {
@@ -115,6 +157,11 @@ function nextDay(): void {
     return;
   }
   startDay(s.day + 1);
+}
+
+function continuePrevious(): void {
+  const saved = loadState();
+  if (saved) hydrate(saved);
 }
 
 function render(): void {
@@ -134,14 +181,19 @@ function render(): void {
   removeOverlays();
 
   if (s.phase === "briefing") {
-    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day));
+    if (s.day > 1) persistState();
+    const hasSave = s.day === 1 && loadState() !== null;
+    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day, hasSave));
   }
   if (s.phase === "summary") {
     const def = getDay(s.day);
     const correct = s.log.filter((l) => l.correct).length;
     const wrong = s.log.length - correct;
     const passed = s.wages >= def.rent;
-    if (passed) persistHighDay(s.day);
+    if (passed) {
+      persistHighDay(s.day);
+      persistState();
+    }
     document.body.insertAdjacentHTML(
       "beforeend",
       renderSummary({
@@ -151,6 +203,24 @@ function render(): void {
         wages: s.wages,
         rent: def.rent,
         passed,
+        hasSupervisor: !!def.supervisor,
+      }),
+    );
+  }
+  if (s.phase === "supervisor") {
+    const def = getDay(s.day);
+    const review = s.supervisorReview;
+    if (!def.supervisor || !review) {
+      nextDay();
+      return;
+    }
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      renderSupervisor({
+        day: s.day,
+        rent: def.rent,
+        wagesAfter: s.wages,
+        review,
       }),
     );
   }
@@ -177,6 +247,8 @@ function bindGlobalEvents(): void {
     if (!action) return;
     if (action === "start-shift") return startShift();
     if (action === "next-day") return nextDay();
+    if (action === "advance-from-summary") return advanceFromSummary();
+    if (action === "continue") return continuePrevious();
     if (action === "restart") {
       resetGame();
       startDay(1);
@@ -195,6 +267,9 @@ function bindGlobalEvents(): void {
       if (e.key === "Enter") {
         if (s.phase === "briefing") startShift();
         else if (s.phase === "summary") {
+          const def = getDay(s.day);
+          if (s.wages >= def.rent) advanceFromSummary();
+        } else if (s.phase === "supervisor") {
           const def = getDay(s.day);
           if (s.wages >= def.rent) nextDay();
         }

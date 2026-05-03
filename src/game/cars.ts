@@ -2,6 +2,8 @@ import type { Car, Doc, Street, ZoneCode } from "./types";
 import { streetsForDay, STREETS } from "./streets";
 import { activeRules } from "./rules";
 import { validate } from "./validate";
+import { getDay } from "./days";
+import { maybeResident } from "./residents";
 
 const COLOURS = ["Red", "Blue", "Black", "Silver", "White", "Green", "Grey"];
 const MODELS = [
@@ -80,11 +82,17 @@ export function generateCars(opts: GenOpts): Car[] {
   const r = rng(opts.seed);
   const streets = streetsForDay(opts.day);
   const rules = activeRules(opts.day);
+  const def = getDay(opts.day);
   const cars: Car[] = [];
 
   for (let i = 0; i < opts.count; i++) {
     const street = pick(streets, r);
-    const carPlate = plate(r);
+    const resident = maybeResident({
+      pool: def.residentPool,
+      chance: def.residentChance,
+      rand: r,
+    });
+    const carPlate = resident ? resident.plate : plate(r);
     const docs = generateDocs(opts.day, street, carPlate, opts.shiftStart, r);
     const car: Car = {
       id: `car-${i}`,
@@ -94,6 +102,7 @@ export function generateCars(opts: GenOpts): Car[] {
       street,
       docs,
       truth: [],
+      ...(resident ? { residentId: resident.id } : {}),
     };
     const truth = validate(car, rules, opts.shiftStart + 30);
     car.truth = truth;

@@ -81,6 +81,16 @@ export function renderDocPaper(d: Doc): string {
     `;
     return paperWrap("permit", inner);
   }
+  if (d.type === "note") {
+    const inner = `
+      <div class="doc-head">
+        <div class="doc-title">NOTE FROM DRIVER</div>
+      </div>
+      <div class="note-from">${d.from}</div>
+      <div class="note-text">${d.text}</div>
+    `;
+    return paperWrap("note", inner);
+  }
   if (d.type === "blue-badge") {
     const inner = `
       <div class="doc-head">
