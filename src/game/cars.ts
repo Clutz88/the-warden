@@ -1,9 +1,9 @@
-import type { Car, Doc, Street, ZoneCode } from "./types";
+import type { Car, Doc, Street, ZoneCode, ResidentEncounter } from "./types";
 import { streetsForDay, STREETS } from "./streets";
 import { activeRules } from "./rules";
 import { validate } from "./validate";
 import { getDay } from "./days";
-import { maybeResident } from "./residents";
+import { maybeResident, pickNote } from "./residents";
 
 const COLOURS = ["Red", "Blue", "Black", "Silver", "White", "Green", "Grey"];
 const MODELS = [
@@ -76,6 +76,7 @@ export type GenOpts = {
   count: number;
   shiftStart: number;
   seed: number;
+  residentHistory?: Record<string, ResidentEncounter[]>;
 };
 
 export function generateCars(opts: GenOpts): Car[] {
@@ -94,6 +95,11 @@ export function generateCars(opts: GenOpts): Car[] {
     });
     const carPlate = resident ? resident.plate : plate(r);
     const docs = generateDocs(opts.day, street, carPlate, opts.shiftStart, r);
+    if (resident) {
+      const history = opts.residentHistory?.[resident.id] ?? [];
+      const text = pickNote(resident, history);
+      if (text) docs.push({ type: "note", from: resident.name, text });
+    }
     const car: Car = {
       id: `car-${i}`,
       plate: carPlate,

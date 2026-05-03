@@ -4,6 +4,22 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.5.0] — 2026-05-03
+
+### Added
+- **Day 5 — Familiar Faces.** Residents return for a second shift; their dashboard notes now react to your Day 4 decisions. PCN'd Margaret? She'll plead about Walter's hospital bill. Let Bernard off? He'll thank you for the leniency. Let Derek off? He'll smirk. Same regulations as Day 4, but `residentChance` rises to 0.4 and rent climbs to £75.
+- `pickNote(resident, history)` chooses from an ordered `NoteVariant[]` (first matching predicate wins) with the static `note` as fallback. Predicates are pure functions over `ResidentEncounter[]`; no RNG.
+- `GenOpts.residentHistory` plumbed into `generateCars` so per-day note selection has the cross-day context it needs. State already carried `residentHistory` across days; this just exposes it to the generator.
+
+## [0.4.0] — 2026-05-03
+
+### Added
+- **Day 4 — Fixed Beat.** Same regulations as Day 3, but the council now assigns recurring residents on your patrol and the supervisor spot-checks 3 of your decisions at end of shift (£5 deduction per missed PCN or wrongful ticket). Rent rises to £60.
+- Three named residents — Margaret Dawes (carer, often runs late), Bernard Holland (taxi, paperwork lagging), Derek Foster (plumber, disputes everything). Each carries a one-line note on the dashboard pleading their case. Notes do not change the rules; the supervisor reviews on facts only.
+
+### Changed
+- `maybeResident` now treats an empty `residentPool` array as "never draw" (matches the CLAUDE.md contract); `undefined` still means "no whitelist, use full registry".
+
 ## [0.3.2]
 
 ### Added

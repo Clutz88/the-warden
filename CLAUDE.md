@@ -60,10 +60,10 @@ Adding a Day-N mechanic should NOT require engine changes. Pattern:
 
 Residents are NPCs whose plate (and optional dialogue note) appear across days. Engine support lives in `src/game/residents.ts`.
 
-1. Append a `Resident` to `RESIDENTS` in `src/game/residents.ts` with `id`, `name`, `plate`, `bio`.
-2. On the day they should appear, set `residentChance` (0–1) and optionally `residentPool: [id, …]` in the `DAYS` entry. Empty pool / 0 chance = never drawn.
-3. Optionally attach a `DocNote` to the car via `generateDocs` when the resident is detected (`car.residentId`).
-4. The car generator already records `car.residentId`; `judge()` appends to `state.residentHistory[id]` automatically.
+1. Append a `Resident` to `RESIDENTS` with `id`, `name`, `plate`, `bio`.
+2. Optional: a baseline `note` string (shown when no variant matches), and a `notes: NoteVariant[]` for reactive notes that read `ResidentEncounter[]` (per-resident history) and return text. Variants are evaluated in order — **most-specific first, fallback last**. Predicates must be pure.
+3. On the day they should appear, set `residentChance` (0–1) and optionally `residentPool: [id, …]` in the `DAYS` entry. Empty pool / 0 chance = never drawn.
+4. The car generator records `car.residentId`, attaches the picked note to `car.docs`, and `judge()` appends each encounter to `state.residentHistory[id]` automatically. History persists across days and across save/load.
 
 ## Enabling supervisor review on a day
 
@@ -80,6 +80,7 @@ Full `GameState` is persisted to `localStorage["warden:save"]` at end-of-day. On
 - Fictional council: **Borough of Ashbridge**. Keep all flavour text consistent with that name.
 - Keyboard: `P` = PASS, `1/2/3` = PCN buttons in order, `Enter` = advance briefing/summary.
 - Player wage: +£10 correct, −£8 wrong. End-of-day rent in `DAYS[i].rent` — fail to make rent → game over.
+- **Commits and PRs**: do not add `Co-Authored-By: Claude` trailers (or any AI co-author trailer) and do not add the "🤖 Generated with Claude Code" footer in PR bodies. Author commits cleanly.
 
 ## Versioning
 
@@ -99,4 +100,4 @@ Add a `CHANGELOG.md` entry in the same change. Pending items live under `## [Unr
 
 ## Out of scope (future days)
 
-DVLA tax/MOT terminal, forged-permit discrepancies (plate on permit ≠ plate on car already in `permit-zone-match`; can extend to date / holder name), suspended bays, loading bay time windows, school keep-clear zigzags. (Recurring residents and supervisor inspections are now engine-supported but not yet enabled in any `DAYS` entry — content drop pending.)
+DVLA tax/MOT terminal, forged-permit discrepancies (plate on permit ≠ plate on car already in `permit-zone-match`; can extend to date / holder name), suspended bays, loading bay time windows, school keep-clear zigzags. Reactive notes that vary based on `residentHistory` (Day 5+).

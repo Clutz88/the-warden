@@ -11,15 +11,29 @@ function constRand(value: number): () => number {
 }
 
 describe("residents registry", () => {
-  it("empty by default — engine extension only", () => {
-    expect(RESIDENTS.length).toBe(0);
+  it("contains the Day 4 narrative cast", () => {
+    const ids = RESIDENTS.map((r) => r.id);
+    expect(ids).toEqual(
+      expect.arrayContaining(["margaret-dawes", "bernard-holland", "derek-foster"]),
+    );
   });
 
-  it("residentByPlate returns null when registry empty", () => {
-    expect(residentByPlate("AB12 CDE")).toBeNull();
+  it("each resident has a unique plate", () => {
+    const plates = RESIDENTS.map((r) => r.plate);
+    expect(new Set(plates).size).toBe(plates.length);
   });
 
-  it("residentById returns null when registry empty", () => {
+  it("residentByPlate finds known residents", () => {
+    const r = residentByPlate("MD51 GET");
+    expect(r?.id).toBe("margaret-dawes");
+  });
+
+  it("residentByPlate returns null for unknown plates", () => {
+    expect(residentByPlate("ZZ99 ZZZ")).toBeNull();
+  });
+
+  it("residentById round-trips", () => {
+    expect(residentById("derek-foster")?.name).toBe("DEREK FOSTER");
     expect(residentById("nope")).toBeNull();
   });
 });
@@ -33,8 +47,10 @@ describe("maybeResident", () => {
     expect(maybeResident({ chance: 0, rand: constRand(0) })).toBeNull();
   });
 
-  it("returns null when registry is empty even with chance=1", () => {
-    expect(maybeResident({ chance: 1, rand: constRand(0) })).toBeNull();
+  it("returns null when pool is empty whitelist", () => {
+    expect(
+      maybeResident({ chance: 1, pool: [], rand: constRand(0) }),
+    ).toBeNull();
   });
 
   it("does not consume RNG when chance is 0 (determinism guard)", () => {
@@ -47,19 +63,22 @@ describe("maybeResident", () => {
     expect(calls).toBe(0);
   });
 
-  it("returns a resident from a non-empty pool when roll passes", () => {
-    const stub = {
-      id: "test",
-      name: "TEST DRIVER",
-      plate: "TT01 EST",
-      bio: "stub",
-    };
-    RESIDENTS.push(stub);
-    try {
-      const got = maybeResident({ chance: 1, rand: constRand(0) });
-      expect(got).toBe(stub);
-    } finally {
-      RESIDENTS.pop();
-    }
+  it("returns the only pool member when chance=1", () => {
+    const got = maybeResident({
+      chance: 1,
+      pool: ["bernard-holland"],
+      rand: constRand(0),
+    });
+    expect(got?.id).toBe("bernard-holland");
+  });
+
+  it("returns null on a chance roll that fails", () => {
+    // chance=0.3, rand returns 0.5 → 0.5 >= 0.3 → null
+    const got = maybeResident({
+      chance: 0.3,
+      pool: ["margaret-dawes"],
+      rand: constRand(0.5),
+    });
+    expect(got).toBeNull();
   });
 });
