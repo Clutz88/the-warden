@@ -33,13 +33,14 @@ const HIGH_DAY_KEY = "warden:highDay";
 
 function startDay(day: number): void {
   const def = getDay(day);
+  const prev = getState();
   const cars = generateCars({
     day,
     count: def.carCount,
     shiftStart: SHIFT_START,
     seed: 1000 * day + Math.floor(Math.random() * 1000),
+    residentHistory: prev.residentHistory,
   });
-  const prev = getState();
   setState({
     day,
     clock: SHIFT_START,

@@ -45,6 +45,50 @@ export const DAYS: DayDef[] = [
     ],
     rent: 55,
   },
+  {
+    day: 4,
+    briefing:
+      "The Borough has assigned you a fixed beat. You'll start to recognise faces — and you'll be expected to enforce the rules without fear or favour. The council inspector will spot-check your decisions at end of shift.",
+    newRuleSummary: [
+      "All Day 1–3 rules remain in force.",
+      "Some drivers may leave a note on the dashboard. Notes do not change the regulations.",
+      "Supervisor review: 3 of your decisions will be sampled. £5 deducted per missed PCN or wrongful ticket.",
+    ],
+    carCount: 10,
+    streets: [
+      "High Road",
+      "Market Street",
+      "Abbey Close",
+      "Victoria Terrace",
+      "Church Lane",
+    ],
+    rent: 60,
+    residentChance: 0.3,
+    residentPool: ["margaret-dawes", "bernard-holland", "derek-foster"],
+    supervisor: { sampleSize: 3, penaltyPerWrong: 5 },
+  },
+  {
+    day: 5,
+    briefing:
+      "Word travels. The drivers you ticketed yesterday have made up their minds about you. Some have left fresh notes on their dashboards. They will not change the regulations.",
+    newRuleSummary: [
+      "All Day 1–4 rules remain in force.",
+      "Recurring residents may reference yesterday's decisions in their notes.",
+      "Supervisor review continues — sample of 3, £5 per error.",
+    ],
+    carCount: 12,
+    streets: [
+      "High Road",
+      "Market Street",
+      "Abbey Close",
+      "Victoria Terrace",
+      "Church Lane",
+    ],
+    rent: 75,
+    residentChance: 0.4,
+    residentPool: ["margaret-dawes", "bernard-holland", "derek-foster"],
+    supervisor: { sampleSize: 3, penaltyPerWrong: 5 },
+  },
 ];
 
 export function getDay(n: number): DayDef {
