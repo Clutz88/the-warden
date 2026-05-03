@@ -24,9 +24,11 @@ import {
   renderGameComplete,
 } from "./ui/briefing";
 import { startMusic, setMuted, isMuted } from "./audio/music";
-import { inject } from "@vercel/analytics"
+import { inject } from "@vercel/analytics";
 
-inject()
+inject({
+  mode: import.meta.env.MODE === "production" ? "production" : "development",
+});
 
 const SHIFT_START = 9 * 60;
 const PER_CAR_MINUTES = 12;
