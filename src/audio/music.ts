@@ -49,7 +49,7 @@ export function startMusic(): void {
   masterGain.gain.value = muted ? 0 : MASTER_LEVEL;
   masterGain.connect(ctx.destination);
   drumBus = ctx.createGain();
-  drumBus.gain.value = 0.55;
+  drumBus.gain.value = 2.2;
   drumBus.connect(masterGain);
   melodyBus = ctx.createGain();
   melodyBus.gain.value = 0.45;
