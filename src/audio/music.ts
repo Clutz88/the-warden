@@ -15,9 +15,11 @@ const CHORD_MS = 4000;
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let drumBus: GainNode | null = null;
+let melodyBus: GainNode | null = null;
 let noiseBuffer: AudioBuffer | null = null;
 let muted = readMuted();
 let started = false;
+let melodyCooldown = 2; // chords until next phrase
 
 function readMuted(): boolean {
   try {
@@ -49,6 +51,21 @@ export function startMusic(): void {
   drumBus = ctx.createGain();
   drumBus.gain.value = 0.55;
   drumBus.connect(masterGain);
+  melodyBus = ctx.createGain();
+  melodyBus.gain.value = 0.45;
+  melodyBus.connect(masterGain);
+  // Light feedback delay sweetens lead lines without turning into a wash.
+  const delay = ctx.createDelay(1.0);
+  delay.delayTime.value = 0.42;
+  const feedback = ctx.createGain();
+  feedback.gain.value = 0.32;
+  const wet = ctx.createGain();
+  wet.gain.value = 0.28;
+  melodyBus.connect(delay);
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(wet);
+  wet.connect(masterGain);
   started = true;
   scheduleChord(0);
 }
@@ -102,8 +119,128 @@ function scheduleChord(idx: number): void {
   }
 
   scheduleDrums(startAt, dur);
+  maybeScheduleMelody(idx, startAt, dur);
 
   setTimeout(() => scheduleChord((idx + 1) % PROGRESSION.length), CHORD_MS);
+}
+
+// A natural minor scale (octave 4/5). Lower register sits closer to the pad,
+// helping the lead blend with the underlying voicings instead of cutting over.
+const N = {
+  A4: 440.0, B4: 493.88, C5: 523.25, D5: 587.33,
+  E5: 659.25, F5: 698.46, G5: 784.0, A5: 880.0,
+};
+
+type Note = { f: number; beats: number };
+
+// Composed 8-bar lead, one bar per chord across the full progression twice.
+// Bar boundaries align with PROGRESSION (Am F Cmaj7 Esus4 | Am F Cmaj7 Esus4),
+// so the melody must only be triggered when chordIdx === 0.
+//   A: opening — tonic, gentle stepwise motion (Am)
+//   B: leap to F natural for colour, settle on F (F)
+//   C: descending answer through C major's 3rd & 5th (Cmaj7)
+//   D: turn around the dominant centre on E (Esus4)
+//   E: rises higher to A5 — climactic phrase (Am)
+//   F: reaches G5, descends back to F (F)
+//   G: stepwise resolution toward C (Cmaj7)
+//   H: half cadence, breath before loop (Esus4)
+const MELODY: Note[] = [
+  // bar A — Am
+  { f: N.A4, beats: 2 }, { f: N.C5, beats: 1 }, { f: N.B4, beats: 1 },
+  // bar B — F
+  { f: N.A4, beats: 1 }, { f: N.C5, beats: 1 }, { f: N.F5, beats: 2 },
+  // bar C — Cmaj7
+  { f: N.E5, beats: 1 }, { f: N.D5, beats: 0.5 }, { f: N.C5, beats: 0.5 }, { f: N.D5, beats: 2 },
+  // bar D — Esus4
+  { f: N.E5, beats: 2 }, { f: N.B4, beats: 1 }, { f: N.A4, beats: 1 },
+  // bar E — Am (answer, higher)
+  { f: N.C5, beats: 1 }, { f: N.E5, beats: 1 }, { f: N.A5, beats: 2 },
+  // bar F — F
+  { f: N.G5, beats: 1 }, { f: N.F5, beats: 0.5 }, { f: N.E5, beats: 0.5 }, { f: N.F5, beats: 2 },
+  // bar G — Cmaj7
+  { f: N.E5, beats: 1 }, { f: N.D5, beats: 1 }, { f: N.C5, beats: 2 },
+  // bar H — Esus4 (half cadence)
+  { f: N.B4, beats: 2 }, { f: N.A4, beats: 2 },
+];
+
+function maybeScheduleMelody(chordIdx: number, startAt: number, chordDur: number): void {
+  if (!ctx || !melodyBus) return;
+  // Lead phrases span the full 8-bar progression, so only kick off on Am.
+  if (chordIdx !== 0) return;
+  if (--melodyCooldown > 0) return;
+  // Sit out 2-4 full progressions (32-64s) before the next rendition.
+  melodyCooldown = 4 * (2 + Math.floor(Math.random() * 3));
+
+  const beat = chordDur / 4;
+  let t = startAt;
+  for (let i = 0; i < MELODY.length; i++) {
+    const note = MELODY[i];
+    const next = MELODY[i + 1];
+    const dur = note.beats * beat;
+    // Tie into the next note (or longer release at phrase end) for legato.
+    const tail = next ? Math.min(0.18, dur * 0.4) : 0.6;
+    playMelodyNote(t, note.f, dur, tail);
+    t += dur;
+  }
+}
+
+function playMelodyNote(at: number, freq: number, dur: number, tail: number): void {
+  if (!ctx || !melodyBus) return;
+  const total = dur + tail;
+
+  // Voice 1: triangle main.
+  const osc = ctx.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.value = freq;
+  // Voice 2: sine an octave below at low gain — adds body, blends with pad.
+  const sub = ctx.createOscillator();
+  sub.type = "sine";
+  sub.frequency.value = freq / 2;
+
+  // Filter: keep highs in check so the lead doesn't sit "on top".
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 1500;
+  filter.Q.value = 0.3;
+
+  const env = ctx.createGain();
+  const subGain = ctx.createGain();
+  subGain.gain.value = 0.35;
+
+  // Soft attack and longer release for vocal-like phrasing.
+  const peak = 0.42;
+  const attack = Math.min(0.12, dur * 0.35);
+  const decayTo = 0.32;
+  const decay = Math.min(0.25, dur * 0.4);
+  const sustainEnd = at + dur;
+  env.gain.setValueAtTime(0.0001, at);
+  env.gain.exponentialRampToValueAtTime(peak, at + attack);
+  env.gain.exponentialRampToValueAtTime(decayTo, at + attack + decay);
+  env.gain.setValueAtTime(decayTo, sustainEnd);
+  env.gain.exponentialRampToValueAtTime(0.0001, at + total);
+
+  // Gentle vibrato on notes that hold long enough to need it.
+  if (dur >= 0.6) {
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = 5.2;
+    lfoGain.gain.value = 6; // cents
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.detune);
+    lfoGain.connect(sub.detune);
+    lfo.start(at + attack * 0.5);
+    lfo.stop(at + total);
+  }
+
+  osc.connect(filter);
+  sub.connect(subGain);
+  subGain.connect(filter);
+  filter.connect(env);
+  env.connect(melodyBus);
+  osc.start(at);
+  osc.stop(at + total + 0.05);
+  sub.start(at);
+  sub.stop(at + total + 0.05);
 }
 
 function getNoiseBuffer(c: AudioContext): AudioBuffer {

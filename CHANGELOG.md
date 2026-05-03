@@ -4,6 +4,11 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.3.2]
+
+### Added
+- Composed 8-bar lead melody (one bar per chord across the whole progression) replacing the earlier random per-chord phrases. Triggers only when the loop returns to Am, then rests 2–4 full progressions before the next rendition. Melody voice now blends into the pad: lower octave, sub-sine doubling, lowpass at 1.5 kHz, soft vocal-like ADSR with legato tails, and gentle vibrato on long notes. Routed through a feedback delay send for ambience, still gated by master mute.
+
 ## [0.3.1]
 
 ### Added
