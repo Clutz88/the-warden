@@ -24,6 +24,9 @@ import {
   renderGameComplete,
 } from "./ui/briefing";
 import { startMusic, setMuted, isMuted } from "./audio/music";
+import { inject } from "@vercel/analytics"
+
+inject()
 
 const SHIFT_START = 9 * 60;
 const PER_CAR_MINUTES = 12;
@@ -66,7 +69,7 @@ function judge(action: PlayerAction): void {
   if (!car) return;
 
   const truth = car.truth;
-  let correct = false;
+  let correct: boolean;
   if (action.kind === "pass") {
     correct = truth.length === 0;
   } else {
