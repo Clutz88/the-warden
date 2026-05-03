@@ -23,6 +23,7 @@ import {
   renderSupervisor,
   renderGameComplete,
 } from "./ui/briefing";
+import { startMusic, setMuted, isMuted } from "./audio/music";
 
 const SHIFT_START = 9 * 60;
 const PER_CAR_MINUTES = 12;
@@ -245,7 +246,16 @@ function bindGlobalEvents(): void {
     const t = e.target as HTMLElement;
     const action = t.closest<HTMLElement>("[data-action]")?.dataset.action;
     if (!action) return;
-    if (action === "start-shift") return startShift();
+    if (action === "toggle-mute") {
+      startMusic();
+      setMuted(!isMuted());
+      render();
+      return;
+    }
+    if (action === "start-shift") {
+      startMusic();
+      return startShift();
+    }
     if (action === "next-day") return nextDay();
     if (action === "advance-from-summary") return advanceFromSummary();
     if (action === "continue") return continuePrevious();
@@ -263,9 +273,18 @@ function bindGlobalEvents(): void {
 
   document.addEventListener("keydown", (e) => {
     const s = getState();
+    if (e.key === "m" || e.key === "M") {
+      startMusic();
+      setMuted(!isMuted());
+      render();
+      return;
+    }
     if (s.phase !== "shift") {
       if (e.key === "Enter") {
-        if (s.phase === "briefing") startShift();
+        if (s.phase === "briefing") {
+          startMusic();
+          startShift();
+        }
         else if (s.phase === "summary") {
           const def = getDay(s.day);
           if (s.wages >= def.rent) advanceFromSummary();

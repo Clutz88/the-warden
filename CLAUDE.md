@@ -90,6 +90,8 @@ Bump `package.json` (and matching `package-lock.json` entries) on meaningful cha
 
 Bump as part of the same change that introduces the feature/fix — not a separate commit.
 
+Add a `CHANGELOG.md` entry in the same change. Pending items live under `## [Unreleased]`; on release/tag, move them under the new version heading with the date.
+
 ## Known quirks
 
 - `bindGlobalEvents` is guarded by `window.__wardenBound` so Vite HMR re-running `main.ts` doesn't double-bind click/key handlers.
