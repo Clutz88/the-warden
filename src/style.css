@@ -104,7 +104,7 @@ body { background: var(--bg); }
   min-height: 280px;
 }
 .scene .street-label {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 10px;
   color: var(--ink-dim);
   letter-spacing: 3px;
@@ -112,7 +112,7 @@ body { background: var(--bg); }
   margin-bottom: 4px;
 }
 .scene .street-name {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 14px;
   color: var(--accent);
   letter-spacing: 2px;
@@ -220,7 +220,7 @@ body { background: var(--bg); }
   left: 0;
   right: 0;
   text-align: center;
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 10px;
   color: #1a1a17;
   letter-spacing: 1px;
@@ -235,7 +235,7 @@ body { background: var(--bg); }
   gap: 4px;
 }
 .model-label {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 10px;
   letter-spacing: 2px;
   color: var(--ink-dim);
@@ -251,7 +251,7 @@ body { background: var(--bg); }
 .plate {
   background: var(--accent);
   color: #1a1a17;
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 12px;
   padding: 3px 8px;
   letter-spacing: 3px;
@@ -269,7 +269,7 @@ body { background: var(--bg); }
   overflow-y: auto;
 }
 .docs h2 {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 10px;
   letter-spacing: 3px;
   color: var(--ink-dim);
@@ -292,7 +292,7 @@ body { background: var(--bg); }
 .doc.blue-badge { background: #b4c2d6; }
 .doc.note { background: #e8e0c2; font-family: "VT323", "Courier New", monospace; }
 .doc.note .note-from {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 9px;
   letter-spacing: 2px;
   color: #4a4233;
@@ -327,7 +327,7 @@ body { background: var(--bg); }
 .doc-crest { width: 22px; height: 22px; flex-shrink: 0; }
 .doc-crest svg { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
 .doc-title {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 11px;
   letter-spacing: 2px;
   color: #1a1a17;
@@ -371,7 +371,7 @@ body { background: var(--bg); }
   line-height: 1.2;
 }
 .rulebook h2 {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 10px;
   letter-spacing: 3px;
   color: var(--accent);
@@ -456,7 +456,7 @@ body { background: var(--bg); }
   line-height: 1.2;
 }
 .modal h1 {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   color: #1a1a17;
   font-size: 14px;
   letter-spacing: 3px;
@@ -465,7 +465,7 @@ body { background: var(--bg); }
   border-bottom: 2px solid #1a1a17;
 }
 .modal h3 {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   color: #5a3a17;
   font-size: 10px;
   letter-spacing: 2px;
@@ -497,7 +497,7 @@ body { background: var(--bg); }
 .supervisor .case.bad { border-color: var(--bad); background: rgba(154,58,44,0.08); }
 .supervisor .case.good { border-color: var(--good); background: rgba(107,138,74,0.08); }
 .supervisor .verdict {
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 9px;
   letter-spacing: 2px;
   margin-top: 4px;
@@ -514,7 +514,7 @@ body { background: var(--bg); }
   padding: 10px 16px;
   border: 2px solid var(--border);
   background: var(--panel);
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 11px;
   letter-spacing: 2px;
   z-index: 50;
@@ -536,7 +536,7 @@ body { background: var(--bg); }
   background: var(--panel2);
   border: 1px solid var(--border);
   padding: 1px 5px;
-  font-family: "Silkscreen";
+  font-family: "Silkscreen", 'Courier New', monospace, fantasy;
   font-size: 9px;
   margin-left: 6px;
   color: var(--ink-dim);
@@ -546,4 +546,83 @@ body { background: var(--bg); }
 svg.spr, svg.car-svg {
   image-rendering: pixelated;
   shape-rendering: crispEdges;
+}
+
+/* MOBILE — initial support, < 700px viewport.
+   Stacks the layout, lets HUD wrap, and gives touch-friendly buttons. */
+@media (max-width: 700px) {
+  :root { font-size: 16px; }
+
+  #app {
+    grid-template-rows: auto auto auto auto auto;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hud"
+      "scene"
+      "docs"
+      "rules"
+      "actions";
+    gap: 4px;
+    padding: 4px;
+  }
+
+  /* HUD wraps; mute button still anchors right */
+  .hud {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    min-height: 56px;
+  }
+  .hud .title { font-size: 12px; letter-spacing: 2px; }
+
+  /* Scene — give the car SVG room to scale, keep aspect contained */
+  .scene { padding: 8px; min-height: 240px; }
+  .car-svg { width: 100%; max-width: 320px; }
+
+  /* Docs / rulebook stacked, small caps headings stay readable */
+  .docs, .rulebook { padding: 8px 10px; }
+  .doc-body { padding: 8px 10px 10px; }
+  .doc { font-size: 16px; }
+
+  /* Actions — full-width column, large tap targets */
+  .actions {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    padding: 8px;
+    gap: 6px;
+    min-height: 0;
+  }
+  .actions .btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: left;
+    white-space: normal;
+  }
+  .pcn-picker {
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+  }
+  .pcn-picker .btn {
+    flex: 1 1 auto;
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Modals — fit narrow viewport, scroll if tall */
+  .modal {
+    padding: 14px 16px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    font-size: 16px;
+  }
+  .modal h1 { font-size: 12px; letter-spacing: 2px; }
+  .modal .btn { width: 100%; }
 }
