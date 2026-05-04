@@ -1,5 +1,5 @@
 import { getDay, DAYS } from "../game/days";
-import { PCN_CODES } from "../game/rules";
+import { RULES } from "../game/rules";
 
 export function renderRulebook(day: number): string {
   const cumulative = DAYS.slice(0, day);
@@ -21,9 +21,7 @@ export function renderRulebook(day: number): string {
       </ul>
       <h2 style="margin-top:14px;">PCN Codes</h2>
       <ul>
-        ${Object.entries(PCN_CODES)
-          .map(([c, l]) => `<li><b>${c}</b> — ${l}</li>`)
-          .join("")}
+        ${RULES.map((r) => `<li><b>${r.code}</b> — ${r.label}</li>`).join("")}
       </ul>
     </div>
   `;

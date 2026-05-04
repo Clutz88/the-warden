@@ -1,4 +1,5 @@
 import type { Street } from "./types";
+import { DAYS, getDay } from "./days";
 
 export const STREETS: Record<string, Street> = {
   highRoad: {
@@ -40,21 +41,17 @@ export const STREETS: Record<string, Street> = {
 };
 
 export function streetsForDay(day: number): Street[] {
-  if (day === 1) return [STREETS.highRoad, STREETS.marketSt];
-  if (day === 2)
-    return [
-      STREETS.highRoad,
-      STREETS.marketSt,
-      STREETS.abbeyClose,
-      STREETS.victoriaTerr,
-    ];
-  if (day <= 5)
-    return [
-      STREETS.highRoad,
-      STREETS.marketSt,
-      STREETS.abbeyClose,
-      STREETS.victoriaTerr,
-      STREETS.churchLane,
-    ];
-  return Object.values(STREETS);
+  return getDay(day).streets.map((id) => {
+    const s = STREETS[id];
+    if (!s) throw new Error(`Unknown street id "${id}" on day ${day}`);
+    return s;
+  });
+}
+
+for (const d of DAYS) {
+  for (const id of d.streets) {
+    if (!STREETS[id]) {
+      throw new Error(`DAYS[day=${d.day}] references unknown street id "${id}"`);
+    }
+  }
 }

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { activeRules } from "../game/rules";
+import { RULES, activeRules } from "../game/rules";
 import { validate } from "../game/validate";
 import { STREETS } from "../game/streets";
+import { DAYS } from "../game/days";
 import type { Car, Doc } from "../game/types";
 
 const SHIFT_START = 9 * 60;
@@ -196,5 +197,19 @@ describe("Day 6 — loading bay", () => {
       NOW,
     );
     expect(v.map((x) => x.code)).toEqual(["01"]);
+  });
+});
+
+describe("Registry integrity", () => {
+  it("RULES carries the expected PCN codes", () => {
+    expect(RULES.map((r) => r.code).sort()).toEqual(["01", "12", "25", "40"]);
+  });
+
+  it("every DAYS[i].streets id resolves in STREETS", () => {
+    for (const d of DAYS) {
+      for (const id of d.streets) {
+        expect(STREETS[id], `day ${d.day}: unknown street "${id}"`).toBeDefined();
+      }
+    }
   });
 });

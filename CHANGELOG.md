@@ -4,6 +4,14 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.9.1] — 2026-05-04
+
+### Changed
+- **Registry refactor — easier content additions.** Three structural cleanups, no player-visible change:
+  - PCN `code` + `label` now live directly on each `Rule` in `src/game/rules.ts`. `actions.ts` and the rulebook derive their button order and label list from `RULES` itself; the separate `CODE_ORDER` array, the rule-id → code if-chain in `actions.ts`, and the day-number ladder in `main.ts:activePcnCodes` are gone. `Rule.check` now returns `boolean` (the violation is constructed by `validate.ts` from `rule.code` + `rule.label`).
+  - `DAYS[i].streets` now holds `STREETS` ids (e.g. `"highRoad"`), and `streetsForDay(day)` derives the active set from there. The hardcoded day-number ladder in `streets.ts` is gone. Boot-time validation throws on unknown ids.
+  - Per-street-kind doc generation moved into a `DOC_BUILDERS: Record<StreetKind, …>` registry in `cars.ts`. The exhaustive Record is the type-level proof that every kind has a builder; the cross-cutting "decoy P&D doc" stays as a post-step.
+
 ## [0.9.0] — 2026-05-04
 
 ### Added

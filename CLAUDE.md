@@ -49,12 +49,11 @@ src/
 
 Adding a Day-N mechanic should NOT require engine changes. Pattern:
 
-1. **Rule** — append to `RULES` in `src/game/rules.ts` with `firstDay: N`. The check function returns a `Violation` or `null`.
-2. **PCN code** — add entry to `PCN_CODES` and to `CODE_ORDER` in `src/ui/actions.ts`. Map the rule id → code in `renderActions`.
-3. **Day def** — add entry to `DAYS` in `src/game/days.ts` with `briefing`, `newRuleSummary`, `carCount`, `streets`, `rent`.
-4. **Doc type** (if new) — extend `Doc` union in `types.ts`, render in `ui/docs.ts`, generate in `cars.ts:generateDocs`.
-5. **Street kind** (if new) — add to `STREETS` in `streets.ts`, include in `streetsForDay`, style `.kerb.<kind>` in `style.css`.
-6. **Test** — add cases to `tests/validate.test.ts`.
+1. **Rule** — append to `RULES` in `src/game/rules.ts` with `id`, `code`, `label`, `firstDay: N`, and a `check` returning `true` when the car is in violation. PCN code + label live on the rule itself; `actions.ts` and the rulebook derive their lists from `RULES` automatically.
+2. **Day def** — add entry to `DAYS` in `src/game/days.ts` with `briefing`, `newRuleSummary`, `carCount`, `streets` (array of `STREETS` keys), `rent`.
+3. **Doc type** (if new) — extend `Doc` union in `types.ts`, render in `ui/docs.ts`, and add a builder to `DOC_BUILDERS` in `cars.ts` keyed by the relevant `StreetKind`.
+4. **Street kind** (if new) — add to `STREETS` in `streets.ts`, register a builder in `DOC_BUILDERS` (TypeScript's `Record<StreetKind, …>` will fail to compile until you do), style `.kerb.<kind>` in `style.css`. Day activation is automatic via `DAYS[i].streets`.
+5. **Test** — add cases to `tests/validate.test.ts`.
 
 ## Adding a recurring resident
 
@@ -96,7 +95,7 @@ Add a `CHANGELOG.md` entry in the same change. Pending items live under `## [Unr
 ## Known quirks
 
 - `bindGlobalEvents` is guarded by `window.__wardenBound` so Vite HMR re-running `main.ts` doesn't double-bind click/key handlers.
-- Object literal key order can't be relied on for numeric-string keys (`"01"` non-canonical, `"12"` canonical) — that's why `CODE_ORDER` exists in `actions.ts`.
+- PCN button order on screen and the `1`/`2`/`3`/`4` keybinds both come from `activeRules(day)` declaration order in `RULES`. To re-order buttons, re-order `RULES` (or change `firstDay`).
 
 ## Out of scope (future days)
 

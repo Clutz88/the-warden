@@ -1,9 +1,9 @@
-import type { Car, Doc, Street, ZoneCode, ResidentEncounter } from "./types";
-import { streetsForDay, STREETS } from "./streets";
-import { activeRules } from "./rules";
-import { validate } from "./validate";
-import { getDay } from "./days";
-import { maybeResident, pickNote } from "./residents";
+import type {Car, Doc, ResidentEncounter, Street, StreetKind, ZoneCode} from "./types";
+import {STREETS, streetsForDay} from "./streets";
+import {activeRules} from "./rules";
+import {validate} from "./validate";
+import {getDay} from "./days";
+import {maybeResident, pickNote} from "./residents";
 
 const COLOURS = ["Red", "Blue", "Black", "Silver", "White", "Green", "Grey"];
 const MODELS = [
@@ -142,13 +142,49 @@ export function generateCars(opts: GenOpts): Car[] {
       truth: [],
       ...(resident ? { residentId: resident.id } : {}),
     };
-    const truth = validate(car, rules, opts.shiftStart + 30);
-    car.truth = truth;
+    car.truth = validate(car, rules, opts.shiftStart + 30);
     cars.push(car);
   }
 
   return cars;
 }
+
+type DocBuilderCtx = {
+  street: Street;
+  carPlate: string;
+  shiftStart: number;
+  r: () => number;
+  violationRoll: number;
+};
+
+const DOC_BUILDERS: Record<StreetKind, (c: DocBuilderCtx) => Doc[]> = {
+  "pay-and-display": ({ shiftStart, r, violationRoll }) => {
+    if (violationRoll < 0.55) return [buildPD(null, shiftStart + 60 + Math.floor(r() * 120))];
+    if (violationRoll < 0.8) return [buildPD(null, shiftStart - 30 - Math.floor(r() * 90))];
+    return [];
+  },
+  permit: ({ street, carPlate, r, violationRoll }) => {
+    if (violationRoll < 0.55) return [buildPermit(street.zone, carPlate)];
+    if (violationRoll < 0.7) {
+      const wrongZone: ZoneCode = street.zone === "A" ? "B" : "A";
+      return [buildPermit(wrongZone, carPlate)];
+    }
+    if (violationRoll < 0.85) return [buildPermit(street.zone, mutatePlate(carPlate, r))];
+    return [];
+  },
+  "loading-bay": ({ shiftStart, r, violationRoll }) => {
+    if (violationRoll < 0.55) return [buildLoadingSlip(shiftStart - Math.floor(r() * 25), r)];
+    if (violationRoll < 0.8) return [buildLoadingSlip(shiftStart - 60 - Math.floor(r() * 90), r)];
+    return [];
+  },
+  "double-yellow": ({ shiftStart, r, violationRoll }) => {
+    if (violationRoll < 0.4) return [buildBadge(true, shiftStart + Math.floor(r() * 60))];
+    if (violationRoll < 0.55) return [buildBadge(true, shiftStart - 240 - Math.floor(r() * 60))];
+    if (violationRoll < 0.75) return [buildBadge(false, null)];
+    return [];
+  },
+  "single-yellow": () => [],
+};
 
 function generateDocs(
   day: number,
@@ -157,58 +193,17 @@ function generateDocs(
   shiftStart: number,
   r: () => number,
 ): Doc[] {
-  const docs: Doc[] = [];
   const violationRoll = r();
+  const docs = DOC_BUILDERS[street.kind]({
+    street,
+    carPlate,
+    shiftStart,
+    r,
+    violationRoll,
+  });
 
-  if (street.kind === "pay-and-display") {
-    if (violationRoll < 0.55) {
-      docs.push(buildPD(null, shiftStart + 60 + Math.floor(r() * 120)));
-    } else if (violationRoll < 0.8) {
-      docs.push(buildPD(null, shiftStart - 30 - Math.floor(r() * 90)));
-    } else {
-      // no ticket
-    }
-  }
-
-  if (street.kind === "permit") {
-    if (violationRoll < 0.55) {
-      docs.push(buildPermit(street.zone, carPlate));
-    } else if (violationRoll < 0.7) {
-      const wrongZone: ZoneCode = street.zone === "A" ? "B" : "A";
-      docs.push(buildPermit(wrongZone, carPlate));
-    } else if (violationRoll < 0.85) {
-      docs.push(buildPermit(street.zone, mutatePlate(carPlate, r)));
-    } else {
-      // no permit
-    }
-  }
-
-  if (street.kind === "loading-bay") {
-    if (violationRoll < 0.55) {
-      // Recent arrival — clean.
-      docs.push(buildLoadingSlip(shiftStart - Math.floor(r() * 25), r));
-    } else if (violationRoll < 0.8) {
-      // Overstayed slip.
-      docs.push(buildLoadingSlip(shiftStart - 60 - Math.floor(r() * 90), r));
-    } else {
-      // No slip at all.
-    }
-  }
-
-  if (street.kind === "double-yellow") {
-    if (violationRoll < 0.4) {
-      docs.push(buildBadge(true, shiftStart + Math.floor(r() * 60)));
-    } else if (violationRoll < 0.55) {
-      docs.push(buildBadge(true, shiftStart - 240 - Math.floor(r() * 60)));
-    } else if (violationRoll < 0.75) {
-      docs.push(buildBadge(false, null));
-    } else {
-      // no badge at all
-    }
-  }
-
-  // Sometimes throw an extra unrelated doc on a clean car (e.g. lapsed P&D
-  // when on permit street) to force the player to actually read.
+  // Decoy: occasionally drop an unrelated doc on a non-P&D car so the player
+  // can't pattern-match by doc type alone.
   if (day >= 2 && r() < 0.15 && street.kind !== "pay-and-display") {
     docs.push(buildPD(null, shiftStart - 60));
   }

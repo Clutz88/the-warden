@@ -74,8 +74,10 @@ export type RuleCtx = {
 
 export type Rule = {
   id: string;
+  code: string;
+  label: string;
   firstDay: number;
-  check: (ctx: RuleCtx) => Violation | null;
+  check: (ctx: RuleCtx) => boolean;
 };
 
 export type SupervisorConfig = {

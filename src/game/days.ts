@@ -10,7 +10,7 @@ export const DAYS: DayDef[] = [
       "Ticket must not be expired (compare against your shift clock).",
     ],
     carCount: 6,
-    streets: ["High Road", "Market Street"],
+    streets: ["highRoad", "marketSt"],
     rent: 30,
   },
   {
@@ -23,7 +23,7 @@ export const DAYS: DayDef[] = [
       "P&D rules still active on Pay & Display streets.",
     ],
     carCount: 8,
-    streets: ["High Road", "Market Street", "Abbey Close", "Victoria Terrace"],
+    streets: ["highRoad", "marketSt", "abbeyClose", "victoriaTerr"],
     rent: 40,
   },
   {
@@ -37,13 +37,7 @@ export const DAYS: DayDef[] = [
       "Trial supervisor review: 1 decision sampled, £2 if it's wrong.",
     ],
     carCount: 10,
-    streets: [
-      "High Road",
-      "Market Street",
-      "Abbey Close",
-      "Victoria Terrace",
-      "Church Lane",
-    ],
+    streets: ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
     rent: 55,
     supervisor: { sampleSize: 1, penaltyPerWrong: 2 },
   },
@@ -57,13 +51,7 @@ export const DAYS: DayDef[] = [
       "Supervisor review: 3 of your decisions will be sampled. £5 deducted per missed PCN or wrongful ticket.",
     ],
     carCount: 10,
-    streets: [
-      "High Road",
-      "Market Street",
-      "Abbey Close",
-      "Victoria Terrace",
-      "Church Lane",
-    ],
+    streets: ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
     rent: 60,
     residentChance: 0.35,
     residentPool: [
@@ -91,13 +79,7 @@ export const DAYS: DayDef[] = [
       "Supervisor review continues — sample of 3, £5 per error.",
     ],
     carCount: 12,
-    streets: [
-      "High Road",
-      "Market Street",
-      "Abbey Close",
-      "Victoria Terrace",
-      "Church Lane",
-    ],
+    streets: ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
     rent: 75,
     residentChance: 0.45,
     residentPool: [
@@ -125,14 +107,7 @@ export const DAYS: DayDef[] = [
       "All Day 1–5 rules remain in force.",
     ],
     carCount: 12,
-    streets: [
-      "High Road",
-      "Market Street",
-      "Abbey Close",
-      "Victoria Terrace",
-      "Church Lane",
-      "Bishop's Way",
-    ],
+    streets: ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane", "bishopsWay"],
     rent: 90,
     residentChance: 0.4,
     residentPool: [

@@ -63,9 +63,9 @@ Single source of truth: `src/game/state.ts` — a pub/sub store. UI subscribes; 
 
 Each in-game day is defined by data, not engine changes. See [CLAUDE.md](CLAUDE.md) for the full pattern. In short:
 
-- **New rule / day** — append to `RULES`, `DAYS`, `PCN_CODES`. Add a test.
-- **New doc type** — extend the `Doc` union, render in `ui/sprites/doc.ts`.
-- **New street kind** — add to `STREETS`, style `.kerb-scene.<kind>` in `style.css`.
+- **New rule / day** — append to `RULES` (with `code` + `label` on the rule itself) and `DAYS`. Add a test.
+- **New doc type** — extend the `Doc` union, render in `ui/sprites/doc.ts`, register a builder in `DOC_BUILDERS` in `cars.ts`.
+- **New street kind** — add to `STREETS`, register in `DOC_BUILDERS`, list its id in `DAYS[i].streets`, style `.kerb-scene.<kind>` in `style.css`.
 - **Recurring resident** — push to `RESIDENTS`; opt the day in via `residentChance` / `residentPool`.
 - **Supervisor inspection** — set `DAYS[i].supervisor = { sampleSize, penaltyPerWrong }`.
 

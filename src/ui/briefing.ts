@@ -1,4 +1,5 @@
 import { getDay } from "../game/days";
+import { STREETS } from "../game/streets";
 import type { ShiftLog, StoredSupervisorReview } from "../game/types";
 import { residentById } from "../game/residents";
 import type { CareerStats } from "../game/stats";
@@ -25,7 +26,7 @@ export function renderBriefing(
         <h3>Today's checklist</h3>
         <ul>${d.newRuleSummary.map((s) => `<li>${s}</li>`).join("")}</ul>
         <h3>Streets on patrol</h3>
-        <ul>${d.streets.map((s) => `<li>${s}</li>`).join("")}</ul>
+        <ul>${d.streets.map((id) => `<li>${STREETS[id]?.name ?? id}</li>`).join("")}</ul>
         <h3>Quota</h3>
         <p>${d.carCount} vehicles. Make rent of £${d.rent} or you're out.</p>
         ${continueBtn}
