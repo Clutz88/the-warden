@@ -44,6 +44,11 @@ export function renderSummary(a: SummaryArgs): string {
       : `<button class="btn" data-action="next-day">NEXT DAY</button>`
     : `<p style="color:var(--bad);margin-top:14px;">You couldn't make rent. The council has terminated your contract.</p>
        <button class="btn" data-action="restart">RESTART</button>`;
+  const total = a.correct + a.wrong;
+  const quip = a.passed ? shiftQuip(a.wrong, total) : null;
+  const quipHtml = quip
+    ? `<p style="font-style:italic;color:#5a3a17;margin:10px 0 4px;">${quip}</p>`
+    : "";
   return `
     <div class="modal-bg">
       <div class="modal">
@@ -53,10 +58,20 @@ export function renderSummary(a: SummaryArgs): string {
         <div class="row"><span>Wages earned:</span>${countCell(a.wages, "£")}</div>
         <div class="row"><span>Rent / costs:</span>${countCell(a.rent, "£")}</div>
         <div class="row"><span><b>Net:</b></span>${countCell(net, "£", net >= 0 ? "var(--good)" : "var(--bad)")}</div>
+        ${quipHtml}
         ${advance}
       </div>
     </div>
   `;
+}
+
+function shiftQuip(wrong: number, total: number): string {
+  if (total === 0) return "A quiet shift on the streets of Ashbridge.";
+  if (wrong === 0) return "Immaculate. Not a single misstep.";
+  if (wrong === 1) return "Strong shift. One slip is forgivable.";
+  if (wrong <= 3) return "Solid work, but the Borough notices the rough edges.";
+  if (wrong <= total / 2) return "Half-hearted enforcement. The wardens' union won't save you.";
+  return "Word will reach Inspector Harding before sundown.";
 }
 
 function countCell(target: number, prefix = "", color?: string): string {
@@ -83,7 +98,8 @@ export function renderSupervisor(a: SupervisorArgs): string {
     <div class="modal-bg">
       <div class="modal supervisor">
         <h1>DAY ${a.day} — SUPERVISOR REVIEW</h1>
-        <p>The council inspector has reviewed ${a.review.sample.length} of your decisions.</p>
+        <p><b>Inspector Harding</b> reviewed ${a.review.sample.length} of your decisions.</p>
+        <p style="font-style:italic;color:#5a3a17;">${supervisorQuip(a.review.wrongInSample, a.review.sample.length)}</p>
         ${cases}
         <div class="penalty">
           <div class="row"><span>Mistakes flagged:</span>${countCell(a.review.wrongInSample)}</div>
@@ -96,6 +112,15 @@ export function renderSupervisor(a: SupervisorArgs): string {
       </div>
     </div>
   `;
+}
+
+function supervisorQuip(wrong: number, sampleSize: number): string {
+  if (sampleSize === 0) return `"A quiet day. Don't get used to it."`;
+  if (wrong === 0) return `"Spotless. Council likes that."`;
+  if (wrong === 1) return `"One slip. We've all had worse mornings."`;
+  if (wrong === 2) return `"Two errors out of ${sampleSize}. Tighten up."`;
+  if (wrong >= sampleSize) return `"Every single one. We need to talk."`;
+  return `"${wrong} mistakes in a sample of ${sampleSize}. The Borough is watching."`;
 }
 
 function renderCase(l: ShiftLog): string {
@@ -130,8 +155,8 @@ export function renderGameComplete(): string {
   return `
     <div class="modal-bg">
       <div class="modal">
-        <h1>VERTICAL SLICE COMPLETE</h1>
-        <p>You survived three shifts on the streets of Ashbridge. The council awaits further legislation. (More days coming soon.)</p>
+        <h1>END OF ROTATION</h1>
+        <p>You held the line for six shifts on the streets of Ashbridge. Inspector Harding will recommend you for a permanent posting — assuming the regulations don't change again.</p>
         <button class="btn" data-action="restart">PLAY AGAIN</button>
       </div>
     </div>

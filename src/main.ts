@@ -379,6 +379,7 @@ function activePcnCodes(day: number): string[] {
   if (day >= 1) out.push("01");
   if (day >= 2) out.push("12");
   if (day >= 3) out.push("40");
+  if (day >= 6) out.push("25");
   return out;
 }
 

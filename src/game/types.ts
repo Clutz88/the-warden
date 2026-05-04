@@ -1,6 +1,11 @@
 export type ZoneCode = "A" | "B" | "C" | null;
 
-export type StreetKind = "pay-and-display" | "permit" | "double-yellow" | "single-yellow";
+export type StreetKind =
+  | "pay-and-display"
+  | "permit"
+  | "double-yellow"
+  | "single-yellow"
+  | "loading-bay";
 
 export type Street = {
   id: string;
@@ -36,7 +41,18 @@ export type DocNote = {
   text: string;
 };
 
-export type Doc = DocPayDisplay | DocPermit | DocBlueBadge | DocNote;
+export type DocLoadingSlip = {
+  type: "loading-slip";
+  firm: string;
+  arrivedAt: number;
+};
+
+export type Doc =
+  | DocPayDisplay
+  | DocPermit
+  | DocBlueBadge
+  | DocNote
+  | DocLoadingSlip;
 
 export type Violation = { code: string; label: string };
 

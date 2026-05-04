@@ -228,6 +228,17 @@ body { background: var(--bg); }
   background-position: 0 8px;
   background-repeat: no-repeat;
 }
+.kerb-scene.loading-bay .kerb-markings {
+  /* Dashed white bay markings either side of a single yellow line. */
+  background-image:
+    repeating-linear-gradient(90deg,
+      var(--line-white) 0 8px,
+      transparent 8px 18px),
+    linear-gradient(var(--line-yellow), var(--line-yellow));
+  background-size: 100% 3px, 100% 2px;
+  background-position: 0 4px, 0 12px;
+  background-repeat: no-repeat;
+}
 
 /* Pavement decor */
 .lamp-mount, .machine-mount, .sign-mount {
@@ -326,6 +337,7 @@ body { background: var(--bg); }
 .doc.pd { background: #d6cfa8; }
 .doc.permit { background: #c5cda3; }
 .doc.blue-badge { background: #b4c2d6; }
+.doc.loading-slip { background: #e3d4a8; }
 .doc.note { background: #e8e0c2; font-family: "VT323", "Courier New", monospace; }
 .doc.note .note-from {
   font-family: "Silkscreen", 'Courier New', monospace, fantasy;

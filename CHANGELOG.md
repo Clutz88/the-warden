@@ -4,6 +4,19 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.7.0] — 2026-05-04
+
+### Added
+- **Day 6 — Bishop's Way Loading Bay.** New street kind `loading-bay`, new `DocLoadingSlip` doc type, new rule `loading-bay-overstay` activating the previously-dormant PCN code `25`. Drivers must show a loading slip and may not overstay 30 minutes from the slip's arrival time. Supervisor sample rises to 4, penalty £6 per error, rent £90.
+- **Resident roster expanded 3 → 12.** New named drivers — Priya Shah, Elsie Whittaker, Owen Pritchard, Fatima Rahman, Jaime Okafor, Stuart McLean, Tomasz Kowalski, Agnes Bellweather. Each carries a baseline note; some have `lastWasPcn` reactive variants. Day 4 / Day 5 / Day 6 resident pools draw from the full registry, with `residentChance` raised to 0.35 / 0.45 / 0.4 respectively.
+- **Plate format variety.** Procedural plate generator now produces a mix of modern (LL NN LLL), 1983–2001 prefix style (L NNN LLL), Northern Ireland (LLL NNNN), and pre-1983 suffix style (LLL NNN L) plates.
+- **Inspector Harding.** Supervisor reviews now have a named inspector with a conditional opening quip keyed to the error count in the sample.
+- **Shift-end quip.** End-of-day summary now includes a tier-based remark ("Immaculate" / "Strong shift" / … / "Word will reach Inspector Harding before sundown.").
+
+### Changed
+- Day 4 briefing names Inspector Harding instead of "the council inspector".
+- `END OF ROTATION` end-screen replaces the `VERTICAL SLICE COMPLETE` placeholder; copy reflects the six-day arc.
+
 ## [0.6.0] — 2026-05-04
 
 ### Added

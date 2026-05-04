@@ -31,6 +31,12 @@ export const STREETS: Record<string, Street> = {
     kind: "double-yellow",
     zone: null,
   },
+  bishopsWay: {
+    id: "bishopsWay",
+    name: "Bishop's Way",
+    kind: "loading-bay",
+    zone: null,
+  },
 };
 
 export function streetsForDay(day: number): Street[] {
@@ -41,6 +47,14 @@ export function streetsForDay(day: number): Street[] {
       STREETS.marketSt,
       STREETS.abbeyClose,
       STREETS.victoriaTerr,
+    ];
+  if (day <= 5)
+    return [
+      STREETS.highRoad,
+      STREETS.marketSt,
+      STREETS.abbeyClose,
+      STREETS.victoriaTerr,
+      STREETS.churchLane,
     ];
   return Object.values(STREETS);
 }

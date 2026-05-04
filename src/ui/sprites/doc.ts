@@ -91,6 +91,18 @@ export function renderDocPaper(d: Doc): string {
     `;
     return paperWrap("note", inner);
   }
+  if (d.type === "loading-slip") {
+    const inner = `
+      <div class="doc-head">
+        <div class="doc-crest">${renderCrest()}</div>
+        <div class="doc-title">LOADING SLIP</div>
+      </div>
+      <div class="doc-stamp-mark">${renderApprovedStamp()}</div>
+      <div class="row"><span>Firm:</span><b>${d.firm}</b></div>
+      <div class="row"><span>Arrived:</span><b>${fmtClock(d.arrivedAt)}</b></div>
+    `;
+    return paperWrap("loading-slip", inner);
+  }
   if (d.type === "blue-badge") {
     const inner = `
       <div class="doc-head">

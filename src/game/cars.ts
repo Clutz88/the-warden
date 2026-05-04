@@ -31,13 +31,29 @@ function pick<T>(arr: T[], r: () => number): T {
   return arr[Math.floor(r() * arr.length)];
 }
 
+const PLATE_LETTERS = "ABCDEFGHJKLMNOPRSTUVWXYZ";
+const PLATE_DIGITS = "0123456789";
+
+function L(r: () => number, n: number): string {
+  let s = "";
+  for (let i = 0; i < n; i++) s += PLATE_LETTERS[Math.floor(r() * PLATE_LETTERS.length)];
+  return s;
+}
+
+function N(r: () => number, n: number): string {
+  let s = "";
+  for (let i = 0; i < n; i++) s += PLATE_DIGITS[Math.floor(r() * PLATE_DIGITS.length)];
+  return s;
+}
+
+// Mix of UK plate formats. Modern (current) dominates; historic and Northern
+// Irish formats appear occasionally so the player can't pattern-match on shape.
 function plate(r: () => number): string {
-  const L = "ABCDEFGHJKLMNOPRSTUVWXYZ";
-  const N = "0123456789";
-  const a = pick([...L], r) + pick([...L], r);
-  const n = pick([...N], r) + pick([...N], r);
-  const c = pick([...L], r) + pick([...L], r) + pick([...L], r);
-  return `${a}${n} ${c}`;
+  const roll = r();
+  if (roll < 0.78) return `${L(r, 2)}${N(r, 2)} ${L(r, 3)}`;          // Modern: AB12 CDE
+  if (roll < 0.90) return `${L(r, 1)}${N(r, 3)} ${L(r, 3)}`;          // Prefix style (1983–2001): K123 ABC
+  if (roll < 0.96) return `${L(r, 3)} ${N(r, 4)}`;                    // Northern Ireland: LRZ 1234
+  return `${L(r, 3)} ${N(r, 3)}${L(r, 1)}`;                           // Suffix style (pre-1983): ABC 123A
 }
 
 function buildPD(zone: ZoneCode, expiresAt: number): Doc {
@@ -50,6 +66,22 @@ function buildPermit(zone: ZoneCode, plateStr: string): Doc {
     zone,
     plate: plateStr,
     validUntil: "31/12/2026",
+  };
+}
+
+const LOADING_FIRMS = [
+  "PARCELFLEET LTD",
+  "ASHBRIDGE COURIERS",
+  "DPL EXPRESS",
+  "GREENVAN HAULAGE",
+  "MERIDIAN FREIGHT",
+];
+
+function buildLoadingSlip(arrivedAt: number, r: () => number): Doc {
+  return {
+    type: "loading-slip",
+    firm: LOADING_FIRMS[Math.floor(r() * LOADING_FIRMS.length)]!,
+    arrivedAt,
   };
 }
 
@@ -148,6 +180,18 @@ function generateDocs(
       docs.push(buildPermit(street.zone, mutatePlate(carPlate, r)));
     } else {
       // no permit
+    }
+  }
+
+  if (street.kind === "loading-bay") {
+    if (violationRoll < 0.55) {
+      // Recent arrival — clean.
+      docs.push(buildLoadingSlip(shiftStart - Math.floor(r() * 25), r));
+    } else if (violationRoll < 0.8) {
+      // Overstayed slip.
+      docs.push(buildLoadingSlip(shiftStart - 60 - Math.floor(r() * 90), r));
+    } else {
+      // No slip at all.
     }
   }
 

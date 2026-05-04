@@ -46,6 +46,18 @@ export const RULES: Rule[] = [
       return null;
     },
   },
+  {
+    id: "loading-bay-overstay",
+    firstDay: 6,
+    check: ({ car, clock }) => {
+      if (car.street.kind !== "loading-bay") return null;
+      const slip = car.docs.find((d) => d.type === "loading-slip");
+      if (!slip) return v("25");
+      const minutesParked = clock - slip.arrivedAt;
+      if (minutesParked > 30) return v("25");
+      return null;
+    },
+  },
 ];
 
 export function activeRules(day: number): Rule[] {

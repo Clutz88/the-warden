@@ -8,6 +8,7 @@ export function renderActions(day: number, disabled: boolean): string {
     if (r.id === "pd-required") return "01";
     if (r.id === "permit-zone-match") return "12";
     if (r.id === "double-yellow") return "40";
+    if (r.id === "loading-bay-overstay") return "25";
     return null;
   }).filter(Boolean) as string[];
 

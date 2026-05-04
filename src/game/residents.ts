@@ -76,6 +76,88 @@ export const RESIDENTS: Resident[] = [
       },
     ],
   },
+  {
+    id: "priya-shah",
+    name: "PRIYA SHAH",
+    plate: "PS19 RUN",
+    bio: "Marathon runner. Trains before work. Always 'just five more minutes'.",
+    homeStreetId: "victoriaTerr",
+    note: "Cooling down after a 10K. Be back before the meter strip changes.",
+    notes: [
+      {
+        when: lastWasPcn,
+        text: "Fair cop. New PB this morning though, so I'll forgive you.",
+      },
+    ],
+  },
+  {
+    id: "elsie-whittaker",
+    name: "ELSIE WHITTAKER",
+    plate: "K194 ELS",
+    bio: "Retired schoolteacher. Drives a 1995 Vauxhall Astra she calls 'the old girl'.",
+    homeStreetId: "abbeyCl",
+    note: "Just collecting my prescription from Boots. Knees aren't what they were.",
+  },
+  {
+    id: "owen-pritchard",
+    name: "OWEN PRITCHARD",
+    plate: "OP66 WLN",
+    bio: "Welsh, retired bus driver. Takes pride in parking precisely between the lines.",
+    homeStreetId: "abbeyCl",
+    note: "Pop in for a paper. Two minutes, mun.",
+  },
+  {
+    id: "fatima-rahman",
+    name: "FATIMA RAHMAN",
+    plate: "FR70 MED",
+    bio: "Junior doctor at St. Hilda's. Night shift hours; perpetually behind on permit renewal.",
+    homeStreetId: "victoriaTerr",
+    note: "Off a 12-hour shift. Permit renewal in the post — please bear with me.",
+    notes: [
+      {
+        when: lastWasPcn,
+        text: "I worked till 6am. Surely there's some grace for nurses and doctors?",
+      },
+    ],
+  },
+  {
+    id: "jaime-okafor",
+    name: "JAIME OKAFOR",
+    plate: "LRZ 4421",
+    bio: "Visiting from Belfast. House-sitting for his sister on Abbey Close.",
+    homeStreetId: "abbeyCl",
+    note: "NI plates — please don't ticket. I'm just visiting family.",
+  },
+  {
+    id: "stuart-mclean",
+    name: "STUART McLEAN",
+    plate: "SM21 GLA",
+    bio: "Drives down from Glasgow every Tuesday for his daughter's recorder lesson.",
+    homeStreetId: "marketSt",
+    note: "From up the road. Lass has her grade three exam Friday.",
+  },
+  {
+    id: "tomasz-kowalski",
+    name: "TOMASZ KOWALSKI",
+    plate: "TK18 BLD",
+    bio: "Builder. Van full of plasterboard. Job at number 14 Church Lane.",
+    homeStreetId: "churchLn",
+    note: "Building merchants close at 4. Ten minutes, then I'm gone.",
+    notes: [
+      {
+        when: lastWasPcn,
+        text: "Ten minutes I said. Council loves a small contractor, eh?",
+      },
+    ],
+  },
+  {
+    id: "agnes-bellweather",
+    name: "AGNES BELLWEATHER",
+    plate: "ABC 873L",
+    bio: "Eighty-two. Drives a 1971 Morris Minor. Her late husband's pride and joy.",
+    homeStreetId: "abbeyCl",
+    note: "I won't be a moment. Reginald always said this car would outlast me.",
+  },
 ];
 
 export function residentByPlate(plate: string): Resident | null {

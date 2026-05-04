@@ -158,3 +158,43 @@ describe("Day 3 — double yellows + blue badge", () => {
     expect(v).toEqual([]);
   });
 });
+
+describe("Day 6 — loading bay", () => {
+  const rules = activeRules(6);
+
+  it("PCN when no loading slip on a loading bay", () => {
+    const v = validate(carOn("bishopsWay", []), rules, NOW);
+    expect(v.map((x) => x.code)).toEqual(["25"]);
+  });
+
+  it("PCN when loading slip is over 30 minutes old", () => {
+    const v = validate(
+      carOn("bishopsWay", [
+        { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 45 },
+      ]),
+      rules,
+      NOW,
+    );
+    expect(v.map((x) => x.code)).toEqual(["25"]);
+  });
+
+  it("PASS with a fresh loading slip", () => {
+    const v = validate(
+      carOn("bishopsWay", [
+        { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 10 },
+      ]),
+      rules,
+      NOW,
+    );
+    expect(v).toEqual([]);
+  });
+
+  it("Day 1–5 rules still active alongside loading bay", () => {
+    const v = validate(
+      carOn("highRoad", [{ type: "pd", zone: null, expiresAt: NOW - 5 }]),
+      rules,
+      NOW,
+    );
+    expect(v.map((x) => x.code)).toEqual(["01"]);
+  });
+});
