@@ -26,9 +26,12 @@ import {
 import { startMusic, setMuted, isMuted } from "./audio/music";
 import { inject } from "@vercel/analytics";
 
-inject({
-  mode: import.meta.env.MODE === "production" ? "production" : "development",
-});
+const initAnalytics = () =>
+  inject({
+    mode: import.meta.env.MODE === "production" ? "production" : "development",
+  });
+if (document.readyState === "complete") initAnalytics();
+else window.addEventListener("load", initAnalytics, { once: true });
 
 const SHIFT_START = 9 * 60;
 const PER_CAR_MINUTES = 12;
@@ -322,9 +325,14 @@ declare global {
   interface Window { __wardenBound?: boolean }
 }
 
-subscribe(render);
-if (!window.__wardenBound) {
-  bindGlobalEvents();
-  window.__wardenBound = true;
+function boot(): void {
+  subscribe(render);
+  if (!window.__wardenBound) {
+    bindGlobalEvents();
+    window.__wardenBound = true;
+  }
+  startDay(1);
 }
-startDay(1);
+
+if (document.readyState === "complete") boot();
+else window.addEventListener("load", boot, { once: true });
