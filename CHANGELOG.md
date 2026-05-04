@@ -4,6 +4,15 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.6.0] — 2026-05-04
+
+### Added
+- **Feel & feedback polish pass.** Modal entrance fade/slide, button press transitions, car arrival animation, idle-kerb pulse with "Waiting for next vehicle…" overlay, HUD clock tick, and a centred PASS / PCN / ✗ stamp overlay on every judgement.
+- **Synth SFX** (`src/audio/sfx.ts`) — ascending sine ding on correct PASS, lowpass noise stamp on correct PCN, descending square buzzer on mistakes, soft triangle click on briefing/summary buttons. Routed through a new `sfxBus` on the existing audio graph so the M-key mute toggles SFX too.
+- End-of-shift and supervisor-review numbers now count up over 600 ms; respects `prefers-reduced-motion`.
+- Keyboard `:focus-visible` outlines on all buttons; striped diagonal background on disabled actions.
+- Global `prefers-reduced-motion: reduce` guard kills decorative animations and snaps count-ups to final values.
+
 ## [0.5.0] — 2026-05-03
 
 ### Added

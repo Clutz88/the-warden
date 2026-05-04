@@ -24,6 +24,7 @@ import {
   renderGameComplete,
 } from "./ui/briefing";
 import { startMusic, setMuted, isMuted } from "./audio/music";
+import { playPass, playPcn, playMistake, playClick } from "./audio/sfx";
 import { inject } from "@vercel/analytics";
 
 inject({
@@ -94,6 +95,18 @@ function judge(action: PlayerAction): void {
     };
   }
 
+  if (correct) {
+    if (action.kind === "pass") {
+      playPass();
+      flashStamp("pass");
+    } else {
+      playPcn();
+      flashStamp("pcn");
+    }
+  } else {
+    playMistake();
+    flashStamp("miss");
+  }
   flashFeedback(correct, truth, action);
 
   if (carIndex >= s.cars.length) {
@@ -116,6 +129,44 @@ function judge(action: PlayerAction): void {
       residentHistory,
     });
   }
+}
+
+function flashStamp(kind: "pass" | "pcn" | "miss"): void {
+  const el = document.createElement("div");
+  el.className = `stamp-flash ${kind}`;
+  el.textContent = kind === "pass" ? "PASS" : kind === "pcn" ? "PCN" : "✗";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 600);
+}
+
+const REDUCED_MOTION = (): boolean =>
+  typeof window !== "undefined" &&
+  window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function mountCountUps(root: ParentNode): void {
+  const targets = root.querySelectorAll<HTMLElement>("[data-count-target]");
+  if (!targets.length) return;
+  const reduced = REDUCED_MOTION();
+  targets.forEach((el) => {
+    const target = Number(el.dataset.countTarget ?? "0");
+    const prefix = el.dataset.countPrefix ?? "";
+    if (reduced || !Number.isFinite(target)) {
+      el.textContent = `${prefix}${target}`;
+      return;
+    }
+    const duration = 600;
+    const start = Date.now();
+    const id = window.setInterval(() => {
+      const t = Math.min(1, (Date.now() - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = `${prefix}${Math.round(target * eased)}`;
+      if (t >= 1) {
+        el.textContent = `${prefix}${target}`;
+        window.clearInterval(id);
+      }
+    }, 30);
+  });
 }
 
 function flashFeedback(
@@ -213,6 +264,7 @@ function render(): void {
         hasSupervisor: !!def.supervisor,
       }),
     );
+    mountCountUps(document.body);
   }
   if (s.phase === "supervisor") {
     const def = getDay(s.day);
@@ -230,6 +282,7 @@ function render(): void {
         review,
       }),
     );
+    mountCountUps(document.body);
   }
   if (s.phase === "gameover") {
     document.body.insertAdjacentHTML("beforeend", renderGameComplete());
@@ -260,12 +313,23 @@ function bindGlobalEvents(): void {
     }
     if (action === "start-shift") {
       startMusic();
+      playClick();
       return startShift();
     }
-    if (action === "next-day") return nextDay();
-    if (action === "advance-from-summary") return advanceFromSummary();
-    if (action === "continue") return continuePrevious();
+    if (action === "next-day") {
+      playClick();
+      return nextDay();
+    }
+    if (action === "advance-from-summary") {
+      playClick();
+      return advanceFromSummary();
+    }
+    if (action === "continue") {
+      playClick();
+      return continuePrevious();
+    }
     if (action === "restart") {
+      playClick();
       resetGame();
       startDay(1);
       return;

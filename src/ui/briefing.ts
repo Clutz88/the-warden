@@ -48,17 +48,20 @@ export function renderSummary(a: SummaryArgs): string {
     <div class="modal-bg">
       <div class="modal">
         <h1>DAY ${a.day} — SHIFT END</h1>
-        <div class="row"><span>Correct decisions:</span><b>${a.correct}</b></div>
-        <div class="row"><span>Mistakes:</span><b>${a.wrong}</b></div>
-        <div class="row"><span>Wages earned:</span><b>£${a.wages}</b></div>
-        <div class="row"><span>Rent / costs:</span><b>£${a.rent}</b></div>
-        <div class="row"><span><b>Net:</b></span><b style="color:${
-          net >= 0 ? "var(--good)" : "var(--bad)"
-        }">£${net}</b></div>
+        <div class="row"><span>Correct decisions:</span>${countCell(a.correct)}</div>
+        <div class="row"><span>Mistakes:</span>${countCell(a.wrong)}</div>
+        <div class="row"><span>Wages earned:</span>${countCell(a.wages, "£")}</div>
+        <div class="row"><span>Rent / costs:</span>${countCell(a.rent, "£")}</div>
+        <div class="row"><span><b>Net:</b></span>${countCell(net, "£", net >= 0 ? "var(--good)" : "var(--bad)")}</div>
         ${advance}
       </div>
     </div>
   `;
+}
+
+function countCell(target: number, prefix = "", color?: string): string {
+  const style = color ? ` style="color:${color}"` : "";
+  return `<b class="count" data-count-target="${target}" data-count-prefix="${prefix}"${style}>${prefix}0</b>`;
 }
 
 export type SupervisorArgs = {
@@ -83,13 +86,11 @@ export function renderSupervisor(a: SupervisorArgs): string {
         <p>The council inspector has reviewed ${a.review.sample.length} of your decisions.</p>
         ${cases}
         <div class="penalty">
-          <div class="row"><span>Mistakes flagged:</span><b>${a.review.wrongInSample}</b></div>
-          <div class="row"><span>Penalty:</span><b>£${a.review.penalty}</b></div>
-          <div class="row"><span>Wages after penalty:</span><b>£${a.wagesAfter}</b></div>
-          <div class="row"><span>Rent:</span><b>£${a.rent}</b></div>
-          <div class="row"><span><b>Net:</b></span><b style="color:${
-            net >= 0 ? "var(--good)" : "var(--bad)"
-          }">£${net}</b></div>
+          <div class="row"><span>Mistakes flagged:</span>${countCell(a.review.wrongInSample)}</div>
+          <div class="row"><span>Penalty:</span>${countCell(a.review.penalty, "£")}</div>
+          <div class="row"><span>Wages after penalty:</span>${countCell(a.wagesAfter, "£")}</div>
+          <div class="row"><span>Rent:</span>${countCell(a.rent, "£")}</div>
+          <div class="row"><span><b>Net:</b></span>${countCell(net, "£", net >= 0 ? "var(--good)" : "var(--bad)")}</div>
         </div>
         ${advance}
       </div>

@@ -4,7 +4,7 @@ import { renderKerbSprite } from "./sprites/kerb";
 
 export function renderScene(car: Car | null): string {
   if (!car) {
-    return `<div class="scene"><div class="kerb-scene empty"></div></div>`;
+    return `<div class="scene"><div class="kerb-scene empty"><div class="waiting">Waiting for next vehicle…</div></div></div>`;
   }
   const carHtml = `
     <div class="car-rig">

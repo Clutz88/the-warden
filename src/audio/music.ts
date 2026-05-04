@@ -16,10 +16,19 @@ let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let drumBus: GainNode | null = null;
 let melodyBus: GainNode | null = null;
+let sfxBus: GainNode | null = null;
 let noiseBuffer: AudioBuffer | null = null;
 let muted = readMuted();
 let started = false;
 let melodyCooldown = 2; // chords until next phrase
+
+export function getAudioContext(): AudioContext | null {
+  return ctx;
+}
+
+export function getSfxBus(): GainNode | null {
+  return sfxBus;
+}
 
 function readMuted(): boolean {
   try {
@@ -54,6 +63,9 @@ export function startMusic(): void {
   melodyBus = ctx.createGain();
   melodyBus.gain.value = 0.45;
   melodyBus.connect(masterGain);
+  sfxBus = ctx.createGain();
+  sfxBus.gain.value = 2.4;
+  sfxBus.connect(masterGain);
   // Light feedback delay sweetens lead lines without turning into a wash.
   const delay = ctx.createDelay(1.0);
   delay.delayTime.value = 0.42;
