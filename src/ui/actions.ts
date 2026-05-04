@@ -1,7 +1,10 @@
 import { PCN_CODES, activeRules } from "../game/rules";
 import { stampTick, stampX } from "./sprites/icons";
 
-const CODE_ORDER = ["01", "12", "25", "40"];
+// Order matches the day a code is introduced (01 → Day 1, 12 → Day 2,
+// 40 → Day 3, 25 → Day 6). Keep aligned with `activePcnCodes` in main.ts so
+// the keyboard 1/2/3/4 mapping matches the on-screen button order.
+const CODE_ORDER = ["01", "12", "40", "25"];
 
 export function renderActions(day: number, disabled: boolean): string {
   const activeCodes = activeRules(day).map((r) => {

@@ -1,12 +1,21 @@
 import { getDay } from "../game/days";
 import type { ShiftLog, StoredSupervisorReview } from "../game/types";
 import { residentById } from "../game/residents";
+import type { CareerStats } from "../game/stats";
 
-export function renderBriefing(day: number, hasSave: boolean): string {
+export function renderBriefing(
+  day: number,
+  hasSave: boolean,
+  showStats: boolean,
+): string {
   const d = getDay(day);
   const continueBtn =
     day === 1 && hasSave
       ? `<button class="btn" data-action="continue">CONTINUE PREVIOUS</button>`
+      : "";
+  const statsBtn =
+    day === 1 && showStats
+      ? `<button class="btn" data-action="show-stats">CAREER STATS</button>`
       : "";
   return `
     <div class="modal-bg">
@@ -21,6 +30,7 @@ export function renderBriefing(day: number, hasSave: boolean): string {
         <p>${d.carCount} vehicles. Make rent of £${d.rent} or you're out.</p>
         ${continueBtn}
         <button class="btn" data-action="start-shift">START SHIFT</button>
+        ${statsBtn}
       </div>
     </div>
   `;
@@ -34,6 +44,7 @@ export type SummaryArgs = {
   rent: number;
   passed: boolean;
   hasSupervisor: boolean;
+  bonus: number;
 };
 
 export function renderSummary(a: SummaryArgs): string {
@@ -49,6 +60,10 @@ export function renderSummary(a: SummaryArgs): string {
   const quipHtml = quip
     ? `<p style="font-style:italic;color:#5a3a17;margin:10px 0 4px;">${quip}</p>`
     : "";
+  const bonusRow =
+    a.bonus > 0
+      ? `<div class="row"><span>Flawless shift bonus:</span>${countCell(a.bonus, "£", "var(--good)")}</div>`
+      : "";
   return `
     <div class="modal-bg">
       <div class="modal">
@@ -56,6 +71,7 @@ export function renderSummary(a: SummaryArgs): string {
         <div class="row"><span>Correct decisions:</span>${countCell(a.correct)}</div>
         <div class="row"><span>Mistakes:</span>${countCell(a.wrong)}</div>
         <div class="row"><span>Wages earned:</span>${countCell(a.wages, "£")}</div>
+        ${bonusRow}
         <div class="row"><span>Rent / costs:</span>${countCell(a.rent, "£")}</div>
         <div class="row"><span><b>Net:</b></span>${countCell(net, "£", net >= 0 ? "var(--good)" : "var(--bad)")}</div>
         ${quipHtml}
@@ -158,6 +174,53 @@ export function renderGameComplete(): string {
         <h1>END OF ROTATION</h1>
         <p>You held the line for six shifts on the streets of Ashbridge. Inspector Harding will recommend you for a permanent posting — assuming the regulations don't change again.</p>
         <button class="btn" data-action="restart">PLAY AGAIN</button>
+        <button class="btn" data-action="show-stats">CAREER STATS</button>
+      </div>
+    </div>
+  `;
+}
+
+export function renderStatsModal(stats: CareerStats): string {
+  const accuracy =
+    stats.totalCorrect + stats.totalWrong === 0
+      ? 0
+      : Math.round(
+          (stats.totalCorrect / (stats.totalCorrect + stats.totalWrong)) * 100,
+        );
+  return `
+    <div class="modal-bg" data-overlay="stats">
+      <div class="modal">
+        <h1>CAREER RECORD</h1>
+        <div class="row"><span>Days served:</span><b>${stats.daysPlayed}</b></div>
+        <div class="row"><span>Highest day reached:</span><b>${stats.highDay}</b></div>
+        <div class="row"><span>Decisions correct:</span><b>${stats.totalCorrect}</b></div>
+        <div class="row"><span>Mistakes:</span><b>${stats.totalWrong}</b></div>
+        <div class="row"><span>Accuracy:</span><b>${accuracy}%</b></div>
+        <div class="row"><span>Lifetime wages:</span><b>£${stats.totalWages}</b></div>
+        <button class="btn" data-action="close-overlay">CLOSE <span class="kbd">Esc</span></button>
+      </div>
+    </div>
+  `;
+}
+
+export function renderHelpModal(): string {
+  return `
+    <div class="modal-bg" data-overlay="help">
+      <div class="modal">
+        <h1>KEYBOARD &amp; CONTROLS</h1>
+        <div class="row"><span>PASS the car:</span><b>P</b></div>
+        <div class="row"><span>Issue PCN (left to right):</span><b>1 / 2 / 3 / 4</b></div>
+        <div class="row"><span>Advance briefing / summary:</span><b>Enter</b></div>
+        <div class="row"><span>Toggle music + SFX:</span><b>M</b></div>
+        <div class="row"><span>This help:</span><b>?</b></div>
+        <div class="row"><span>Close any overlay:</span><b>Esc</b></div>
+        <h3>Tips</h3>
+        <ul>
+          <li>Compare every doc against the shift clock in the HUD.</li>
+          <li>Permits must match BOTH the street's zone AND the car's plate.</li>
+          <li>Driver notes never change the regulations — they're flavour, not evidence.</li>
+        </ul>
+        <button class="btn" data-action="close-overlay">CLOSE <span class="kbd">Esc</span></button>
       </div>
     </div>
   `;

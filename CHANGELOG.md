@@ -4,6 +4,36 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.9.0] — 2026-05-04
+
+### Added
+- **Flawless shift bonus.** Complete a shift with zero mistakes and earn an extra £10, surfaced as its own row on the end-of-shift summary.
+- **Loading bay signage.** Bishop's Way now has a white "LOADING" sign sprite on the pavement, matching the visual language of the permit-zone sign.
+- **Reactive notes for the full resident roster.** All nine new residents (Priya, Elsie, Owen, Fatima, Jaime, Stuart, Tomasz, Agnes, plus tightened existing notes) now have both `lastWasPcn` and `allPasses` variants, so prior-day decisions echo back across every recurring driver.
+
+### Changed
+- **PCN button order matches introduction order** (`01 12 40 25`). Loading bay (introduced Day 6) is now the rightmost button, aligning the on-screen layout with the `1 / 2 / 3 / 4` keybinds.
+
+## [0.8.1] — 2026-05-04
+
+### Added
+- **Modal focus trap.** Tab and Shift+Tab cycle within the topmost modal. First focusable element auto-focuses when a modal mounts (briefing, summary, supervisor, gameover, help, stats).
+- **Mobile notch support.** `viewport-fit=cover` meta + `env(safe-area-inset-*)` body padding so the app respects iOS notches and rounded-corner cutouts.
+
+### Changed
+- **Day 3 — courtesy supervisor review.** Inspector Harding now samples 1 decision at end of Day 3 with a £2 penalty per error, easing the cliff before Day 4's full review (3 sampled, £5 each). Briefing copy updated on both days to reflect the escalation.
+
+## [0.8.0] — 2026-05-04
+
+### Added
+- **Mid-shift autosave.** State is now persisted to `localStorage["warden:save"]` after every judgement, not just at briefing/summary. Closing the tab mid-shift no longer loses the day.
+- **Career stats** (`src/game/stats.ts` + `warden:stats`). Cumulative across runs: days served, highest day reached, lifetime correct/wrong/wages, accuracy. Surfaced via a CAREER STATS button on the Day 1 briefing (when stats exist) and on the end-of-rotation modal.
+- **Keyboard help modal.** New `?` HUD button and `?` keybind open a controls reference (P, 1–4, Enter, M, Esc). Esc closes any open transient overlay.
+- **First-shift tutorial card.** Day 1, first car only — a fixed-position card walks the player through reading the scene, docs, and clock before deciding. Auto-clears when the player advances.
+
+### Changed
+- Removed legacy `warden:highDay` key in favour of the unified `warden:stats` blob (highDay is one field of it now).
+
 ## [0.7.0] — 2026-05-04
 
 ### Added

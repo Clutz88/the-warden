@@ -1,5 +1,5 @@
 import type { Street } from "../../game/types";
-import { lamppost, ticketMachine, zoneSign } from "./icons";
+import { lamppost, loadingSign, ticketMachine, zoneSign } from "./icons";
 
 export function renderKerbSprite(street: Street, carHtml: string): string {
   const kind = street.kind;
@@ -10,6 +10,8 @@ export function renderKerbSprite(street: Street, carHtml: string): string {
     pavementDecor.push(`<div class="machine-mount">${ticketMachine()}</div>`);
   } else if (kind === "permit" && street.zone) {
     pavementDecor.push(`<div class="sign-mount">${zoneSign(street.zone)}</div>`);
+  } else if (kind === "loading-bay") {
+    pavementDecor.push(`<div class="sign-mount">${loadingSign()}</div>`);
   }
 
   return `

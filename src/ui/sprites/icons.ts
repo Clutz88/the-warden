@@ -66,6 +66,27 @@ OOOOOOOOOOO
 ...OMMMO...
 `;
 
+const LOADING_SIGN = `
+OOOOOOOOOOO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OSSSSSSSSSO
+OOOOOOOOOOO
+.....M.....
+.....M.....
+.....M.....
+.....M.....
+.....M.....
+.....M.....
+.....M.....
+....MMM....
+...OMMMO...
+`;
+
 const STAMP_TICK = `
 .....GG.
 ....GGG.
@@ -104,6 +125,10 @@ export function ticketMachine(): string {
 
 export function zoneSign(zone: string): string {
   return `<div class="zone-sign">${spriteSvg(ZONE_SIGN, BASE_PALETTE, { className: "spr zone-sign-svg" })}<span class="zone-sign-label">ZONE&nbsp;${zone}</span></div>`;
+}
+
+export function loadingSign(): string {
+  return `<div class="zone-sign loading-sign">${spriteSvg(LOADING_SIGN, BASE_PALETTE, { className: "spr zone-sign-svg" })}<span class="zone-sign-label">LOADING</span></div>`;
 }
 
 export function stampTick(): string {

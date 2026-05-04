@@ -15,6 +15,7 @@ export function renderHud(s: GameState): string {
       <span class="stat">CAR <b>${seen + (s.phase === "shift" ? 1 : 0)}/${total}</b></span>
       <span class="stat">WAGES <b>£${s.wages}</b></span>
       <span class="stat">MISTAKES <b>${s.mistakes}</b></span>
+      <button class="hud-btn" data-action="show-help" title="Help (?)" aria-label="Show keyboard help">?</button>
       <button class="hud-btn" data-action="toggle-mute" title="Mute music (M)" aria-label="${muted ? "Unmute" : "Mute"} music">${muted ? "🔇" : "🔊"}</button>
     </div>
   `;

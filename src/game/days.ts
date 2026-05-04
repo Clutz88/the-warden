@@ -29,11 +29,12 @@ export const DAYS: DayDef[] = [
   {
     day: 3,
     briefing:
-      "Council added Church Lane to your patrol — DOUBLE YELLOWS. No parking, except Blue Badge holders who may park up to 3 hours with their badge AND time clock displayed. All previous rules still apply.",
+      "Council added Church Lane to your patrol — DOUBLE YELLOWS. No parking, except Blue Badge holders who may park up to 3 hours with their badge AND time clock displayed. All previous rules still apply. Inspector Harding will pull ONE of your decisions for a courtesy review at end of shift — light penalty, but a warning shot.",
     newRuleSummary: [
       "Double yellows: PCN unless Blue Badge with clock displayed.",
       "Blue Badge holder must not exceed 3 hours from clock-set time.",
       "Permit + P&D rules still active.",
+      "Trial supervisor review: 1 decision sampled, £2 if it's wrong.",
     ],
     carCount: 10,
     streets: [
@@ -44,11 +45,12 @@ export const DAYS: DayDef[] = [
       "Church Lane",
     ],
     rent: 55,
+    supervisor: { sampleSize: 1, penaltyPerWrong: 2 },
   },
   {
     day: 4,
     briefing:
-      "The Borough has assigned you a fixed beat. You'll start to recognise faces — and you'll be expected to enforce the rules without fear or favour. Inspector Harding will spot-check your decisions at end of shift.",
+      "The Borough has assigned you a fixed beat. You'll start to recognise faces — and you'll be expected to enforce the rules without fear or favour. Inspector Harding is stepping up the spot checks: three decisions sampled, £5 a piece for any error.",
     newRuleSummary: [
       "All Day 1–3 rules remain in force.",
       "Some drivers may leave a note on the dashboard. Notes do not change the regulations.",
