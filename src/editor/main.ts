@@ -1,6 +1,8 @@
 import "./editor.css";
 import { RAW_DAYS } from "./rawDays";
 import { RESIDENTS, type Resident } from "../game/residents";
+import { STREETS } from "../game/streets";
+import type { Street } from "../game/types";
 import { initState, subscribe } from "./state";
 import { render } from "./ui";
 
@@ -15,10 +17,13 @@ if (!import.meta.env.DEV) {
     </div>
   `;
 } else {
-  const persistedMode = sessionStorage.getItem("editor:mode") === "residents" ? "residents" : "day";
+  const rawMode = sessionStorage.getItem("editor:mode");
+  const persistedMode =
+    rawMode === "residents" || rawMode === "streets" ? rawMode : "day";
   const persistedDay = Number(sessionStorage.getItem("editor:day"));
   const persistedCarIdx = Number(sessionStorage.getItem("editor:carIdx"));
   const persistedResidentIdx = Number(sessionStorage.getItem("editor:residentIdx"));
+  const persistedStreetIdx = Number(sessionStorage.getItem("editor:streetIdx"));
   const initialDay = RAW_DAYS[persistedDay] ? persistedDay : 1;
   const raw = RAW_DAYS[initialDay]!;
   const initialCarIdx = Number.isFinite(persistedCarIdx) && persistedCarIdx >= 0 && persistedCarIdx < raw.cars.length
@@ -26,6 +31,10 @@ if (!import.meta.env.DEV) {
     : 0;
   const initialResidentIdx = Number.isFinite(persistedResidentIdx) && persistedResidentIdx >= 0 && persistedResidentIdx < RESIDENTS.length
     ? persistedResidentIdx
+    : 0;
+  const streetsList = Object.values(STREETS) as Street[];
+  const initialStreetIdx = Number.isFinite(persistedStreetIdx) && persistedStreetIdx >= 0 && persistedStreetIdx < streetsList.length
+    ? persistedStreetIdx
     : 0;
 
   initState({
@@ -37,6 +46,9 @@ if (!import.meta.env.DEV) {
     residentsDraft: structuredClone(RESIDENTS) as Resident[],
     selectedResidentIdx: initialResidentIdx,
     residentsDirty: false,
+    streetsDraft: structuredClone(streetsList),
+    selectedStreetIdx: initialStreetIdx,
+    streetsDirty: false,
     saveStatus: { kind: "idle" },
   });
   subscribe((s) => {
@@ -44,6 +56,7 @@ if (!import.meta.env.DEV) {
     sessionStorage.setItem("editor:day", String(s.day));
     sessionStorage.setItem("editor:carIdx", String(s.selectedCarIdx));
     sessionStorage.setItem("editor:residentIdx", String(s.selectedResidentIdx));
+    sessionStorage.setItem("editor:streetIdx", String(s.selectedStreetIdx));
     render(root);
   });
 }

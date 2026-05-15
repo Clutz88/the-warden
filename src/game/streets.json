@@ -1,0 +1,38 @@
+[
+  {
+    "id": "highRoad",
+    "name": "High Road",
+    "kind": "pay-and-display",
+    "zone": null
+  },
+  {
+    "id": "marketSt",
+    "name": "Market Street",
+    "kind": "pay-and-display",
+    "zone": null
+  },
+  {
+    "id": "abbeyClose",
+    "name": "Abbey Close",
+    "kind": "permit",
+    "zone": "A"
+  },
+  {
+    "id": "victoriaTerr",
+    "name": "Victoria Terrace",
+    "kind": "permit",
+    "zone": "B"
+  },
+  {
+    "id": "churchLane",
+    "name": "Church Lane",
+    "kind": "double-yellow",
+    "zone": null
+  },
+  {
+    "id": "bishopsWay",
+    "name": "Bishop's Way",
+    "kind": "loading-bay",
+    "zone": null
+  }
+]

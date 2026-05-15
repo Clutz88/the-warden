@@ -1,44 +1,12 @@
 import type { Street } from "./types";
 import { DAYS, getDay } from "./days";
+import streetsRaw from "./streets.json";
 
-export const STREETS: Record<string, Street> = {
-  highRoad: {
-    id: "highRoad",
-    name: "High Road",
-    kind: "pay-and-display",
-    zone: null,
-  },
-  marketSt: {
-    id: "marketSt",
-    name: "Market Street",
-    kind: "pay-and-display",
-    zone: null,
-  },
-  abbeyClose: {
-    id: "abbeyClose",
-    name: "Abbey Close",
-    kind: "permit",
-    zone: "A",
-  },
-  victoriaTerr: {
-    id: "victoriaTerr",
-    name: "Victoria Terrace",
-    kind: "permit",
-    zone: "B",
-  },
-  churchLane: {
-    id: "churchLane",
-    name: "Church Lane",
-    kind: "double-yellow",
-    zone: null,
-  },
-  bishopsWay: {
-    id: "bishopsWay",
-    name: "Bishop's Way",
-    kind: "loading-bay",
-    zone: null,
-  },
-};
+const list = streetsRaw as Street[];
+
+export const STREETS: Record<string, Street> = Object.fromEntries(
+  list.map((s) => [s.id, s]),
+);
 
 export function streetsForDay(day: number): Street[] {
   return getDay(day).streets.map((id) => {

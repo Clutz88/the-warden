@@ -6,6 +6,58 @@ function dayEditorPlugin(): Plugin {
   return {
     name: "day-editor-save",
     configureServer(server) {
+      server.middlewares.use("/__editor/save-streets", async (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end();
+          return;
+        }
+        try {
+          let body = "";
+          for await (const chunk of req) body += chunk;
+          const parsed = JSON.parse(body) as { streets?: unknown };
+          if (!Array.isArray(parsed.streets)) {
+            res.statusCode = 400;
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ error: "streets must be an array" }));
+            return;
+          }
+          const ALLOWED_KINDS = new Set([
+            "pay-and-display",
+            "permit",
+            "double-yellow",
+            "single-yellow",
+            "loading-bay",
+          ]);
+          const ALLOWED_ZONES = new Set([null, "A", "B", "C"]);
+          for (const s of parsed.streets) {
+            if (
+              !s || typeof s !== "object" ||
+              typeof (s as { id?: unknown }).id !== "string" ||
+              typeof (s as { name?: unknown }).name !== "string" ||
+              !ALLOWED_KINDS.has((s as { kind?: unknown }).kind as string) ||
+              !ALLOWED_ZONES.has((s as { zone?: unknown }).zone as string | null)
+            ) {
+              res.statusCode = 400;
+              res.setHeader("content-type", "application/json");
+              res.end(JSON.stringify({ error: "each street needs id, name (strings), valid kind, zone null|A|B|C" }));
+              return;
+            }
+          }
+          const root = server.config.root;
+          const file = resolve(root, join("src", "game", "streets.json"));
+          const json = JSON.stringify(parsed.streets, null, 2) + "\n";
+          await writeFile(file, json, "utf8");
+          res.statusCode = 200;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ ok: true, file: "src/game/streets.json" }));
+        } catch (err) {
+          res.statusCode = 500;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ error: String(err) }));
+        }
+      });
+
       server.middlewares.use("/__editor/save-residents", async (req, res) => {
         if (req.method !== "POST") {
           res.statusCode = 405;

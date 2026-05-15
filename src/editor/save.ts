@@ -1,4 +1,4 @@
-import type { DayDefRaw } from "../game/types";
+import type { DayDefRaw, Street } from "../game/types";
 import type { Resident } from "../game/residents";
 
 export type SaveResult = { ok: true; file: string } | { ok: false; error: string };
@@ -9,6 +9,10 @@ export async function saveDay(day: number, raw: DayDefRaw): Promise<SaveResult> 
 
 export async function saveResidents(residents: Resident[]): Promise<SaveResult> {
   return post("/__editor/save-residents", { residents });
+}
+
+export async function saveStreets(streets: Street[]): Promise<SaveResult> {
+  return post("/__editor/save-streets", { streets });
 }
 
 async function post(url: string, body: unknown): Promise<SaveResult> {

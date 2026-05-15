@@ -1,7 +1,7 @@
-import type { CarSpecRaw, DayDefRaw } from "../game/types";
+import type { CarSpecRaw, DayDefRaw, Street } from "../game/types";
 import type { Resident } from "../game/residents";
 
-export type EditorMode = "day" | "residents";
+export type EditorMode = "day" | "residents" | "streets";
 
 export type EditorState = {
   mode: EditorMode;
@@ -14,6 +14,10 @@ export type EditorState = {
   residentsDraft: Resident[];
   selectedResidentIdx: number;
   residentsDirty: boolean;
+  // Streets mode
+  streetsDraft: Street[];
+  selectedStreetIdx: number;
+  streetsDirty: boolean;
   // Shared
   saveStatus: { kind: "idle" | "saving" | "ok" | "err"; message?: string };
 };
@@ -78,6 +82,20 @@ export function updateResident(idx: number, fn: (r: Resident) => void): void {
   updateResidents((rs) => {
     const r = rs[idx];
     if (r) fn(r);
+  });
+}
+
+export function updateStreets(fn: (xs: Street[]) => void): void {
+  const s = getState();
+  const streetsDraft = structuredClone(s.streetsDraft);
+  fn(streetsDraft);
+  setState({ streetsDraft, streetsDirty: true, saveStatus: { kind: "idle" } });
+}
+
+export function updateStreet(idx: number, fn: (s: Street) => void): void {
+  updateStreets((xs) => {
+    const x = xs[idx];
+    if (x) fn(x);
   });
 }
 

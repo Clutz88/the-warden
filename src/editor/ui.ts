@@ -1,4 +1,4 @@
-import type { CarSpecRaw, DocRaw, ToneCode, ZoneCode } from "../game/types";
+import type { CarSpecRaw, DocRaw, StreetKind, ToneCode, ZoneCode } from "../game/types";
 import { STREETS } from "../game/streets";
 import {
   getState,
@@ -9,10 +9,12 @@ import {
   updateDraft,
   updateResident,
   updateResidents,
+  updateStreet,
+  updateStreets,
 } from "./state";
 import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
-import { saveDay, saveResidents } from "./save";
+import { saveDay, saveResidents, saveStreets } from "./save";
 
 const STREET_KEYS = Object.keys(STREETS);
 const DOC_TYPES: DocRaw["type"][] = [
@@ -25,11 +27,20 @@ const DOC_TYPES: DocRaw["type"][] = [
 ];
 const TONES: ToneCode[] = ["neutral", "positive", "negative"];
 const ZONES: ZoneCode[] = [null, "A", "B", "C"];
+const STREET_KINDS: StreetKind[] = [
+  "pay-and-display",
+  "permit",
+  "double-yellow",
+  "single-yellow",
+  "loading-bay",
+];
 
 export function render(root: HTMLElement): void {
   const s = getState();
   if (s.mode === "residents") {
     root.replaceChildren(buildResidentsPage());
+  } else if (s.mode === "streets") {
+    root.replaceChildren(buildStreetsPage());
   } else {
     const preview = previewDraft(s.draft);
     root.replaceChildren(buildDayPage(preview));
@@ -56,21 +67,41 @@ function buildResidentsPage(): HTMLElement {
   return wrap;
 }
 
+function buildStreetsPage(): HTMLElement {
+  const wrap = el("div", { id: "editor-root" });
+  wrap.appendChild(buildHeader());
+  const body = el("div", { class: "editor-body" });
+  body.appendChild(buildStreetsLeft());
+  body.appendChild(buildStreetsRight());
+  wrap.appendChild(body);
+  return wrap;
+}
+
 function buildHeader(): HTMLElement {
   const s = getState();
   const header = el("header", { class: "editor-header" });
-  header.appendChild(
-    el("h1", {}, s.mode === "residents" ? "THE WARDEN — RESIDENTS" : "THE WARDEN — DAY EDITOR"),
-  );
+  const headerTitle =
+    s.mode === "residents" ? "THE WARDEN — RESIDENTS"
+    : s.mode === "streets" ? "THE WARDEN — STREETS"
+    : "THE WARDEN — DAY EDITOR";
+  header.appendChild(el("h1", {}, headerTitle));
 
   const modeToggle = el("div", { class: "mode-toggle" });
-  for (const m of ["day", "residents"] as const) {
-    const b = el("button", { class: s.mode === m ? "primary" : "" }, m === "day" ? "Days" : "Residents");
+  const modes = [
+    { key: "day", label: "Days" },
+    { key: "residents", label: "Residents" },
+    { key: "streets", label: "Streets" },
+  ] as const;
+  for (const m of modes) {
+    const b = el("button", { class: s.mode === m.key ? "primary" : "" }, m.label);
     b.addEventListener("click", () => {
-      if (m === s.mode) return;
-      const otherDirty = m === "day" ? s.residentsDirty : s.dirty;
-      if (otherDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
-      switchMode(m);
+      if (m.key === s.mode) return;
+      const currentDirty =
+        s.mode === "day" ? s.dirty
+        : s.mode === "residents" ? s.residentsDirty
+        : s.streetsDirty;
+      if (currentDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
+      switchMode(m.key);
     });
     modeToggle.appendChild(b);
   }
@@ -102,12 +133,19 @@ function buildHeader(): HTMLElement {
     header.appendChild(
       el("span", { class: "muted small" }, `${s.draft.cars.length} cars`),
     );
-  } else {
+  } else if (s.mode === "residents") {
     const newResidentBtn = el("button", { title: "Add a new resident" }, "+ New resident");
     newResidentBtn.addEventListener("click", onAddResident);
     header.appendChild(newResidentBtn);
     header.appendChild(
       el("span", { class: "muted small" }, `${s.residentsDraft.length} residents`),
+    );
+  } else {
+    const newStreetBtn = el("button", { title: "Add a new street" }, "+ New street");
+    newStreetBtn.addEventListener("click", onAddStreet);
+    header.appendChild(newStreetBtn);
+    header.appendChild(
+      el("span", { class: "muted small" }, `${s.streetsDraft.length} streets`),
     );
   }
 
@@ -137,7 +175,10 @@ function statusClass(k: string): string {
 function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
   if (s.kind === "idle") {
     const st = getState();
-    const dirty = st.mode === "residents" ? st.residentsDirty : st.dirty;
+    const dirty =
+      st.mode === "residents" ? st.residentsDirty
+      : st.mode === "streets" ? st.streetsDirty
+      : st.dirty;
     return dirty ? "● unsaved changes" : "saved";
   }
   if (s.kind === "saving") return "saving…";
@@ -152,6 +193,13 @@ async function onSave(): Promise<void> {
     const res = await saveResidents(s.residentsDraft);
     if (res.ok) {
       setState({ residentsDirty: false, saveStatus: { kind: "ok", message: res.file } });
+    } else {
+      setState({ saveStatus: { kind: "err", message: res.error } });
+    }
+  } else if (s.mode === "streets") {
+    const res = await saveStreets(s.streetsDraft);
+    if (res.ok) {
+      setState({ streetsDirty: false, saveStatus: { kind: "ok", message: res.file } });
     } else {
       setState({ saveStatus: { kind: "err", message: res.error } });
     }
@@ -674,6 +722,167 @@ function onDeleteResident(idx: number): void {
   const s = getState();
   if (s.selectedResidentIdx >= s.residentsDraft.length) {
     setState({ selectedResidentIdx: Math.max(0, s.residentsDraft.length - 1) });
+  }
+}
+
+// --- Streets mode ---
+
+function buildStreetsLeft(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildStreetsList());
+  const s = getState();
+  const idx = s.selectedStreetIdx;
+  if (idx >= 0 && idx < s.streetsDraft.length) {
+    col.appendChild(buildStreetDetail(idx));
+  }
+  return col;
+}
+
+function buildStreetsRight(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildStreetsValidation());
+  return col;
+}
+
+function buildStreetsList(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  const head = el("div", { class: "row", style: "justify-content: space-between" });
+  head.appendChild(el("h2", { style: "margin: 0" }, `Streets (${s.streetsDraft.length})`));
+  const addBtn = el("button", {}, "+ Add street");
+  addBtn.addEventListener("click", onAddStreet);
+  head.appendChild(addBtn);
+  card.appendChild(head);
+
+  const table = el("table", { class: "cars" });
+  const thead = el("thead");
+  const trH = el("tr");
+  ["#", "ID", "Name", "Kind", "Zone", ""].forEach((h) => trH.appendChild(el("th", {}, h)));
+  thead.appendChild(trH);
+  table.appendChild(thead);
+
+  const tbody = el("tbody");
+  s.streetsDraft.forEach((street, i) => {
+    const tr = el("tr", { class: i === s.selectedStreetIdx ? "selected" : "" });
+    tr.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("button")) return;
+      setState({ selectedStreetIdx: i });
+    });
+    tr.appendChild(el("td", {}, String(i + 1)));
+    tr.appendChild(el("td", {}, street.id));
+    tr.appendChild(el("td", {}, street.name));
+    tr.appendChild(el("td", {}, street.kind));
+    tr.appendChild(el("td", {}, street.zone ?? "—"));
+    const actions = el("td");
+    const del = el("button", { class: "danger" }, "✕");
+    del.addEventListener("click", () => onDeleteStreet(i));
+    actions.appendChild(del);
+    tr.appendChild(actions);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  card.appendChild(table);
+  return card;
+}
+
+function buildStreetDetail(idx: number): HTMLElement {
+  const street = getState().streetsDraft[idx]!;
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, `Street ${idx + 1} — ${street.name}`));
+
+  const grid = el("div", { class: "grid-2" });
+  grid.appendChild(labeled("ID (referenced from day JSON)", textInput(street.id, (v) => updateStreet(idx, (x) => { x.id = v; }))));
+  grid.appendChild(labeled("Display name", textInput(street.name, (v) => updateStreet(idx, (x) => { x.name = v; }))));
+  card.appendChild(grid);
+
+  const grid2 = el("div", { class: "grid-2" });
+  grid2.appendChild(labeled("Kind", selectInput(STREET_KINDS as string[], street.kind, (v) => updateStreet(idx, (x) => { x.kind = v as StreetKind; }))));
+  grid2.appendChild(labeled("Zone", selectInput(ZONES.map(zoneLabel), zoneLabel(street.zone), (v) => updateStreet(idx, (x) => { x.zone = parseZone(v); }))));
+  card.appendChild(grid2);
+
+  return card;
+}
+
+function buildStreetsValidation(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Validation"));
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const ids = new Set<string>();
+  for (const street of s.streetsDraft) {
+    if (!street.id.trim()) errors.push(`Street "${street.name || "(unnamed)"}" has empty id`);
+    else if (ids.has(street.id)) errors.push(`Duplicate id: ${street.id}`);
+    ids.add(street.id);
+    if (!street.name.trim()) errors.push(`Street "${street.id}" has empty name`);
+    if (street.kind === "permit" && street.zone === null) {
+      warnings.push(`Permit street "${street.id}" has no zone — permit-zone-match will fail`);
+    }
+    if (street.kind !== "permit" && street.zone !== null) {
+      warnings.push(`Non-permit street "${street.id}" has a zone — engine ignores it`);
+    }
+  }
+
+  // Cross-check day references
+  for (const dayNum of Object.keys(RAW_DAYS).map(Number)) {
+    const raw = RAW_DAYS[dayNum];
+    if (!raw) continue;
+    for (const sid of raw.streets) {
+      if (!ids.has(sid)) errors.push(`Day ${dayNum} streets[] references missing street "${sid}"`);
+    }
+    for (const c of raw.cars) {
+      if (!ids.has(c.street)) errors.push(`Day ${dayNum} car ${c.plate} references missing street "${c.street}"`);
+    }
+  }
+
+  if (errors.length === 0 && warnings.length === 0) {
+    card.appendChild(el("div", { class: "banner ok" }, "All streets valid"));
+  }
+  for (const e of errors) card.appendChild(el("div", { class: "banner err" }, e));
+  for (const w of warnings) card.appendChild(el("div", { class: "banner" }, `⚠ ${w}`));
+  return card;
+}
+
+function onAddStreet(): void {
+  const s = getState();
+  const baseId = "newStreet";
+  let id = baseId;
+  let n = 1;
+  while (s.streetsDraft.some((x) => x.id === id)) {
+    n++;
+    id = `${baseId}${n}`;
+  }
+  updateStreets((xs) => {
+    xs.push({ id, name: "New Street", kind: "pay-and-display", zone: null });
+  });
+  setState({ selectedStreetIdx: getState().streetsDraft.length - 1 });
+}
+
+function onDeleteStreet(idx: number): void {
+  const street = getState().streetsDraft[idx];
+  if (!street) return;
+  // Find day references
+  const refs: string[] = [];
+  for (const dayNum of Object.keys(RAW_DAYS).map(Number)) {
+    const raw = RAW_DAYS[dayNum];
+    if (!raw) continue;
+    if (raw.streets.includes(street.id)) refs.push(`Day ${dayNum} streets`);
+    for (const c of raw.cars) {
+      if (c.street === street.id) refs.push(`Day ${dayNum} car ${c.plate}`);
+    }
+  }
+  let msg = `Delete street "${street.id}" (${street.name})?`;
+  if (refs.length) {
+    msg += `\n\nWARNING: still referenced by ${refs.length} entr${refs.length === 1 ? "y" : "ies"}:\n - ${refs.slice(0, 6).join("\n - ")}`;
+    if (refs.length > 6) msg += `\n - … and ${refs.length - 6} more`;
+    msg += "\n\nDay files will fail to load until you fix them.";
+  }
+  if (!window.confirm(msg)) return;
+  updateStreets((xs) => { xs.splice(idx, 1); });
+  const s = getState();
+  if (s.selectedStreetIdx >= s.streetsDraft.length) {
+    setState({ selectedStreetIdx: Math.max(0, s.streetsDraft.length - 1) });
   }
 }
 
