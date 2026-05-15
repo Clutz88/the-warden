@@ -149,6 +149,16 @@ export type DayDefRaw = {
   supervisor?: SupervisorConfig;
 };
 
+export type TuningRaw = {
+  shiftStart: string;
+  wages: { correct: number; wrong: number; flawlessBonus: number };
+};
+
+export type Tuning = {
+  shiftStart: number;
+  wages: { correct: number; wrong: number; flawlessBonus: number };
+};
+
 export type ShiftLog = {
   car: Car;
   truth: Violation[];

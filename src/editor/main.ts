@@ -2,7 +2,8 @@ import "./editor.css";
 import { RAW_DAYS } from "./rawDays";
 import { RESIDENTS, type Resident } from "../game/residents";
 import { STREETS } from "../game/streets";
-import type { Street } from "../game/types";
+import type { Street, TuningRaw } from "../game/types";
+import tuningRaw from "../data/tuning.json";
 import { initState, subscribe } from "./state";
 import { render } from "./ui";
 
@@ -19,7 +20,7 @@ if (!import.meta.env.DEV) {
 } else {
   const rawMode = sessionStorage.getItem("editor:mode");
   const persistedMode =
-    rawMode === "residents" || rawMode === "streets" ? rawMode : "day";
+    rawMode === "residents" || rawMode === "streets" || rawMode === "tuning" ? rawMode : "day";
   const persistedDay = Number(sessionStorage.getItem("editor:day"));
   const persistedCarIdx = Number(sessionStorage.getItem("editor:carIdx"));
   const persistedResidentIdx = Number(sessionStorage.getItem("editor:residentIdx"));
@@ -49,6 +50,8 @@ if (!import.meta.env.DEV) {
     streetsDraft: structuredClone(streetsList),
     selectedStreetIdx: initialStreetIdx,
     streetsDirty: false,
+    tuningDraft: structuredClone(tuningRaw) as TuningRaw,
+    tuningDirty: false,
     saveStatus: { kind: "idle" },
   });
   subscribe((s) => {

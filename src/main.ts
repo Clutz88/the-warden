@@ -9,6 +9,7 @@ import {
   hydrate,
 } from "./game/state";
 import { buildCars } from "./game/cars";
+import { TUNING } from "./game/tuning";
 import { activeRules } from "./game/rules";
 import { getDay, DAYS } from "./game/days";
 import { reviewShift } from "./game/supervisor";
@@ -35,10 +36,10 @@ inject({
   mode: import.meta.env.MODE === "production" ? "production" : "development",
 });
 
-const SHIFT_START = 9 * 60;
-const WAGE_CORRECT = 10;
-const WAGE_WRONG = -8;
-const FLAWLESS_BONUS = 10;
+const SHIFT_START = TUNING.shiftStart;
+const WAGE_CORRECT = TUNING.wages.correct;
+const WAGE_WRONG = TUNING.wages.wrong;
+const FLAWLESS_BONUS = TUNING.wages.flawlessBonus;
 
 function startDay(day: number): void {
   const def = getDay(day);

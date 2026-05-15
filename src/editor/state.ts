@@ -1,7 +1,7 @@
-import type { CarSpecRaw, DayDefRaw, Street } from "../game/types";
+import type { CarSpecRaw, DayDefRaw, Street, TuningRaw } from "../game/types";
 import type { Resident } from "../game/residents";
 
-export type EditorMode = "day" | "residents" | "streets";
+export type EditorMode = "day" | "residents" | "streets" | "tuning";
 
 export type EditorState = {
   mode: EditorMode;
@@ -18,6 +18,9 @@ export type EditorState = {
   streetsDraft: Street[];
   selectedStreetIdx: number;
   streetsDirty: boolean;
+  // Tuning mode
+  tuningDraft: TuningRaw;
+  tuningDirty: boolean;
   // Shared
   saveStatus: { kind: "idle" | "saving" | "ok" | "err"; message?: string };
 };
@@ -97,6 +100,13 @@ export function updateStreet(idx: number, fn: (s: Street) => void): void {
     const x = xs[idx];
     if (x) fn(x);
   });
+}
+
+export function updateTuning(fn: (t: TuningRaw) => void): void {
+  const s = getState();
+  const tuningDraft = structuredClone(s.tuningDraft);
+  fn(tuningDraft);
+  setState({ tuningDraft, tuningDirty: true, saveStatus: { kind: "idle" } });
 }
 
 export function subscribe(l: Listener): () => void {

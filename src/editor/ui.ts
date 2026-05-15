@@ -11,10 +11,11 @@ import {
   updateResidents,
   updateStreet,
   updateStreets,
+  updateTuning,
 } from "./state";
 import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
-import { saveDay, saveResidents, saveStreets } from "./save";
+import { saveDay, saveResidents, saveStreets, saveTuning } from "./save";
 
 const STREET_KEYS = Object.keys(STREETS);
 const DOC_TYPES: DocRaw["type"][] = [
@@ -41,6 +42,8 @@ export function render(root: HTMLElement): void {
     root.replaceChildren(buildResidentsPage());
   } else if (s.mode === "streets") {
     root.replaceChildren(buildStreetsPage());
+  } else if (s.mode === "tuning") {
+    root.replaceChildren(buildTuningPage());
   } else {
     const preview = previewDraft(s.draft);
     root.replaceChildren(buildDayPage(preview));
@@ -77,12 +80,23 @@ function buildStreetsPage(): HTMLElement {
   return wrap;
 }
 
+function buildTuningPage(): HTMLElement {
+  const wrap = el("div", { id: "editor-root" });
+  wrap.appendChild(buildHeader());
+  const body = el("div", { class: "editor-body" });
+  body.appendChild(buildTuningLeft());
+  body.appendChild(buildTuningRight());
+  wrap.appendChild(body);
+  return wrap;
+}
+
 function buildHeader(): HTMLElement {
   const s = getState();
   const header = el("header", { class: "editor-header" });
   const headerTitle =
     s.mode === "residents" ? "THE WARDEN — RESIDENTS"
     : s.mode === "streets" ? "THE WARDEN — STREETS"
+    : s.mode === "tuning" ? "THE WARDEN — TUNING"
     : "THE WARDEN — DAY EDITOR";
   header.appendChild(el("h1", {}, headerTitle));
 
@@ -91,6 +105,7 @@ function buildHeader(): HTMLElement {
     { key: "day", label: "Days" },
     { key: "residents", label: "Residents" },
     { key: "streets", label: "Streets" },
+    { key: "tuning", label: "Tuning" },
   ] as const;
   for (const m of modes) {
     const b = el("button", { class: s.mode === m.key ? "primary" : "" }, m.label);
@@ -99,7 +114,8 @@ function buildHeader(): HTMLElement {
       const currentDirty =
         s.mode === "day" ? s.dirty
         : s.mode === "residents" ? s.residentsDirty
-        : s.streetsDirty;
+        : s.mode === "streets" ? s.streetsDirty
+        : s.tuningDirty;
       if (currentDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
       switchMode(m.key);
     });
@@ -140,12 +156,16 @@ function buildHeader(): HTMLElement {
     header.appendChild(
       el("span", { class: "muted small" }, `${s.residentsDraft.length} residents`),
     );
-  } else {
+  } else if (s.mode === "streets") {
     const newStreetBtn = el("button", { title: "Add a new street" }, "+ New street");
     newStreetBtn.addEventListener("click", onAddStreet);
     header.appendChild(newStreetBtn);
     header.appendChild(
       el("span", { class: "muted small" }, `${s.streetsDraft.length} streets`),
+    );
+  } else {
+    header.appendChild(
+      el("span", { class: "muted small" }, "Global game balance"),
     );
   }
 
@@ -178,6 +198,7 @@ function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
     const dirty =
       st.mode === "residents" ? st.residentsDirty
       : st.mode === "streets" ? st.streetsDirty
+      : st.mode === "tuning" ? st.tuningDirty
       : st.dirty;
     return dirty ? "● unsaved changes" : "saved";
   }
@@ -200,6 +221,13 @@ async function onSave(): Promise<void> {
     const res = await saveStreets(s.streetsDraft);
     if (res.ok) {
       setState({ streetsDirty: false, saveStatus: { kind: "ok", message: res.file } });
+    } else {
+      setState({ saveStatus: { kind: "err", message: res.error } });
+    }
+  } else if (s.mode === "tuning") {
+    const res = await saveTuning(s.tuningDraft);
+    if (res.ok) {
+      setState({ tuningDirty: false, saveStatus: { kind: "ok", message: res.file } });
     } else {
       setState({ saveStatus: { kind: "err", message: res.error } });
     }
@@ -886,6 +914,87 @@ function onDeleteStreet(idx: number): void {
   }
 }
 
+// --- Tuning mode ---
+
+function buildTuningLeft(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildTuningForm());
+  return col;
+}
+
+function buildTuningRight(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildTuningPreview());
+  return col;
+}
+
+function buildTuningForm(): HTMLElement {
+  const t = getState().tuningDraft;
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Game tuning"));
+
+  card.appendChild(el("h3", {}, "Shift"));
+  const shiftBox = el("div", { style: "max-width: 200px" });
+  shiftBox.appendChild(labeled(
+    "Shift start (HH:MM)",
+    textInput(t.shiftStart, (v) => updateTuning((x) => { x.shiftStart = v; }), !/^\d\d:\d\d$/.test(t.shiftStart)),
+  ));
+  card.appendChild(shiftBox);
+
+  card.appendChild(el("h3", {}, "Wages"));
+  const grid = el("div", { class: "grid-3" });
+  grid.appendChild(labeled(
+    "Correct decision (£)",
+    numberInput(t.wages.correct, (v) => updateTuning((x) => { x.wages.correct = v; })),
+  ));
+  grid.appendChild(labeled(
+    "Wrong decision (£)",
+    numberInput(t.wages.wrong, (v) => updateTuning((x) => { x.wages.wrong = v; })),
+  ));
+  grid.appendChild(labeled(
+    "Flawless-shift bonus (£)",
+    numberInput(t.wages.flawlessBonus, (v) => updateTuning((x) => { x.wages.flawlessBonus = v; })),
+  ));
+  card.appendChild(grid);
+
+  return card;
+}
+
+function buildTuningPreview(): HTMLElement {
+  const s = getState();
+  const t = s.tuningDraft;
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Effect preview"));
+
+  const formatClock = /^\d\d:\d\d$/.test(t.shiftStart);
+  if (!formatClock) {
+    card.appendChild(el("div", { class: "banner err" }, `Shift start "${t.shiftStart}" is not HH:MM`));
+    return card;
+  }
+  card.appendChild(el("div", { class: "banner ok" }, "Tuning valid"));
+
+  // Show shift earnings projection for each authored day.
+  const list = el("div", { class: "truth-list" });
+  const sortedDays = Object.keys(RAW_DAYS).map(Number).sort((a, b) => a - b);
+  for (const dayNum of sortedDays) {
+    const day = RAW_DAYS[dayNum];
+    if (!day) continue;
+    const carCount = day.cars.length;
+    const flawless = carCount * t.wages.correct + t.wages.flawlessBonus;
+    const allWrong = carCount * t.wages.wrong;
+    const row = el("div", { class: "truth-row" });
+    row.appendChild(el("span", { class: "when" }, `Day ${dayNum}`));
+    row.appendChild(el("span", { class: "plate" }, `${carCount}c`));
+    row.appendChild(el("span", { class: "muted" }, `rent £${day.rent}`));
+    const verdict = el("span", { class: flawless >= day.rent ? "codes pass" : "codes pcn" },
+      `flawless £${flawless} · all wrong £${allWrong}`);
+    row.appendChild(verdict);
+    list.appendChild(row);
+  }
+  card.appendChild(list);
+  return card;
+}
+
 // --- Small DOM helpers ---
 
 function el(tag: string, attrs: Record<string, string> = {}, text?: string): HTMLElement {
@@ -909,6 +1018,16 @@ function textInput(value: string, onChange: (v: string) => void, bad = false): H
   i.value = value;
   if (bad) i.classList.add("bad");
   i.addEventListener("input", () => onChange(i.value));
+  return i;
+}
+
+function numberInput(value: number, onChange: (v: number) => void): HTMLInputElement {
+  const i = el("input", { type: "number" }) as HTMLInputElement;
+  i.value = String(value);
+  i.addEventListener("input", () => {
+    const n = Number(i.value);
+    if (Number.isFinite(n)) onChange(n);
+  });
   return i;
 }
 

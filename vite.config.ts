@@ -6,6 +6,55 @@ function dayEditorPlugin(): Plugin {
   return {
     name: "day-editor-save",
     configureServer(server) {
+      server.middlewares.use("/__editor/save-tuning", async (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end();
+          return;
+        }
+        try {
+          let body = "";
+          for await (const chunk of req) body += chunk;
+          const parsed = JSON.parse(body) as { tuning?: unknown };
+          const t = parsed.tuning as
+            | { shiftStart?: unknown; wages?: { correct?: unknown; wrong?: unknown; flawlessBonus?: unknown } }
+            | undefined;
+          if (
+            !t ||
+            typeof t.shiftStart !== "string" ||
+            !/^([0-2]\d):([0-5]\d)$/.test(t.shiftStart) ||
+            !t.wages ||
+            !Number.isFinite(t.wages.correct as number) ||
+            !Number.isFinite(t.wages.wrong as number) ||
+            !Number.isFinite(t.wages.flawlessBonus as number)
+          ) {
+            res.statusCode = 400;
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ error: "tuning needs shiftStart HH:MM + wages.correct/wrong/flawlessBonus numbers" }));
+            return;
+          }
+          const root = server.config.root;
+          const file = resolve(root, join("src", "data", "tuning.json"));
+          const clean = {
+            shiftStart: t.shiftStart,
+            wages: {
+              correct: Number(t.wages.correct),
+              wrong: Number(t.wages.wrong),
+              flawlessBonus: Number(t.wages.flawlessBonus),
+            },
+          };
+          const json = JSON.stringify(clean, null, 2) + "\n";
+          await writeFile(file, json, "utf8");
+          res.statusCode = 200;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ ok: true, file: "src/data/tuning.json" }));
+        } catch (err) {
+          res.statusCode = 500;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ error: String(err) }));
+        }
+      });
+
       server.middlewares.use("/__editor/save-streets", async (req, res) => {
         if (req.method !== "POST") {
           res.statusCode = 405;
