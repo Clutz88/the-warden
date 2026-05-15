@@ -1,6 +1,6 @@
 import type { Street } from "./types";
 import { DAYS, getDay } from "./days";
-import streetsRaw from "./streets.json";
+import streetsRaw from "../data/streets.json";
 
 const list = streetsRaw as Street[];
 

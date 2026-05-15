@@ -1,4 +1,4 @@
-import residentsRaw from "./residents.json";
+import residentsRaw from "../data/residents.json";
 
 export type Resident = {
   id: string;

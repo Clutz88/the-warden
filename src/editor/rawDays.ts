@@ -1,7 +1,7 @@
 import type { DayDefRaw } from "../game/types";
 
 const RAW_MODULES = import.meta.glob<{ default: DayDefRaw }>(
-  "../game/days/day*.json",
+  "../data/days/day*.json",
   { eager: true },
 );
 

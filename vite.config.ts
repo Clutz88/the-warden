@@ -45,12 +45,12 @@ function dayEditorPlugin(): Plugin {
             }
           }
           const root = server.config.root;
-          const file = resolve(root, join("src", "game", "streets.json"));
+          const file = resolve(root, join("src", "data", "streets.json"));
           const json = JSON.stringify(parsed.streets, null, 2) + "\n";
           await writeFile(file, json, "utf8");
           res.statusCode = 200;
           res.setHeader("content-type", "application/json");
-          res.end(JSON.stringify({ ok: true, file: "src/game/streets.json" }));
+          res.end(JSON.stringify({ ok: true, file: "src/data/streets.json" }));
         } catch (err) {
           res.statusCode = 500;
           res.setHeader("content-type", "application/json");
@@ -89,12 +89,12 @@ function dayEditorPlugin(): Plugin {
             }
           }
           const root = server.config.root;
-          const file = resolve(root, join("src", "game", "residents.json"));
+          const file = resolve(root, join("src", "data", "residents.json"));
           const json = JSON.stringify(parsed.residents, null, 2) + "\n";
           await writeFile(file, json, "utf8");
           res.statusCode = 200;
           res.setHeader("content-type", "application/json");
-          res.end(JSON.stringify({ ok: true, file: "src/game/residents.json" }));
+          res.end(JSON.stringify({ ok: true, file: "src/data/residents.json" }));
         } catch (err) {
           res.statusCode = 500;
           res.setHeader("content-type", "application/json");
@@ -126,8 +126,8 @@ function dayEditorPlugin(): Plugin {
             return;
           }
           const root = server.config.root;
-          const file = resolve(root, join("src", "game", "days", `day${day}.json`));
-          if (!file.startsWith(resolve(root, "src", "game", "days") + "/")) {
+          const file = resolve(root, join("src", "data", "days", `day${day}.json`));
+          if (!file.startsWith(resolve(root, "src", "data", "days") + "/")) {
             res.statusCode = 400;
             res.setHeader("content-type", "application/json");
             res.end(JSON.stringify({ error: "path escape" }));
@@ -137,7 +137,7 @@ function dayEditorPlugin(): Plugin {
           await writeFile(file, json, "utf8");
           res.statusCode = 200;
           res.setHeader("content-type", "application/json");
-          res.end(JSON.stringify({ ok: true, file: `src/game/days/day${day}.json` }));
+          res.end(JSON.stringify({ ok: true, file: `src/data/days/day${day}.json` }));
         } catch (err) {
           res.statusCode = 500;
           res.setHeader("content-type", "application/json");

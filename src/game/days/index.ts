@@ -8,9 +8,10 @@ import type {
 } from "../types";
 import { residentById } from "../residents";
 
-const RAW_MODULES = import.meta.glob<{ default: DayDefRaw }>("./day*.json", {
-  eager: true,
-});
+const RAW_MODULES = import.meta.glob<{ default: DayDefRaw }>(
+  "../../data/days/day*.json",
+  { eager: true },
+);
 
 export function parseClock(s: string): number {
   const m = /^([0-2]\d):([0-5]\d)$/.exec(s);
