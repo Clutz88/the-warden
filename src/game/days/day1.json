@@ -5,7 +5,10 @@
     "Pay & Display required on High Road and Market Street.",
     "Ticket must not be expired (compare against your shift clock)."
   ],
-  "streets": ["highRoad", "marketSt"],
+  "streets": [
+    "highRoad",
+    "marketSt"
+  ],
   "rent": 30,
   "cars": [
     {
@@ -15,7 +18,11 @@
       "model": "Ford Fiesta",
       "street": "highRoad",
       "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:30" }
+        {
+          "type": "pd",
+          "zone": null,
+          "expiresAt": "10:30"
+        }
       ]
     },
     {
@@ -25,7 +32,11 @@
       "model": "BMW 3 Series",
       "street": "marketSt",
       "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:00" }
+        {
+          "type": "pd",
+          "zone": null,
+          "expiresAt": "09:00"
+        }
       ]
     },
     {
@@ -43,7 +54,11 @@
       "model": "Toyota Yaris",
       "street": "marketSt",
       "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:15" }
+        {
+          "type": "pd",
+          "zone": null,
+          "expiresAt": "10:15"
+        }
       ]
     },
     {
@@ -53,7 +68,11 @@
       "model": "Vauxhall Corsa",
       "street": "marketSt",
       "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:30" }
+        {
+          "type": "pd",
+          "zone": null,
+          "expiresAt": "09:30"
+        }
       ]
     },
     {
@@ -63,7 +82,11 @@
       "model": "Land Rover Discovery",
       "street": "highRoad",
       "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "11:00" }
+        {
+          "type": "pd",
+          "zone": null,
+          "expiresAt": "11:00"
+        }
       ]
     }
   ]
