@@ -4,6 +4,27 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 
+## [0.10.0] — 2026-05-16
+
+### Added
+- **Hand-authored car sequences.** Days 2–6 migrated from procedural generation to fixed scenarios authored in `src/data/days/dayN.json`. Each car carries its own `seenAt` so the shift clock advances at the authored pace rather than a fixed `PER_CAR_MINUTES` step.
+- **Reactive notes (`reactive-note` doc type).** Per-car notes tagged with `neutral`/`positive`/`negative` variants. Engine classifies by last action (PCN → negative, PASS → positive, empty history → neutral) and resolves at `buildCars` time. Variants live inline on each car in the day JSON; missing tones fall back to `neutral`, then to drop-silently.
+- **Dev-only editor at `/editor.html`.** Five modes: Days (per-day cars/docs/streets/rent + `+ New day`), Residents (id/name/plate/bio + validation), Streets (kind/zone + cross-day reference check on delete), Tuning (shift start + wages), and Sprites with a clickable pixel canvas, palette swatch brush, resize controls, live preview, and a full palette editor. Gated by `import.meta.env.DEV` and excluded from `dist/`.
+
+### Changed
+- **All authored content moved to `src/data/`.** Days (`data/days/dayN.json`), residents (`residents.json`), streets (`streets.json`), tuning (`tuning.json`), and sprites (`sprites/{cars,icons,doc,palette}.json`) now live as JSON. Engine modules in `src/game/` and `src/ui/sprites/` import the JSON at module init.
+- **Game tuning configurable.** `shiftStart`, `wages.correct`, `wages.wrong`, and `wages.flawlessBonus` moved out of `main.ts` into `src/data/tuning.json`.
+- **Day discovery via `import.meta.glob`.** Drop a new `dayN.json` in `src/data/days/` and it's picked up automatically — no code change to register a new day.
+
+### Removed
+- Procedural car generator (`generateCars`, plate/colour/model pools, `DOC_BUILDERS`, `maybeResident`) — fully retired now that every day is authored.
+- `Resident.note` / `Resident.notes` / `pickNote` / `NoteVariant` — replaced by per-car `reactive-note` docs in day JSON.
+- `DayDef.carCount` / `residentChance` / `residentPool` (procedural-era fields). `cars` is now required on `DayDef`.
+- Fixed `PER_CAR_MINUTES` clock advance — clock reads `cars[carIndex].seenAt`.
+
+### Save format
+- `SAVE_VERSION` bumped to **2** (added `car.seenAt`). Pre-0.10 saves are discarded on load.
+
 ## [0.9.1] — 2026-05-04
 
 ### Changed
