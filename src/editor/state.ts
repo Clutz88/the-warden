@@ -1,22 +1,22 @@
 import type { CarSpecRaw, DayDefRaw } from "../game/types";
+import type { Resident } from "../game/residents";
+
+export type EditorMode = "day" | "residents";
 
 export type EditorState = {
+  mode: EditorMode;
+  // Day mode
   day: number;
   draft: DayDefRaw;
   selectedCarIdx: number;
   dirty: boolean;
+  // Residents mode
+  residentsDraft: Resident[];
+  selectedResidentIdx: number;
+  residentsDirty: boolean;
+  // Shared
   saveStatus: { kind: "idle" | "saving" | "ok" | "err"; message?: string };
 };
-
-export function switchDay(day: number, raw: DayDefRaw): void {
-  setState({
-    day,
-    draft: structuredClone(raw),
-    selectedCarIdx: 0,
-    dirty: false,
-    saveStatus: { kind: "idle" },
-  });
-}
 
 export type Listener = (s: EditorState) => void;
 
@@ -50,6 +50,34 @@ export function updateCar(idx: number, fn: (c: CarSpecRaw) => void): void {
   updateDraft((d) => {
     const car = d.cars[idx];
     if (car) fn(car);
+  });
+}
+
+export function switchDay(day: number, raw: DayDefRaw): void {
+  setState({
+    day,
+    draft: structuredClone(raw),
+    selectedCarIdx: 0,
+    dirty: false,
+    saveStatus: { kind: "idle" },
+  });
+}
+
+export function switchMode(mode: EditorMode): void {
+  setState({ mode, saveStatus: { kind: "idle" } });
+}
+
+export function updateResidents(fn: (rs: Resident[]) => void): void {
+  const s = getState();
+  const residentsDraft = structuredClone(s.residentsDraft);
+  fn(residentsDraft);
+  setState({ residentsDraft, residentsDirty: true, saveStatus: { kind: "idle" } });
+}
+
+export function updateResident(idx: number, fn: (r: Resident) => void): void {
+  updateResidents((rs) => {
+    const r = rs[idx];
+    if (r) fn(r);
   });
 }
 

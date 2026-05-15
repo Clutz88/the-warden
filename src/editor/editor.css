@@ -53,6 +53,24 @@ html, body {
 .editor-header .status.ok { color: var(--ok); }
 .editor-header .status.err { color: var(--danger); }
 
+.mode-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mode-toggle button {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 6px 12px;
+}
+.mode-toggle button.primary {
+  background: var(--accent);
+  color: #1f2120;
+}
+
 .editor-body {
   display: grid;
   grid-template-columns: 1fr 360px;

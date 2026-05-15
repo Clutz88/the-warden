@@ -1,3 +1,5 @@
+import residentsRaw from "./residents.json";
+
 export type Resident = {
   id: string;
   name: string;
@@ -6,85 +8,7 @@ export type Resident = {
   homeStreetId?: string;
 };
 
-export const RESIDENTS: Resident[] = [
-  {
-    id: "margaret-dawes",
-    name: "MARGARET DAWES",
-    plate: "MD51 GET",
-    bio: "Carer for her husband Walter. Hospital appointments at St. Hilda's often overrun.",
-    homeStreetId: "churchLn",
-  },
-  {
-    id: "bernard-holland",
-    name: "BERNARD HOLLAND",
-    plate: "BH18 KAB",
-    bio: "Ashbridge Cabs. Recently changed vehicles — paperwork is lagging.",
-    homeStreetId: "abbeyCl",
-  },
-  {
-    id: "derek-foster",
-    name: "DEREK FOSTER",
-    plate: "DF22 PLM",
-    bio: "Foster & Sons Plumbing. Disputes every PCN. Multiple appeals pending.",
-    homeStreetId: "marketSt",
-  },
-  {
-    id: "priya-shah",
-    name: "PRIYA SHAH",
-    plate: "PS19 RUN",
-    bio: "Marathon runner. Trains before work. Always 'just five more minutes'.",
-    homeStreetId: "victoriaTerr",
-  },
-  {
-    id: "elsie-whittaker",
-    name: "ELSIE WHITTAKER",
-    plate: "K194 ELS",
-    bio: "Retired schoolteacher. Drives a 1995 Vauxhall Astra she calls 'the old girl'.",
-    homeStreetId: "abbeyCl",
-  },
-  {
-    id: "owen-pritchard",
-    name: "OWEN PRITCHARD",
-    plate: "OP66 WLN",
-    bio: "Welsh, retired bus driver. Takes pride in parking precisely between the lines.",
-    homeStreetId: "abbeyCl",
-  },
-  {
-    id: "fatima-rahman",
-    name: "FATIMA RAHMAN",
-    plate: "FR70 MED",
-    bio: "Junior doctor at St. Hilda's. Night shift hours; perpetually behind on permit renewal.",
-    homeStreetId: "victoriaTerr",
-  },
-  {
-    id: "jaime-okafor",
-    name: "JAIME OKAFOR",
-    plate: "LRZ 4421",
-    bio: "Visiting from Belfast. House-sitting for his sister on Abbey Close.",
-    homeStreetId: "abbeyCl",
-  },
-  {
-    id: "stuart-mclean",
-    name: "STUART McLEAN",
-    plate: "SM21 GLA",
-    bio: "Drives down from Glasgow every Tuesday for his daughter's recorder lesson.",
-    homeStreetId: "marketSt",
-  },
-  {
-    id: "tomasz-kowalski",
-    name: "TOMASZ KOWALSKI",
-    plate: "TK18 BLD",
-    bio: "Builder. Van full of plasterboard. Job at number 14 Church Lane.",
-    homeStreetId: "churchLn",
-  },
-  {
-    id: "agnes-bellweather",
-    name: "AGNES BELLWEATHER",
-    plate: "ABC 873L",
-    bio: "Eighty-two. Drives a 1971 Morris Minor. Her late husband's pride and joy.",
-    homeStreetId: "abbeyCl",
-  },
-];
+export const RESIDENTS: Resident[] = residentsRaw as Resident[];
 
 export function residentByPlate(plate: string): Resident | null {
   return RESIDENTS.find((r) => r.plate === plate) ?? null;

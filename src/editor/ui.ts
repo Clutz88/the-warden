@@ -1,10 +1,18 @@
 import type { CarSpecRaw, DocRaw, ToneCode, ZoneCode } from "../game/types";
 import { STREETS } from "../game/streets";
-import { RESIDENTS } from "../game/residents";
-import { getState, setState, switchDay, updateCar, updateDraft } from "./state";
+import {
+  getState,
+  setState,
+  switchDay,
+  switchMode,
+  updateCar,
+  updateDraft,
+  updateResident,
+  updateResidents,
+} from "./state";
 import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
-import { saveDay } from "./save";
+import { saveDay, saveResidents } from "./save";
 
 const STREET_KEYS = Object.keys(STREETS);
 const DOC_TYPES: DocRaw["type"][] = [
@@ -20,11 +28,15 @@ const ZONES: ZoneCode[] = [null, "A", "B", "C"];
 
 export function render(root: HTMLElement): void {
   const s = getState();
-  const preview = previewDraft(s.draft);
-  root.replaceChildren(buildPage(preview));
+  if (s.mode === "residents") {
+    root.replaceChildren(buildResidentsPage());
+  } else {
+    const preview = previewDraft(s.draft);
+    root.replaceChildren(buildDayPage(preview));
+  }
 }
 
-function buildPage(preview: DraftPreview): HTMLElement {
+function buildDayPage(preview: DraftPreview): HTMLElement {
   const wrap = el("div", { id: "editor-root" });
   wrap.appendChild(buildHeader());
   const body = el("div", { class: "editor-body" });
@@ -34,36 +46,71 @@ function buildPage(preview: DraftPreview): HTMLElement {
   return wrap;
 }
 
+function buildResidentsPage(): HTMLElement {
+  const wrap = el("div", { id: "editor-root" });
+  wrap.appendChild(buildHeader());
+  const body = el("div", { class: "editor-body" });
+  body.appendChild(buildResidentsLeft());
+  body.appendChild(buildResidentsRight());
+  wrap.appendChild(body);
+  return wrap;
+}
+
 function buildHeader(): HTMLElement {
   const s = getState();
   const header = el("header", { class: "editor-header" });
-  header.appendChild(el("h1", {}, "THE WARDEN — DAY EDITOR"));
-
-  const daySel = el("select", { "aria-label": "Day", style: "width: auto" }) as HTMLSelectElement;
-  for (const d of DAY_NUMBERS) {
-    const opt = el("option", { value: String(d) }, `Day ${d}`) as HTMLOptionElement;
-    if (d === s.day) opt.selected = true;
-    daySel.appendChild(opt);
-  }
-  daySel.addEventListener("change", () => {
-    const targetDay = Number(daySel.value);
-    if (targetDay === s.day) return;
-    if (s.dirty && !window.confirm("Unsaved changes will be lost. Switch day anyway?")) {
-      daySel.value = String(s.day);
-      return;
-    }
-    const raw = RAW_DAYS[targetDay];
-    if (raw) switchDay(targetDay, raw);
-  });
-  header.appendChild(daySel);
-
-  const newDayBtn = el("button", { title: "Create a new day file" }, "+ New day");
-  newDayBtn.addEventListener("click", onCreateDay);
-  header.appendChild(newDayBtn);
-
   header.appendChild(
-    el("span", { class: "muted small" }, `${s.draft.cars.length} cars`),
+    el("h1", {}, s.mode === "residents" ? "THE WARDEN — RESIDENTS" : "THE WARDEN — DAY EDITOR"),
   );
+
+  const modeToggle = el("div", { class: "mode-toggle" });
+  for (const m of ["day", "residents"] as const) {
+    const b = el("button", { class: s.mode === m ? "primary" : "" }, m === "day" ? "Days" : "Residents");
+    b.addEventListener("click", () => {
+      if (m === s.mode) return;
+      const otherDirty = m === "day" ? s.residentsDirty : s.dirty;
+      if (otherDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
+      switchMode(m);
+    });
+    modeToggle.appendChild(b);
+  }
+  header.appendChild(modeToggle);
+
+  if (s.mode === "day") {
+    const daySel = el("select", { "aria-label": "Day", style: "width: auto" }) as HTMLSelectElement;
+    for (const d of DAY_NUMBERS) {
+      const opt = el("option", { value: String(d) }, `Day ${d}`) as HTMLOptionElement;
+      if (d === s.day) opt.selected = true;
+      daySel.appendChild(opt);
+    }
+    daySel.addEventListener("change", () => {
+      const targetDay = Number(daySel.value);
+      if (targetDay === s.day) return;
+      if (s.dirty && !window.confirm("Unsaved changes will be lost. Switch day anyway?")) {
+        daySel.value = String(s.day);
+        return;
+      }
+      const raw = RAW_DAYS[targetDay];
+      if (raw) switchDay(targetDay, raw);
+    });
+    header.appendChild(daySel);
+
+    const newDayBtn = el("button", { title: "Create a new day file" }, "+ New day");
+    newDayBtn.addEventListener("click", onCreateDay);
+    header.appendChild(newDayBtn);
+
+    header.appendChild(
+      el("span", { class: "muted small" }, `${s.draft.cars.length} cars`),
+    );
+  } else {
+    const newResidentBtn = el("button", { title: "Add a new resident" }, "+ New resident");
+    newResidentBtn.addEventListener("click", onAddResident);
+    header.appendChild(newResidentBtn);
+    header.appendChild(
+      el("span", { class: "muted small" }, `${s.residentsDraft.length} residents`),
+    );
+  }
+
   header.appendChild(el("div", { class: "spacer" }));
 
   const status = el("span", {
@@ -89,7 +136,8 @@ function statusClass(k: string): string {
 }
 function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
   if (s.kind === "idle") {
-    const dirty = getState().dirty;
+    const st = getState();
+    const dirty = st.mode === "residents" ? st.residentsDirty : st.dirty;
     return dirty ? "● unsaved changes" : "saved";
   }
   if (s.kind === "saving") return "saving…";
@@ -100,11 +148,20 @@ function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
 async function onSave(): Promise<void> {
   const s = getState();
   setState({ saveStatus: { kind: "saving" } });
-  const res = await saveDay(s.day, s.draft);
-  if (res.ok) {
-    setState({ dirty: false, saveStatus: { kind: "ok", message: res.file } });
+  if (s.mode === "residents") {
+    const res = await saveResidents(s.residentsDraft);
+    if (res.ok) {
+      setState({ residentsDirty: false, saveStatus: { kind: "ok", message: res.file } });
+    } else {
+      setState({ saveStatus: { kind: "err", message: res.error } });
+    }
   } else {
-    setState({ saveStatus: { kind: "err", message: res.error } });
+    const res = await saveDay(s.day, s.draft);
+    if (res.ok) {
+      setState({ dirty: false, saveStatus: { kind: "ok", message: res.file } });
+    } else {
+      setState({ saveStatus: { kind: "err", message: res.error } });
+    }
   }
 }
 
@@ -324,7 +381,7 @@ function buildCarDetail(idx: number, preview: DraftPreview): HTMLElement {
 
   const grid2 = el("div", { class: "grid-2" });
   grid2.appendChild(labeled("Street", selectInput(STREET_KEYS, car.street, (v) => updateCar(idx, (c) => { c.street = v; }))));
-  const residentOpts = ["", ...RESIDENTS.map((r) => r.id)];
+  const residentOpts = ["", ...getState().residentsDraft.map((r) => r.id)];
   grid2.appendChild(labeled("Resident (optional)", selectInput(residentOpts, car.residentId ?? "", (v) => updateCar(idx, (c) => {
     if (v) c.residentId = v; else delete c.residentId;
   }))));
@@ -479,6 +536,145 @@ function buildTruthPanel(preview: DraftPreview): HTMLElement {
   });
   card.appendChild(list);
   return card;
+}
+
+// --- Residents mode ---
+
+function buildResidentsLeft(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildResidentsList());
+  const s = getState();
+  const idx = s.selectedResidentIdx;
+  if (idx >= 0 && idx < s.residentsDraft.length) {
+    col.appendChild(buildResidentDetail(idx));
+  }
+  return col;
+}
+
+function buildResidentsRight(): HTMLElement {
+  const col = el("div", { class: "column" });
+  col.appendChild(buildResidentsValidation());
+  return col;
+}
+
+function buildResidentsList(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  const head = el("div", { class: "row", style: "justify-content: space-between" });
+  head.appendChild(el("h2", { style: "margin: 0" }, `Residents (${s.residentsDraft.length})`));
+  const addBtn = el("button", {}, "+ Add resident");
+  addBtn.addEventListener("click", onAddResident);
+  head.appendChild(addBtn);
+  card.appendChild(head);
+
+  const table = el("table", { class: "cars" });
+  const thead = el("thead");
+  const trH = el("tr");
+  ["#", "ID", "Name", "Plate", "Bio", ""].forEach((h) => trH.appendChild(el("th", {}, h)));
+  thead.appendChild(trH);
+  table.appendChild(thead);
+
+  const tbody = el("tbody");
+  s.residentsDraft.forEach((r, i) => {
+    const tr = el("tr", { class: i === s.selectedResidentIdx ? "selected" : "" });
+    tr.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("button")) return;
+      setState({ selectedResidentIdx: i });
+    });
+    tr.appendChild(el("td", {}, String(i + 1)));
+    tr.appendChild(el("td", {}, r.id));
+    tr.appendChild(el("td", {}, r.name));
+    tr.appendChild(el("td", {}, r.plate));
+    tr.appendChild(el("td", {}, r.bio.slice(0, 60) + (r.bio.length > 60 ? "…" : "")));
+    const actions = el("td");
+    const del = el("button", { class: "danger" }, "✕");
+    del.addEventListener("click", () => onDeleteResident(i));
+    actions.appendChild(del);
+    tr.appendChild(actions);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  card.appendChild(table);
+  return card;
+}
+
+function buildResidentDetail(idx: number): HTMLElement {
+  const r = getState().residentsDraft[idx]!;
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, `Resident ${idx + 1} — ${r.name}`));
+
+  const grid = el("div", { class: "grid-2" });
+  grid.appendChild(labeled("ID (referenced from day JSON)", textInput(r.id, (v) => updateResident(idx, (x) => { x.id = v; }))));
+  grid.appendChild(labeled("Name", textInput(r.name, (v) => updateResident(idx, (x) => { x.name = v; }))));
+  grid.appendChild(labeled("Plate", textInput(r.plate, (v) => updateResident(idx, (x) => { x.plate = v; }))));
+  grid.appendChild(labeled("Home street (free text, optional)", textInput(r.homeStreetId ?? "", (v) => updateResident(idx, (x) => {
+    if (v) x.homeStreetId = v; else delete x.homeStreetId;
+  }))));
+  card.appendChild(grid);
+
+  const bioTa = el("textarea", { rows: "3" }) as HTMLTextAreaElement;
+  bioTa.value = r.bio;
+  bioTa.addEventListener("input", () => updateResident(idx, (x) => { x.bio = bioTa.value; }));
+  card.appendChild(labeled("Bio", bioTa));
+
+  return card;
+}
+
+function buildResidentsValidation(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Validation"));
+
+  const errors: string[] = [];
+  const ids = new Set<string>();
+  const plates = new Set<string>();
+  for (const r of s.residentsDraft) {
+    if (!r.id.trim()) errors.push(`Resident "${r.name || "(unnamed)"}" has empty id`);
+    else if (ids.has(r.id)) errors.push(`Duplicate id: ${r.id}`);
+    ids.add(r.id);
+    if (!r.plate.trim()) errors.push(`Resident "${r.id}" has empty plate`);
+    else if (plates.has(r.plate)) errors.push(`Duplicate plate: ${r.plate}`);
+    plates.add(r.plate);
+    if (!r.name.trim()) errors.push(`Resident "${r.id}" has empty name`);
+  }
+
+  if (errors.length === 0) {
+    card.appendChild(el("div", { class: "banner ok" }, "All residents valid"));
+  } else {
+    for (const e of errors) card.appendChild(el("div", { class: "banner err" }, e));
+  }
+  return card;
+}
+
+function onAddResident(): void {
+  const s = getState();
+  const baseId = "new-resident";
+  let id = baseId;
+  let n = 1;
+  while (s.residentsDraft.some((r) => r.id === id)) {
+    n++;
+    id = `${baseId}-${n}`;
+  }
+  updateResidents((rs) => {
+    rs.push({
+      id,
+      name: "NEW RESIDENT",
+      plate: "AA00 AAA",
+      bio: "",
+    });
+  });
+  setState({ selectedResidentIdx: getState().residentsDraft.length - 1 });
+}
+
+function onDeleteResident(idx: number): void {
+  const r = getState().residentsDraft[idx];
+  if (!r) return;
+  if (!window.confirm(`Delete resident "${r.id}" (${r.name})? Any day JSON referencing this id will fail to load.`)) return;
+  updateResidents((rs) => { rs.splice(idx, 1); });
+  const s = getState();
+  if (s.selectedResidentIdx >= s.residentsDraft.length) {
+    setState({ selectedResidentIdx: Math.max(0, s.residentsDraft.length - 1) });
+  }
 }
 
 // --- Small DOM helpers ---
