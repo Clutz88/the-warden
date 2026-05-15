@@ -17,10 +17,10 @@ function dayEditorPlugin(): Plugin {
           for await (const chunk of req) body += chunk;
           const parsed = JSON.parse(body) as { day?: unknown; raw?: unknown };
           const day = parsed.day;
-          if (typeof day !== "number" || !Number.isInteger(day) || day < 1 || day > 6) {
+          if (typeof day !== "number" || !Number.isInteger(day) || day < 1 || day > 99) {
             res.statusCode = 400;
             res.setHeader("content-type", "application/json");
-            res.end(JSON.stringify({ error: "day must be an integer 1..6" }));
+            res.end(JSON.stringify({ error: "day must be an integer 1..99" }));
             return;
           }
           if (!parsed.raw || typeof parsed.raw !== "object") {

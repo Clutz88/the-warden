@@ -7,12 +7,10 @@ import type {
   DocRaw,
 } from "../types";
 import { residentById } from "../residents";
-import day1Raw from "./day1.json";
-import day2Raw from "./day2.json";
-import day3Raw from "./day3.json";
-import day4Raw from "./day4.json";
-import day5Raw from "./day5.json";
-import day6Raw from "./day6.json";
+
+const RAW_MODULES = import.meta.glob<{ default: DayDefRaw }>("./day*.json", {
+  eager: true,
+});
 
 export function parseClock(s: string): number {
   const m = /^([0-2]\d):([0-5]\d)$/.exec(s);
@@ -94,14 +92,18 @@ export function loadDay(raw: DayDefRaw): DayDef {
   };
 }
 
-export const DAYS: DayDef[] = [
-  loadDay(day1Raw as DayDefRaw),
-  loadDay(day2Raw as DayDefRaw),
-  loadDay(day3Raw as DayDefRaw),
-  loadDay(day4Raw as DayDefRaw),
-  loadDay(day5Raw as DayDefRaw),
-  loadDay(day6Raw as DayDefRaw),
-];
+function discoverRawDays(): DayDefRaw[] {
+  const found: { day: number; raw: DayDefRaw }[] = [];
+  for (const [path, mod] of Object.entries(RAW_MODULES)) {
+    const m = /day(\d+)\.json$/.exec(path);
+    if (!m) continue;
+    found.push({ day: Number(m[1]), raw: mod.default });
+  }
+  found.sort((a, b) => a.day - b.day);
+  return found.map((f) => f.raw);
+}
+
+export const DAYS: DayDef[] = discoverRawDays().map((raw) => loadDay(raw));
 
 export function getDay(n: number): DayDef {
   return DAYS[n - 1] ?? DAYS[DAYS.length - 1]!;

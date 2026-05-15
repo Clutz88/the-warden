@@ -1,6 +1,5 @@
 import "./editor.css";
-import type { DayDefRaw } from "../game/types";
-import day1Raw from "../game/days/day1.json";
+import { RAW_DAYS } from "./rawDays";
 import { initState, subscribe } from "./state";
 import { render } from "./ui";
 
@@ -15,12 +14,24 @@ if (!import.meta.env.DEV) {
     </div>
   `;
 } else {
+  const persistedDay = Number(sessionStorage.getItem("editor:day"));
+  const persistedCarIdx = Number(sessionStorage.getItem("editor:carIdx"));
+  const initialDay = RAW_DAYS[persistedDay] ? persistedDay : 1;
+  const raw = RAW_DAYS[initialDay]!;
+  const initialCarIdx = Number.isFinite(persistedCarIdx) && persistedCarIdx >= 0 && persistedCarIdx < raw.cars.length
+    ? persistedCarIdx
+    : 0;
+
   initState({
-    day: 1,
-    draft: structuredClone(day1Raw) as DayDefRaw,
-    selectedCarIdx: 0,
+    day: initialDay,
+    draft: structuredClone(raw),
+    selectedCarIdx: initialCarIdx,
     dirty: false,
     saveStatus: { kind: "idle" },
   });
-  subscribe(() => render(root));
+  subscribe((s) => {
+    sessionStorage.setItem("editor:day", String(s.day));
+    sessionStorage.setItem("editor:carIdx", String(s.selectedCarIdx));
+    render(root);
+  });
 }

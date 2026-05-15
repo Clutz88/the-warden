@@ -1,7 +1,8 @@
 import type { CarSpecRaw, DocRaw, ToneCode, ZoneCode } from "../game/types";
 import { STREETS } from "../game/streets";
 import { RESIDENTS } from "../game/residents";
-import { getState, setState, updateCar, updateDraft } from "./state";
+import { getState, setState, switchDay, updateCar, updateDraft } from "./state";
+import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
 import { saveDay } from "./save";
 
@@ -37,8 +38,31 @@ function buildHeader(): HTMLElement {
   const s = getState();
   const header = el("header", { class: "editor-header" });
   header.appendChild(el("h1", {}, "THE WARDEN — DAY EDITOR"));
+
+  const daySel = el("select", { "aria-label": "Day", style: "width: auto" }) as HTMLSelectElement;
+  for (const d of DAY_NUMBERS) {
+    const opt = el("option", { value: String(d) }, `Day ${d}`) as HTMLOptionElement;
+    if (d === s.day) opt.selected = true;
+    daySel.appendChild(opt);
+  }
+  daySel.addEventListener("change", () => {
+    const targetDay = Number(daySel.value);
+    if (targetDay === s.day) return;
+    if (s.dirty && !window.confirm("Unsaved changes will be lost. Switch day anyway?")) {
+      daySel.value = String(s.day);
+      return;
+    }
+    const raw = RAW_DAYS[targetDay];
+    if (raw) switchDay(targetDay, raw);
+  });
+  header.appendChild(daySel);
+
+  const newDayBtn = el("button", { title: "Create a new day file" }, "+ New day");
+  newDayBtn.addEventListener("click", onCreateDay);
+  header.appendChild(newDayBtn);
+
   header.appendChild(
-    el("span", { class: "muted small" }, `Editing day ${s.day} (${s.draft.cars.length} cars)`),
+    el("span", { class: "muted small" }, `${s.draft.cars.length} cars`),
   );
   header.appendChild(el("div", { class: "spacer" }));
 
@@ -82,6 +106,23 @@ async function onSave(): Promise<void> {
   } else {
     setState({ saveStatus: { kind: "err", message: res.error } });
   }
+}
+
+async function onCreateDay(): Promise<void> {
+  const s = getState();
+  if (s.dirty && !window.confirm("Unsaved changes will be lost. Continue creating a new day?")) return;
+  const day = nextDayNumber();
+  if (!window.confirm(`Create Day ${day}? An empty day${day}.json will be written to src/game/days/.`)) return;
+  setState({ saveStatus: { kind: "saving" } });
+  const res = await saveDay(day, emptyDayRaw(day));
+  if (!res.ok) {
+    setState({ saveStatus: { kind: "err", message: res.error } });
+    return;
+  }
+  sessionStorage.setItem("editor:day", String(day));
+  sessionStorage.setItem("editor:carIdx", "0");
+  // Reload so import.meta.glob picks up the new file
+  window.location.reload();
 }
 
 function buildLeftColumn(preview: DraftPreview): HTMLElement {

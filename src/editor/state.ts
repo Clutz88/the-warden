@@ -8,6 +8,16 @@ export type EditorState = {
   saveStatus: { kind: "idle" | "saving" | "ok" | "err"; message?: string };
 };
 
+export function switchDay(day: number, raw: DayDefRaw): void {
+  setState({
+    day,
+    draft: structuredClone(raw),
+    selectedCarIdx: 0,
+    dirty: false,
+    saveStatus: { kind: "idle" },
+  });
+}
+
 export type Listener = (s: EditorState) => void;
 
 const listeners: Set<Listener> = new Set();
