@@ -64,6 +64,40 @@ export type Car = {
   street: Street;
   docs: Doc[];
   truth: Violation[];
+  seenAt: number;
+  residentId?: string;
+};
+
+export type CarSpec = {
+  seenAt: number;
+  plate: string;
+  colour: string;
+  model: string;
+  street: string;
+  docs: Doc[];
+  residentId?: string;
+};
+
+export type DocRaw =
+  | { type: "pd"; zone: ZoneCode; expiresAt: string }
+  | { type: "permit"; zone: ZoneCode; plate: string; validUntil: string }
+  | {
+      type: "blue-badge";
+      holder: string;
+      validUntil: string;
+      clockShown: boolean;
+      clockSetAt: string | null;
+    }
+  | { type: "note"; from: string; text: string }
+  | { type: "loading-slip"; firm: string; arrivedAt: string };
+
+export type CarSpecRaw = {
+  seenAt: string;
+  plate: string;
+  colour: string;
+  model: string;
+  street: string;
+  docs: DocRaw[];
   residentId?: string;
 };
 
@@ -89,11 +123,22 @@ export type DayDef = {
   day: number;
   briefing: string;
   newRuleSummary: string[];
-  carCount: number;
+  carCount?: number;
+  cars?: CarSpec[];
   streets: string[];
   rent: number;
   residentChance?: number;
   residentPool?: string[];
+  supervisor?: SupervisorConfig;
+};
+
+export type DayDefRaw = {
+  day: number;
+  briefing: string;
+  newRuleSummary: string[];
+  cars: CarSpecRaw[];
+  streets: string[];
+  rent: number;
   supervisor?: SupervisorConfig;
 };
 

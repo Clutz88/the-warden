@@ -1,0 +1,70 @@
+{
+  "day": 1,
+  "briefing": "Borough of Ashbridge — first shift. Today you patrol the Pay & Display bays on High Road and Market Street. Issue a PCN to any car without a valid Pay & Display ticket, or whose ticket has expired. Otherwise, let them pass.",
+  "newRuleSummary": [
+    "Pay & Display required on High Road and Market Street.",
+    "Ticket must not be expired (compare against your shift clock)."
+  ],
+  "streets": ["highRoad", "marketSt"],
+  "rent": 30,
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "AB12 CDE",
+      "colour": "Red",
+      "model": "Ford Fiesta",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "10:30" }
+      ]
+    },
+    {
+      "seenAt": "09:14",
+      "plate": "KP19 NRT",
+      "colour": "Black",
+      "model": "BMW 3 Series",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:00" }
+      ]
+    },
+    {
+      "seenAt": "09:25",
+      "plate": "FE08 LWX",
+      "colour": "White",
+      "model": "VW Golf",
+      "street": "highRoad",
+      "docs": []
+    },
+    {
+      "seenAt": "09:42",
+      "plate": "RT64 MNB",
+      "colour": "Silver",
+      "model": "Toyota Yaris",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "10:15" }
+      ]
+    },
+    {
+      "seenAt": "09:55",
+      "plate": "JG17 PHX",
+      "colour": "Blue",
+      "model": "Vauxhall Corsa",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:30" }
+      ]
+    },
+    {
+      "seenAt": "10:08",
+      "plate": "WK22 LRD",
+      "colour": "Grey",
+      "model": "Land Rover Discovery",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "11:00" }
+      ]
+    }
+  ]
+}

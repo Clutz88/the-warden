@@ -8,7 +8,7 @@ import {
   loadState,
   hydrate,
 } from "./game/state";
-import { generateCars } from "./game/cars";
+import { generateCars, buildCars } from "./game/cars";
 import { activeRules } from "./game/rules";
 import { getDay, DAYS } from "./game/days";
 import { reviewShift } from "./game/supervisor";
@@ -36,7 +36,6 @@ inject({
 });
 
 const SHIFT_START = 9 * 60;
-const PER_CAR_MINUTES = 12;
 const WAGE_CORRECT = 10;
 const WAGE_WRONG = -8;
 const FLAWLESS_BONUS = 10;
@@ -44,16 +43,18 @@ const FLAWLESS_BONUS = 10;
 function startDay(day: number): void {
   const def = getDay(day);
   const prev = getState();
-  const cars = generateCars({
-    day,
-    count: def.carCount,
-    shiftStart: SHIFT_START,
-    seed: 1000 * day + Math.floor(Math.random() * 1000),
-    residentHistory: prev.residentHistory,
-  });
+  const cars = def.cars
+    ? buildCars(def.cars, day, prev.residentHistory)
+    : generateCars({
+        day,
+        count: def.carCount ?? 0,
+        shiftStart: SHIFT_START,
+        seed: 1000 * day + Math.floor(Math.random() * 1000),
+        residentHistory: prev.residentHistory,
+      });
   setState({
     day,
-    clock: SHIFT_START,
+    clock: cars[0]?.seenAt ?? SHIFT_START,
     cars,
     carIndex: 0,
     wages: 0,
@@ -87,7 +88,7 @@ function judge(action: PlayerAction): void {
   const wages = s.wages + (correct ? WAGE_CORRECT : WAGE_WRONG);
   const mistakes = s.mistakes + (correct ? 0 : 1);
   const carIndex = s.carIndex + 1;
-  const clock = s.clock + PER_CAR_MINUTES;
+  const clock = s.cars[carIndex]?.seenAt ?? car.seenAt;
 
   let residentHistory = s.residentHistory;
   if (car.residentId) {

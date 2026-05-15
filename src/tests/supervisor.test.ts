@@ -11,6 +11,7 @@ function fakeCar(plate: string): Car {
     street: { id: "x", name: "x", kind: "pay-and-display", zone: null },
     docs: [],
     truth: [],
+    seenAt: 9 * 60,
   };
 }
 

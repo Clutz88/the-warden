@@ -1,9 +1,11 @@
-import type {Car, Doc, ResidentEncounter, Street, StreetKind, ZoneCode} from "./types";
+import type {Car, CarSpec, Doc, ResidentEncounter, Street, StreetKind, ZoneCode} from "./types";
 import {STREETS, streetsForDay} from "./streets";
 import {activeRules} from "./rules";
 import {validate} from "./validate";
 import {getDay} from "./days";
-import {maybeResident, pickNote} from "./residents";
+import {maybeResident, pickNote, residentById} from "./residents";
+
+export const PER_CAR_MINUTES = 12;
 
 const COLOURS = ["Red", "Blue", "Black", "Silver", "White", "Green", "Grey"];
 const MODELS = [
@@ -132,6 +134,7 @@ export function generateCars(opts: GenOpts): Car[] {
       const text = pickNote(resident, history);
       if (text) docs.push({ type: "note", from: resident.name, text });
     }
+    const seenAt = opts.shiftStart + i * PER_CAR_MINUTES;
     const car: Car = {
       id: `car-${i}`,
       plate: carPlate,
@@ -140,13 +143,53 @@ export function generateCars(opts: GenOpts): Car[] {
       street,
       docs,
       truth: [],
+      seenAt,
       ...(resident ? { residentId: resident.id } : {}),
     };
-    car.truth = validate(car, rules, opts.shiftStart + 30);
+    car.truth = validate(car, rules, seenAt);
     cars.push(car);
   }
 
   return cars;
+}
+
+export function buildCars(
+  specs: CarSpec[],
+  day: number,
+  residentHistory?: Record<string, ResidentEncounter[]>,
+): Car[] {
+  const rules = activeRules(day);
+  return specs.map((spec, i) => {
+    const street = STREETS[spec.street];
+    if (!street) {
+      throw new Error(`Day ${day} car ${i}: unknown street "${spec.street}"`);
+    }
+    const docs = [...spec.docs];
+    if (spec.residentId) {
+      const resident = residentById(spec.residentId);
+      if (!resident) {
+        throw new Error(`Day ${day} car ${i}: unknown residentId "${spec.residentId}"`);
+      }
+      const history = residentHistory?.[resident.id] ?? [];
+      const text = pickNote(resident, history);
+      if (text && !docs.some((d) => d.type === "note")) {
+        docs.push({ type: "note", from: resident.name, text });
+      }
+    }
+    const car: Car = {
+      id: `car-${i}`,
+      plate: spec.plate,
+      colour: spec.colour,
+      model: spec.model,
+      street,
+      docs,
+      truth: [],
+      seenAt: spec.seenAt,
+      ...(spec.residentId ? { residentId: spec.residentId } : {}),
+    };
+    car.truth = validate(car, rules, spec.seenAt);
+    return car;
+  });
 }
 
 type DocBuilderCtx = {

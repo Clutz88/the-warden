@@ -14,9 +14,10 @@ function carOn(streetId: keyof typeof STREETS, docs: Doc[], plate = "AB12 CDE"):
     plate,
     colour: "Red",
     model: "Ford Fiesta",
-    street: STREETS[streetId],
+    street: STREETS[streetId]!,
     docs,
     truth: [],
+    seenAt: NOW,
   };
 }
 
