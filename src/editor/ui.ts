@@ -2,20 +2,26 @@ import type { CarSpecRaw, DocRaw, StreetKind, ToneCode, ZoneCode } from "../game
 import { STREETS } from "../game/streets";
 import {
   getState,
+  resizeGrid,
   setState,
+  spritesAnyDirty,
   switchDay,
   switchMode,
   updateCar,
   updateDraft,
+  updateGridCell,
   updateResident,
   updateResidents,
+  updateSprites,
   updateStreet,
   updateStreets,
   updateTuning,
 } from "./state";
 import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
-import { saveDay, saveResidents, saveStreets, saveTuning } from "./save";
+import { saveDay, saveResidents, saveSpriteCategory, saveStreets, saveTuning } from "./save";
+import { carPalette } from "../ui/sprites/palette";
+import { spriteSvg } from "../ui/sprites/pixelArt";
 
 const STREET_KEYS = Object.keys(STREETS);
 const DOC_TYPES: DocRaw["type"][] = [
@@ -44,6 +50,8 @@ export function render(root: HTMLElement): void {
     root.replaceChildren(buildStreetsPage());
   } else if (s.mode === "tuning") {
     root.replaceChildren(buildTuningPage());
+  } else if (s.mode === "sprites") {
+    root.replaceChildren(buildSpritesPage());
   } else {
     const preview = previewDraft(s.draft);
     root.replaceChildren(buildDayPage(preview));
@@ -97,6 +105,7 @@ function buildHeader(): HTMLElement {
     s.mode === "residents" ? "THE WARDEN — RESIDENTS"
     : s.mode === "streets" ? "THE WARDEN — STREETS"
     : s.mode === "tuning" ? "THE WARDEN — TUNING"
+    : s.mode === "sprites" ? "THE WARDEN — SPRITES"
     : "THE WARDEN — DAY EDITOR";
   header.appendChild(el("h1", {}, headerTitle));
 
@@ -106,6 +115,7 @@ function buildHeader(): HTMLElement {
     { key: "residents", label: "Residents" },
     { key: "streets", label: "Streets" },
     { key: "tuning", label: "Tuning" },
+    { key: "sprites", label: "Sprites" },
   ] as const;
   for (const m of modes) {
     const b = el("button", { class: s.mode === m.key ? "primary" : "" }, m.label);
@@ -115,7 +125,8 @@ function buildHeader(): HTMLElement {
         s.mode === "day" ? s.dirty
         : s.mode === "residents" ? s.residentsDirty
         : s.mode === "streets" ? s.streetsDirty
-        : s.tuningDirty;
+        : s.mode === "tuning" ? s.tuningDirty
+        : spritesAnyDirty(s);
       if (currentDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
       switchMode(m.key);
     });
@@ -163,10 +174,19 @@ function buildHeader(): HTMLElement {
     header.appendChild(
       el("span", { class: "muted small" }, `${s.streetsDraft.length} streets`),
     );
-  } else {
+  } else if (s.mode === "tuning") {
     header.appendChild(
       el("span", { class: "muted small" }, "Global game balance"),
     );
+  } else {
+    // sprites mode
+    const sub = el("div", { class: "mode-toggle" });
+    for (const m of ["sprite", "palette"] as const) {
+      const b = el("button", { class: s.spritesSubMode === m ? "primary" : "" }, m === "sprite" ? "Sprite" : "Palette");
+      b.addEventListener("click", () => setState({ spritesSubMode: m, saveStatus: { kind: "idle" } }));
+      sub.appendChild(b);
+    }
+    header.appendChild(sub);
   }
 
   header.appendChild(el("div", { class: "spacer" }));
@@ -199,6 +219,7 @@ function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
       st.mode === "residents" ? st.residentsDirty
       : st.mode === "streets" ? st.streetsDirty
       : st.mode === "tuning" ? st.tuningDirty
+      : st.mode === "sprites" ? spritesAnyDirty(st)
       : st.dirty;
     return dirty ? "● unsaved changes" : "saved";
   }
@@ -231,6 +252,26 @@ async function onSave(): Promise<void> {
     } else {
       setState({ saveStatus: { kind: "err", message: res.error } });
     }
+  } else if (s.mode === "sprites") {
+    const cats: ("cars" | "icons" | "doc" | "palette")[] = ["cars", "icons", "doc", "palette"];
+    const dirty = cats.filter((c) => s.spritesDirtyCats[c]);
+    if (dirty.length === 0) {
+      setState({ saveStatus: { kind: "ok", message: "nothing to save" } });
+      return;
+    }
+    const written: string[] = [];
+    for (const c of dirty) {
+      const res = await saveSpriteCategory(c, s.spritesDraft[c]);
+      if (!res.ok) {
+        setState({ saveStatus: { kind: "err", message: `${c}: ${res.error}` } });
+        return;
+      }
+      written.push(res.file);
+    }
+    setState({
+      spritesDirtyCats: { cars: false, icons: false, doc: false, palette: false },
+      saveStatus: { kind: "ok", message: written.join(", ") },
+    });
   } else {
     const res = await saveDay(s.day, s.draft);
     if (res.ok) {
@@ -993,6 +1034,335 @@ function buildTuningPreview(): HTMLElement {
   }
   card.appendChild(list);
   return card;
+}
+
+// --- Sprites mode ---
+
+function buildSpritesPage(): HTMLElement {
+  const wrap = el("div", { id: "editor-root" });
+  wrap.appendChild(buildHeader());
+  const body = el("div", { class: "editor-body" });
+  const s = getState();
+  if (s.spritesSubMode === "palette") {
+    body.appendChild(buildPaletteEditor());
+    body.appendChild(buildPaletteLegendCol());
+  } else {
+    body.appendChild(buildSpriteEditorLeft());
+    body.appendChild(buildSpriteEditorRight());
+  }
+  wrap.appendChild(body);
+  return wrap;
+}
+
+function buildSpriteEditorLeft(): HTMLElement {
+  const s = getState();
+  const col = el("div", { class: "column" });
+
+  // Sprite picker
+  const pickerCard = el("div", { class: "card" });
+  pickerCard.appendChild(el("h2", {}, "Sprite"));
+  const pickerSel = el("select") as HTMLSelectElement;
+  const addGroup = (category: "cars" | "icons" | "doc", label: string) => {
+    const og = document.createElement("optgroup");
+    og.label = label;
+    for (const key of Object.keys(s.spritesDraft[category])) {
+      const opt = document.createElement("option");
+      opt.value = `${category}::${key}`;
+      opt.textContent = key;
+      if (s.spriteSelection.category === category && s.spriteSelection.key === key) opt.selected = true;
+      og.appendChild(opt);
+    }
+    pickerSel.appendChild(og);
+  };
+  addGroup("cars", "Cars");
+  addGroup("icons", "Icons");
+  addGroup("doc", "Doc decorations");
+  pickerSel.addEventListener("change", () => {
+    const [category, key] = pickerSel.value.split("::") as ["cars" | "icons" | "doc", string];
+    setState({ spriteSelection: { category, key } });
+  });
+  pickerCard.appendChild(pickerSel);
+
+  // Resize controls + dimensions
+  const sel = s.spriteSelection;
+  const grid = s.spritesDraft[sel.category][sel.key] ?? "";
+  const rows = grid.split("\n");
+  const dims = `${rows[0]?.length ?? 0} × ${rows.length}`;
+  const dimRow = el("div", { class: "row small muted", style: "margin-top: 8px; gap: 12px" });
+  dimRow.appendChild(el("span", {}, `Size: ${dims}`));
+  for (const [label, dw, dh] of [
+    ["+col", 1, 0],
+    ["−col", -1, 0],
+    ["+row", 0, 1],
+    ["−row", 0, -1],
+  ] as const) {
+    const b = el("button", { class: "small" }, label);
+    b.addEventListener("click", () => resizeGrid(sel.category, sel.key, dw, dh));
+    dimRow.appendChild(b);
+  }
+  pickerCard.appendChild(dimRow);
+  col.appendChild(pickerCard);
+
+  // Canvas
+  col.appendChild(buildSpriteCanvas(grid));
+
+  // Brush palette
+  col.appendChild(buildBrushPalette());
+
+  return col;
+}
+
+function buildSpriteCanvas(grid: string): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Canvas"));
+  const help = el("div", { class: "muted small", style: "margin-bottom: 8px" },
+    "Left-click to paint with the active brush. Right-click to erase to '.'.");
+  card.appendChild(help);
+
+  const palette = s.spriteSelection.category === "cars"
+    ? carPalette(s.spritesDraft.palette.carColours[s.spritePreviewColour] ?? "#888")
+    : s.spritesDraft.palette.base;
+
+  const rows = grid.split("\n");
+  const wrap = el("div", { class: "sprite-canvas" });
+  rows.forEach((row, y) => {
+    const rowEl = el("div", { class: "sprite-row" });
+    for (let x = 0; x < row.length; x++) {
+      const ch = row[x]!;
+      const cell = el("div", { class: "sprite-cell" });
+      cell.dataset.ch = ch;
+      cell.style.background = ch === "." ? "transparent" : (palette[ch] ?? "#444");
+      cell.title = `(${x},${y}) ${ch}`;
+      cell.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, ".");
+      });
+      cell.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        const ch2 = (e as MouseEvent).button === 2 ? "." : getState().spriteBrush;
+        updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, ch2);
+      });
+      cell.addEventListener("mouseenter", (e) => {
+        if ((e as MouseEvent).buttons === 1) {
+          updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, getState().spriteBrush);
+        } else if ((e as MouseEvent).buttons === 2) {
+          updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, ".");
+        }
+      });
+      rowEl.appendChild(cell);
+    }
+    wrap.appendChild(rowEl);
+  });
+  card.appendChild(wrap);
+  return card;
+}
+
+function buildBrushPalette(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Brush"));
+  const subRow = el("div", { class: "row small muted", style: "margin-bottom: 8px; gap: 12px" });
+  subRow.appendChild(el("span", {}, `Active: ${s.spriteBrush === "." ? "(erase)" : s.spriteBrush}`));
+  if (s.spriteSelection.category === "cars") {
+    const sel = el("select", { style: "width: auto" }) as HTMLSelectElement;
+    for (const c of Object.keys(s.spritesDraft.palette.carColours)) {
+      const opt = el("option", { value: c }, c) as HTMLOptionElement;
+      if (c === s.spritePreviewColour) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener("change", () => setState({ spritePreviewColour: sel.value }));
+    const lab = el("label", { class: "row", style: "gap: 6px" });
+    lab.appendChild(el("span", { class: "small muted" }, "Preview colour:"));
+    lab.appendChild(sel);
+    subRow.appendChild(lab);
+  }
+  card.appendChild(subRow);
+
+  const grid = el("div", { class: "swatch-grid" });
+  // Erase swatch
+  grid.appendChild(buildSwatch(".", "transparent", "."));
+  if (s.spriteSelection.category === "cars") {
+    // Show body-shade swatches (B, D, d use the preview colour)
+    const bodyHex = s.spritesDraft.palette.carColours[s.spritePreviewColour] ?? "#888";
+    const carPal = carPalette(bodyHex);
+    grid.appendChild(buildSwatch("B", carPal.B!, "B (body)"));
+    grid.appendChild(buildSwatch("D", carPal.D!, "D (shade 1)"));
+    grid.appendChild(buildSwatch("d", carPal.d!, "d (shade 2)"));
+  }
+  for (const [ch, hex] of Object.entries(s.spritesDraft.palette.base)) {
+    grid.appendChild(buildSwatch(ch, hex, `${ch} (${hex})`));
+  }
+  card.appendChild(grid);
+  return card;
+}
+
+function buildSwatch(ch: string, hex: string, title: string): HTMLElement {
+  const s = getState();
+  const sw = el("button", {
+    class: `swatch ${s.spriteBrush === ch ? "active" : ""}`,
+    title,
+  });
+  sw.style.background = hex;
+  sw.textContent = ch;
+  sw.addEventListener("click", () => setState({ spriteBrush: ch }));
+  return sw;
+}
+
+function buildSpriteEditorRight(): HTMLElement {
+  const s = getState();
+  const col = el("div", { class: "column" });
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Live preview"));
+
+  const sel = s.spriteSelection;
+  const grid = s.spritesDraft[sel.category][sel.key] ?? "";
+
+  let svg = "";
+  try {
+    if (sel.category === "cars") {
+      const bodyHex = s.spritesDraft.palette.carColours[s.spritePreviewColour] ?? "#888";
+      svg = spriteSvg(grid, carPalette(bodyHex), { className: "spr-preview" });
+    } else {
+      svg = spriteSvg(grid, s.spritesDraft.palette.base, { className: "spr-preview" });
+    }
+  } catch (err) {
+    card.appendChild(el("div", { class: "banner err" }, String(err)));
+  }
+  const wrap = el("div", { class: "sprite-preview-wrap" });
+  wrap.innerHTML = svg;
+  card.appendChild(wrap);
+
+  const note = el("div", { class: "muted small", style: "margin-top: 10px" },
+    sel.category === "cars"
+      ? `Previewing ${sel.key} in ${s.spritePreviewColour}. Save writes src/data/sprites/cars.json.`
+      : `Previewing ${sel.key}. Save writes src/data/sprites/${sel.category}.json.`,
+  );
+  card.appendChild(note);
+  col.appendChild(card);
+  return col;
+}
+
+// --- Palette editor ---
+
+function buildPaletteEditor(): HTMLElement {
+  const s = getState();
+  const col = el("div", { class: "column" });
+
+  const baseCard = el("div", { class: "card" });
+  baseCard.appendChild(el("h2", {}, "Base palette"));
+  baseCard.appendChild(el("div", { class: "muted small", style: "margin-bottom: 8px" },
+    "Each character maps to a hex colour. Used by all non-body pixels in every sprite."));
+  const baseGrid = el("div", { class: "palette-edit-grid" });
+  for (const [ch, hex] of Object.entries(s.spritesDraft.palette.base)) {
+    baseGrid.appendChild(buildPaletteEditRow(ch, hex, "base"));
+  }
+  baseCard.appendChild(baseGrid);
+
+  const addBaseRow = el("div", { class: "row", style: "margin-top: 12px; gap: 6px" });
+  const newCh = el("input", { type: "text", placeholder: "char", style: "width: 60px" }) as HTMLInputElement;
+  const newHex = el("input", { type: "text", placeholder: "#RRGGBB", style: "width: 120px" }) as HTMLInputElement;
+  const addBtn = el("button", {}, "+ Add char");
+  addBtn.addEventListener("click", () => {
+    const c = newCh.value.trim();
+    const h = newHex.value.trim();
+    if (c.length !== 1) { alert("Character must be exactly 1"); return; }
+    if (!/^#[0-9a-f]{6}$/i.test(h)) { alert("Hex must be #RRGGBB"); return; }
+    if (s.spritesDraft.palette.base[c]) { alert(`Char "${c}" already exists`); return; }
+    updateSprites("palette", (p) => { (p as typeof s.spritesDraft.palette).base[c] = h; });
+  });
+  addBaseRow.appendChild(newCh);
+  addBaseRow.appendChild(newHex);
+  addBaseRow.appendChild(addBtn);
+  baseCard.appendChild(addBaseRow);
+  col.appendChild(baseCard);
+
+  const carCard = el("div", { class: "card" });
+  carCard.appendChild(el("h2", {}, "Car body colours"));
+  carCard.appendChild(el("div", { class: "muted small", style: "margin-bottom: 8px" },
+    "Each car colour name maps to a hex. Used as the B body fill (with D and d as auto-darkened shades)."));
+  const carGrid = el("div", { class: "palette-edit-grid" });
+  for (const [name, hex] of Object.entries(s.spritesDraft.palette.carColours)) {
+    carGrid.appendChild(buildPaletteEditRow(name, hex, "carColours"));
+  }
+  carCard.appendChild(carGrid);
+  col.appendChild(carCard);
+
+  return col;
+}
+
+function buildPaletteEditRow(key: string, hex: string, section: "base" | "carColours"): HTMLElement {
+  const row = el("div", { class: "palette-edit-row" });
+  const swatch = el("span", { class: "swatch-mini", title: hex });
+  swatch.style.background = hex;
+  row.appendChild(swatch);
+  row.appendChild(el("span", { class: "swatch-key" }, key));
+  const inp = el("input", { type: "text", style: "width: 110px" }) as HTMLInputElement;
+  inp.value = hex;
+  inp.addEventListener("input", () => {
+    const v = inp.value.trim();
+    if (/^#[0-9a-f]{6}$/i.test(v)) {
+      inp.classList.remove("bad");
+      updateSprites("palette", (p) => {
+        const pal = p as { base: Record<string, string>; carColours: Record<string, string> };
+        if (section === "base") pal.base[key] = v;
+        else pal.carColours[key] = v;
+      });
+    } else {
+      inp.classList.add("bad");
+    }
+  });
+  row.appendChild(inp);
+  const del = el("button", { class: "danger small", title: `Delete ${key}` }, "✕");
+  del.addEventListener("click", () => {
+    if (!window.confirm(`Delete ${section === "base" ? "char" : "colour"} "${key}"?`)) return;
+    updateSprites("palette", (p) => {
+      const pal = p as { base: Record<string, string>; carColours: Record<string, string> };
+      if (section === "base") delete pal.base[key];
+      else delete pal.carColours[key];
+    });
+  });
+  row.appendChild(del);
+  return row;
+}
+
+function buildPaletteLegendCol(): HTMLElement {
+  const s = getState();
+  const col = el("div", { class: "column" });
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "Where these are used"));
+  const tally: Record<string, number> = {};
+  for (const category of ["cars", "icons", "doc"] as const) {
+    for (const grid of Object.values(s.spritesDraft[category])) {
+      for (const ch of grid) {
+        if (ch === "\n" || ch === ".") continue;
+        tally[ch] = (tally[ch] ?? 0) + 1;
+      }
+    }
+  }
+  const list = el("div", { class: "swatch-grid" });
+  const chars = Object.keys(s.spritesDraft.palette.base).sort();
+  for (const ch of chars) {
+    const count = tally[ch] ?? 0;
+    const sw = el("div", { class: "swatch readonly", title: `${ch}: ${count} pixels` });
+    sw.style.background = s.spritesDraft.palette.base[ch] ?? "#444";
+    sw.textContent = ch;
+    const badge = el("span", { class: "swatch-count" }, String(count));
+    sw.appendChild(badge);
+    list.appendChild(sw);
+  }
+  card.appendChild(list);
+
+  const orphans = chars.filter((c) => (tally[c] ?? 0) === 0);
+  if (orphans.length) {
+    card.appendChild(el("div", { class: "banner", style: "margin-top: 12px" },
+      `⚠ Unused base chars: ${orphans.join(" ")}`));
+  } else {
+    card.appendChild(el("div", { class: "banner ok", style: "margin-top: 12px" },
+      "All base chars used by at least one sprite"));
+  }
+  col.appendChild(card);
+  return col;
 }
 
 // --- Small DOM helpers ---

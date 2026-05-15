@@ -1,43 +1,16 @@
 import type { Doc } from "../../game/types";
 import { BASE_PALETTE } from "./palette";
 import { spriteSvg } from "./pixelArt";
+import docGrids from "../../data/sprites/doc.json";
 
-const ASHBRIDGE_CREST = `
-.OOOOOOOOOO.
-OFFFFFFFFFFO
-OFOOOOOOOOFO
-OFOFFFFFFOFO
-OFOFJJJJFOFO
-OFOFJYYJFOFO
-OFOFJJJJFOFO
-OFOFFFFFFOFO
-OFOOOOOOOOFO
-OFFFFFFFFFFO
-.OOOOOOOOOO.
-`;
-
-const STAMP_CIRCLE = `
-....JJJJ....
-..JJJJJJJJ..
-.JJJJJJJJJJ.
-.JJ......JJ.
-JJ.JJJJJJ.JJ
-JJ.J....J.JJ
-JJ.J.JJ.J.JJ
-JJ.J....J.JJ
-JJ.JJJJJJ.JJ
-.JJ......JJ.
-.JJJJJJJJJJ.
-..JJJJJJJJ..
-....JJJJ....
-`;
+const DOC_GRIDS: Record<string, string> = docGrids as Record<string, string>;
 
 export function renderCrest(): string {
-  return spriteSvg(ASHBRIDGE_CREST, BASE_PALETTE, { className: "spr crest" });
+  return spriteSvg(DOC_GRIDS.crest ?? "", BASE_PALETTE, { className: "spr crest" });
 }
 
 export function renderApprovedStamp(): string {
-  return spriteSvg(STAMP_CIRCLE, BASE_PALETTE, { className: "spr doc-stamp" });
+  return spriteSvg(DOC_GRIDS.stamp ?? "", BASE_PALETTE, { className: "spr doc-stamp" });
 }
 
 function fmtClock(m: number): string {

@@ -257,3 +257,103 @@ table.cars td button {
   border-radius: 4px;
   color: var(--text);
 }
+
+button.small {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.sprite-canvas {
+  display: inline-flex;
+  flex-direction: column;
+  background: #181a17;
+  padding: 4px;
+  border: 1px solid var(--line);
+  user-select: none;
+  cursor: crosshair;
+}
+.sprite-row {
+  display: flex;
+}
+.sprite-cell {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.sprite-cell:hover {
+  outline: 1px solid var(--accent);
+  z-index: 1;
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 6px;
+}
+.swatch {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  color: var(--text);
+  font: bold 14px ui-monospace, "Courier New", monospace;
+  text-shadow: 0 0 2px #000, 0 0 2px #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swatch:hover { border-color: var(--muted); }
+.swatch.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.swatch.readonly { cursor: default; }
+.swatch.readonly:hover { border-color: transparent; }
+.swatch-count {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  font-size: 9px;
+  color: var(--text);
+  background: rgba(0,0,0,0.6);
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+.sprite-preview-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #181a17;
+  padding: 16px;
+  border: 1px solid var(--line);
+  min-height: 200px;
+}
+.sprite-preview-wrap .spr-preview {
+  width: 320px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.palette-edit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.palette-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.swatch-mini {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+}
+.swatch-key {
+  display: inline-block;
+  width: 100px;
+  font-weight: bold;
+  font-family: ui-monospace, "Courier New", monospace;
+}

@@ -4,6 +4,11 @@ import { RESIDENTS, type Resident } from "../game/residents";
 import { STREETS } from "../game/streets";
 import type { Street, TuningRaw } from "../game/types";
 import tuningRaw from "../data/tuning.json";
+import carsSprites from "../data/sprites/cars.json";
+import iconsSprites from "../data/sprites/icons.json";
+import docSprites from "../data/sprites/doc.json";
+import paletteSprites from "../data/sprites/palette.json";
+import type { SpritesDraft } from "./state";
 import { initState, subscribe } from "./state";
 import { render } from "./ui";
 
@@ -20,7 +25,9 @@ if (!import.meta.env.DEV) {
 } else {
   const rawMode = sessionStorage.getItem("editor:mode");
   const persistedMode =
-    rawMode === "residents" || rawMode === "streets" || rawMode === "tuning" ? rawMode : "day";
+    rawMode === "residents" || rawMode === "streets" || rawMode === "tuning" || rawMode === "sprites"
+      ? rawMode
+      : "day";
   const persistedDay = Number(sessionStorage.getItem("editor:day"));
   const persistedCarIdx = Number(sessionStorage.getItem("editor:carIdx"));
   const persistedResidentIdx = Number(sessionStorage.getItem("editor:residentIdx"));
@@ -52,6 +59,17 @@ if (!import.meta.env.DEV) {
     streetsDirty: false,
     tuningDraft: structuredClone(tuningRaw) as TuningRaw,
     tuningDirty: false,
+    spritesDraft: structuredClone({
+      cars: carsSprites,
+      icons: iconsSprites,
+      doc: docSprites,
+      palette: paletteSprites,
+    }) as SpritesDraft,
+    spritesSubMode: (sessionStorage.getItem("editor:spritesSub") === "palette" ? "palette" : "sprite"),
+    spriteSelection: { category: "cars", key: Object.keys(carsSprites)[0]! },
+    spriteBrush: "O",
+    spritePreviewColour: "Red",
+    spritesDirtyCats: { cars: false, icons: false, doc: false, palette: false },
     saveStatus: { kind: "idle" },
   });
   subscribe((s) => {
@@ -60,6 +78,7 @@ if (!import.meta.env.DEV) {
     sessionStorage.setItem("editor:carIdx", String(s.selectedCarIdx));
     sessionStorage.setItem("editor:residentIdx", String(s.selectedResidentIdx));
     sessionStorage.setItem("editor:streetIdx", String(s.selectedStreetIdx));
+    sessionStorage.setItem("editor:spritesSub", s.spritesSubMode);
     render(root);
   });
 }

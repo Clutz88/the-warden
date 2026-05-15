@@ -1,7 +1,24 @@
 import type { CarSpecRaw, DayDefRaw, Street, TuningRaw } from "../game/types";
 import type { Resident } from "../game/residents";
 
-export type EditorMode = "day" | "residents" | "streets" | "tuning";
+export type EditorMode = "day" | "residents" | "streets" | "tuning" | "sprites";
+
+export type SpritesDraft = {
+  cars: Record<string, string>;
+  icons: Record<string, string>;
+  doc: Record<string, string>;
+  palette: {
+    base: Record<string, string>;
+    carColours: Record<string, string>;
+  };
+};
+
+export type SpriteSelection =
+  | { category: "cars"; key: string }
+  | { category: "icons"; key: string }
+  | { category: "doc"; key: string };
+
+export type SpritesSubMode = "sprite" | "palette";
 
 export type EditorState = {
   mode: EditorMode;
@@ -21,9 +38,21 @@ export type EditorState = {
   // Tuning mode
   tuningDraft: TuningRaw;
   tuningDirty: boolean;
+  // Sprites mode
+  spritesDraft: SpritesDraft;
+  spritesSubMode: SpritesSubMode;
+  spriteSelection: SpriteSelection;
+  spriteBrush: string; // active palette char, "." = erase
+  spritePreviewColour: string; // car body colour name for preview
+  spritesDirtyCats: { cars: boolean; icons: boolean; doc: boolean; palette: boolean };
   // Shared
   saveStatus: { kind: "idle" | "saving" | "ok" | "err"; message?: string };
 };
+
+export function spritesAnyDirty(s: EditorState): boolean {
+  const d = s.spritesDirtyCats;
+  return d.cars || d.icons || d.doc || d.palette;
+}
 
 export type Listener = (s: EditorState) => void;
 
@@ -107,6 +136,49 @@ export function updateTuning(fn: (t: TuningRaw) => void): void {
   const tuningDraft = structuredClone(s.tuningDraft);
   fn(tuningDraft);
   setState({ tuningDraft, tuningDirty: true, saveStatus: { kind: "idle" } });
+}
+
+type SpritesCategory = keyof SpritesDraft;
+
+export function updateSprites(category: SpritesCategory, fn: (d: SpritesDraft[SpritesCategory]) => void): void {
+  const s = getState();
+  const spritesDraft = structuredClone(s.spritesDraft);
+  fn(spritesDraft[category] as never);
+  const spritesDirtyCats = { ...s.spritesDirtyCats, [category]: true };
+  setState({ spritesDraft, spritesDirtyCats, saveStatus: { kind: "idle" } });
+}
+
+export function updateGridCell(category: "cars" | "icons" | "doc", key: string, x: number, y: number, ch: string): void {
+  updateSprites(category, (d) => {
+    const grid = (d as Record<string, string>)[key];
+    if (!grid) return;
+    const rows = grid.split("\n");
+    if (y < 0 || y >= rows.length) return;
+    const row = rows[y]!;
+    if (x < 0 || x >= row.length) return;
+    rows[y] = row.slice(0, x) + ch + row.slice(x + 1);
+    (d as Record<string, string>)[key] = rows.join("\n");
+  });
+}
+
+export function resizeGrid(category: "cars" | "icons" | "doc", key: string, deltaW: number, deltaH: number): void {
+  updateSprites(category, (d) => {
+    const grid = (d as Record<string, string>)[key];
+    if (!grid) return;
+    let rows = grid.split("\n");
+    if (deltaH > 0) {
+      const w = rows.reduce((m, r) => Math.max(m, r.length), 0);
+      for (let i = 0; i < deltaH; i++) rows.push(".".repeat(w));
+    } else if (deltaH < 0) {
+      rows = rows.slice(0, Math.max(1, rows.length + deltaH));
+    }
+    if (deltaW > 0) {
+      rows = rows.map((r) => r + ".".repeat(deltaW));
+    } else if (deltaW < 0) {
+      rows = rows.map((r) => r.slice(0, Math.max(1, r.length + deltaW)));
+    }
+    (d as Record<string, string>)[key] = rows.join("\n");
+  });
 }
 
 export function subscribe(l: Listener): () => void {

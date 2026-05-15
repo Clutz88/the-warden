@@ -6,6 +6,64 @@ function dayEditorPlugin(): Plugin {
   return {
     name: "day-editor-save",
     configureServer(server) {
+      server.middlewares.use("/__editor/save-sprites", async (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end();
+          return;
+        }
+        try {
+          let body = "";
+          for await (const chunk of req) body += chunk;
+          const parsed = JSON.parse(body) as { category?: unknown; data?: unknown };
+          const category = parsed.category;
+          if (category !== "cars" && category !== "icons" && category !== "doc" && category !== "palette") {
+            res.statusCode = 400;
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ error: "category must be cars|icons|doc|palette" }));
+            return;
+          }
+          if (!parsed.data || typeof parsed.data !== "object") {
+            res.statusCode = 400;
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ error: "data must be an object" }));
+            return;
+          }
+          // Shape-specific validation
+          const data = parsed.data as Record<string, unknown>;
+          if (category === "palette") {
+            const pd = data as { base?: unknown; carColours?: unknown };
+            if (!pd.base || typeof pd.base !== "object" || !pd.carColours || typeof pd.carColours !== "object") {
+              res.statusCode = 400;
+              res.setHeader("content-type", "application/json");
+              res.end(JSON.stringify({ error: "palette needs base + carColours objects" }));
+              return;
+            }
+          } else {
+            // grid categories: every value must be a string
+            for (const [k, v] of Object.entries(data)) {
+              if (typeof v !== "string") {
+                res.statusCode = 400;
+                res.setHeader("content-type", "application/json");
+                res.end(JSON.stringify({ error: `${category}.${k} must be a string grid` }));
+                return;
+              }
+            }
+          }
+          const root = server.config.root;
+          const file = resolve(root, join("src", "data", "sprites", `${category}.json`));
+          const json = JSON.stringify(parsed.data, null, 2) + "\n";
+          await writeFile(file, json, "utf8");
+          res.statusCode = 200;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ ok: true, file: `src/data/sprites/${category}.json` }));
+        } catch (err) {
+          res.statusCode = 500;
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ error: String(err) }));
+        }
+      });
+
       server.middlewares.use("/__editor/save-tuning", async (req, res) => {
         if (req.method !== "POST") {
           res.statusCode = 405;
