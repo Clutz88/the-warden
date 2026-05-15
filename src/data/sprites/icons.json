@@ -1,8 +1,8 @@
 {
-  "lamppost": ".OOOOOO.\nOYYYYYYO\nOYYYYYYO\nOYYYYYYO\n.OOOOOO.\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n.OMMMMO.\n.OMMMMO.\nOOOOOOOO",
+  "lamppost": ".OOOOOO.\nOYYYYYYO\nOYYYYYYO\nOYYYYYYO\n.OOOOOO.\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n...MM...\n..OMMO..\n.OMMMMO.\n.OMMMMO.\nOOOOOOOO",
   "ticketMachine": ".OOOOOOOOOO.\nOKKKKKKKKKKO\nOKWWWWWWWWKO\nOKWXXXXXXWKO\nOKWXXXXXXWKO\nOKWWWWWWWWKO\nOKKKKKKKKKKO\nOKYYYYYYYYKO\nOKYYYYYYYYKO\nOKKKKKKKKKKO\nOKKKKKKKKKKO\n.OOOOOOOOOO.\n....OOOO....\n....OOOO....\n....OOOO....\n....OOOO....\n....OOOO....\n...OOOOOO...",
-  "zoneSign": "OOOOOOOOOOO\nOYYYYYYYYYO\nOYpppppppYO\nOYpYYYYYpYO\nOYpYpppYpYO\nOYpYYYYYpYO\nOYpppppppYO\nOYYYYYYYYYO\nOOOOOOOOOOO\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n....MMM....\n...OMMMO...",
-  "loadingSign": "OOOOOOOOOOO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOOOOOOOOOOO\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n....MMM....\n...OMMMO...",
+  "zoneSign": "OOOOOOOOOOO\nOYYYYYYYYYO\nOYpppppppYO\nOYpYYYYYpYO\nOYpYpppYpYO\nOYpYYYYYpYO\nOYpppppppYO\nOYYYYYYYYYO\nOOOOOOOOOOO\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n....OMO....\n...OMMMO...\n...OMMMO...",
+  "loadingSign": "OOOOOOOOOOO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOSSSSSSSSSO\nOOOOOOOOOOO\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n.....M.....\n....OMO....\n...OMMMO...\n...OMMMO...",
   "stampTick": ".....GG.\n....GGG.\n...GGG..\nGGGGG...\n.GGG....\n..G.....",
   "stampX": "JJ....JJ\n.JJ..JJ.\n..JJJJ..\n...JJ...\n..JJJJ..\n.JJ..JJ.\nJJ....JJ",
   "arrowRight": ".....OO.\n....OOO.\nOOOOOOOO\nOOOOOOOO\n....OOO.\n.....OO."
