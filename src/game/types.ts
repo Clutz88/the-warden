@@ -47,12 +47,21 @@ export type DocLoadingSlip = {
   arrivedAt: number;
 };
 
+export type ToneCode = "positive" | "negative" | "neutral";
+
+export type DocReactiveNote = {
+  type: "reactive-note";
+  from: string;
+  variants: Partial<Record<ToneCode, string>>;
+};
+
 export type Doc =
   | DocPayDisplay
   | DocPermit
   | DocBlueBadge
   | DocNote
-  | DocLoadingSlip;
+  | DocLoadingSlip
+  | DocReactiveNote;
 
 export type Violation = { code: string; label: string };
 
@@ -89,7 +98,8 @@ export type DocRaw =
       clockSetAt: string | null;
     }
   | { type: "note"; from: string; text: string }
-  | { type: "loading-slip"; firm: string; arrivedAt: string };
+  | { type: "loading-slip"; firm: string; arrivedAt: string }
+  | DocReactiveNote;
 
 export type CarSpecRaw = {
   seenAt: string;
@@ -123,12 +133,9 @@ export type DayDef = {
   day: number;
   briefing: string;
   newRuleSummary: string[];
-  carCount?: number;
-  cars?: CarSpec[];
+  cars: CarSpec[];
   streets: string[];
   rent: number;
-  residentChance?: number;
-  residentPool?: string[];
   supervisor?: SupervisorConfig;
 };
 

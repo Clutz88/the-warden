@@ -8,11 +8,11 @@ import type {
 } from "../types";
 import { residentById } from "../residents";
 import day1Raw from "./day1.json";
-import { day2 } from "./day2";
-import { day3 } from "./day3";
-import { day4 } from "./day4";
-import { day5 } from "./day5";
-import { day6 } from "./day6";
+import day2Raw from "./day2.json";
+import day3Raw from "./day3.json";
+import day4Raw from "./day4.json";
+import day5Raw from "./day5.json";
+import day6Raw from "./day6.json";
 
 export function parseClock(s: string): number {
   const m = /^([0-2]\d):([0-5]\d)$/.exec(s);
@@ -50,6 +50,8 @@ function parseDoc(doc: DocRaw, ctx: string): Doc {
         firm: doc.firm,
         arrivedAt: parseClock(doc.arrivedAt),
       };
+    case "reactive-note":
+      return { type: "reactive-note", from: doc.from, variants: { ...doc.variants } };
     default: {
       const _exhaustive: never = doc;
       throw new Error(`${ctx}: unknown doc type ${JSON.stringify(_exhaustive)}`);
@@ -94,11 +96,11 @@ export function loadDay(raw: DayDefRaw): DayDef {
 
 export const DAYS: DayDef[] = [
   loadDay(day1Raw as DayDefRaw),
-  day2,
-  day3,
-  day4,
-  day5,
-  day6,
+  loadDay(day2Raw as DayDefRaw),
+  loadDay(day3Raw as DayDefRaw),
+  loadDay(day4Raw as DayDefRaw),
+  loadDay(day5Raw as DayDefRaw),
+  loadDay(day6Raw as DayDefRaw),
 ];
 
 export function getDay(n: number): DayDef {

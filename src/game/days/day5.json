@@ -1,0 +1,194 @@
+{
+  "day": 5,
+  "briefing": "Word travels. The drivers you ticketed yesterday have made up their minds about you. Some have left fresh notes on their dashboards. They will not change the regulations.",
+  "newRuleSummary": [
+    "All Day 1–4 rules remain in force.",
+    "Recurring residents may reference yesterday's decisions in their notes.",
+    "Supervisor review continues — sample of 3, £5 per error."
+  ],
+  "streets": ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
+  "rent": 75,
+  "supervisor": { "sampleSize": 3, "penaltyPerWrong": 5 },
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "AS19 MFN",
+      "colour": "Blue",
+      "model": "Honda Jazz",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "10:00" }
+      ]
+    },
+    {
+      "seenAt": "09:10",
+      "plate": "MD51 GET",
+      "colour": "Silver",
+      "model": "Vauxhall Astra",
+      "street": "churchLane",
+      "residentId": "margaret-dawes",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "WALTER DAWES",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "08:50"
+        },
+        {
+          "type": "reactive-note",
+          "from": "MARGARET DAWES",
+          "variants": {
+            "neutral": "Sorry — appointment ran over. Walter needed help back to the car.",
+            "negative": "Please reconsider, Warden. Walter's hospital bill arrived this morning. I'll set my watch from now on.",
+            "positive": "Thank you for the kindness yesterday. God bless you."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:21",
+      "plate": "FE63 HKL",
+      "colour": "Red",
+      "model": "Ford Fiesta",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:00" }
+      ]
+    },
+    {
+      "seenAt": "09:32",
+      "plate": "DF22 PLM",
+      "colour": "White",
+      "model": "Ford Transit",
+      "street": "marketSt",
+      "residentId": "derek-foster",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:15" },
+        {
+          "type": "reactive-note",
+          "from": "DEREK FOSTER",
+          "variants": {
+            "neutral": "URGENT JOB. Council can take it up with my solicitor.",
+            "negative": "My solicitor will be in touch. Foster vs Borough of Ashbridge — see you in court.",
+            "positive": "Right answer yesterday. Don't get clever today."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:44",
+      "plate": "JN21 RPT",
+      "colour": "Grey",
+      "model": "Skoda Fabia",
+      "street": "abbeyClose",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "JM21 RPT", "validUntil": "31/12/2026" }
+      ]
+    },
+    {
+      "seenAt": "09:56",
+      "plate": "PS19 RUN",
+      "colour": "Blue",
+      "model": "Mini Cooper",
+      "street": "victoriaTerr",
+      "residentId": "priya-shah",
+      "docs": [
+        { "type": "permit", "zone": "B", "plate": "PS19 RUN", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "PRIYA SHAH",
+          "variants": {
+            "neutral": "Cooling down after a 10K. Be back before the meter strip changes.",
+            "negative": "Fair cop. New PB this morning though, so I'll forgive you.",
+            "positive": "Lovely. I'll have shaved the time off by next week — promise."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:08",
+      "plate": "LM18 WCS",
+      "colour": "Black",
+      "model": "BMW 3 Series",
+      "street": "churchLane",
+      "docs": []
+    },
+    {
+      "seenAt": "10:20",
+      "plate": "PL22 RAM",
+      "colour": "Green",
+      "model": "Land Rover Discovery",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "11:00" }
+      ]
+    },
+    {
+      "seenAt": "10:32",
+      "plate": "LRZ 4421",
+      "colour": "Silver",
+      "model": "Toyota Yaris",
+      "street": "abbeyClose",
+      "residentId": "jaime-okafor",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "LRZ 4421", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "JAIME OKAFOR",
+          "variants": {
+            "neutral": "NI plates — please don't ticket. I'm just visiting family.",
+            "negative": "Ticketing a tourist with NI plates. Bold move, that.",
+            "positive": "Sound. Tell yer mam I owe her a pint when I'm next over."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:44",
+      "plate": "KE19 TPB",
+      "colour": "Red",
+      "model": "Audi A3",
+      "street": "victoriaTerr",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "KE19 TPB", "validUntil": "31/12/2026" }
+      ]
+    },
+    {
+      "seenAt": "10:56",
+      "plate": "SM21 GLA",
+      "colour": "Blue",
+      "model": "Ford Focus",
+      "street": "marketSt",
+      "residentId": "stuart-mclean",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "11:30" },
+        {
+          "type": "reactive-note",
+          "from": "STUART McLEAN",
+          "variants": {
+            "neutral": "From up the road. Lass has her grade three exam Friday.",
+            "negative": "Drove 200 miles for this, did I? Brilliant.",
+            "positive": "Cheers, pal. Ailsa says she'll dedicate her recorder solo to you."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "11:08",
+      "plate": "MV15 BSG",
+      "colour": "White",
+      "model": "Peugeot 208",
+      "street": "churchLane",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "COLIN VARLEY",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "07:30"
+        }
+      ]
+    }
+  ]
+}

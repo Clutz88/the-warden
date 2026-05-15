@@ -1,0 +1,161 @@
+{
+  "day": 4,
+  "briefing": "The Borough has assigned you a fixed beat. You'll start to recognise faces — and you'll be expected to enforce the rules without fear or favour. Inspector Harding is stepping up the spot checks: three decisions sampled, £5 a piece for any error.",
+  "newRuleSummary": [
+    "All Day 1–3 rules remain in force.",
+    "Some drivers may leave a note on the dashboard. Notes do not change the regulations.",
+    "Supervisor review: 3 of your decisions will be sampled. £5 deducted per missed PCN or wrongful ticket."
+  ],
+  "streets": ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
+  "rent": 60,
+  "supervisor": { "sampleSize": 3, "penaltyPerWrong": 5 },
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "MD51 GET",
+      "colour": "Silver",
+      "model": "Vauxhall Astra",
+      "street": "churchLane",
+      "residentId": "margaret-dawes",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "WALTER DAWES",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "08:45"
+        },
+        {
+          "type": "reactive-note",
+          "from": "MARGARET DAWES",
+          "variants": {
+            "neutral": "Sorry — appointment ran over. Walter needed help back to the car.",
+            "negative": "Please reconsider, Warden. Walter's hospital bill arrived this morning. I'll set my watch from now on.",
+            "positive": "Thank you for the kindness yesterday. God bless you."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:13",
+      "plate": "RH64 SLP",
+      "colour": "White",
+      "model": "Ford Fiesta",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "10:30" }
+      ]
+    },
+    {
+      "seenAt": "09:25",
+      "plate": "BH18 KAB",
+      "colour": "Black",
+      "model": "Toyota Prius",
+      "street": "abbeyClose",
+      "residentId": "bernard-holland",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "BH18 KAB", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "BERNARD HOLLAND",
+          "variants": {
+            "neutral": "Just dropping a fare. Out in two minutes — promise.",
+            "negative": "Cheers for the £80 ticket, mate. Paperwork's at DVLA — take it up with them.",
+            "positive": "Appreciate the leniency. New permit through next week, promise."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:38",
+      "plate": "BX21 NFW",
+      "colour": "Red",
+      "model": "Mazda 3",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:00" }
+      ]
+    },
+    {
+      "seenAt": "09:51",
+      "plate": "KU13 PME",
+      "colour": "Blue",
+      "model": "Nissan Qashqai",
+      "street": "victoriaTerr",
+      "docs": []
+    },
+    {
+      "seenAt": "10:04",
+      "plate": "TK18 BLD",
+      "colour": "White",
+      "model": "Ford Transit",
+      "street": "churchLane",
+      "residentId": "tomasz-kowalski",
+      "docs": [
+        {
+          "type": "reactive-note",
+          "from": "TOMASZ KOWALSKI",
+          "variants": {
+            "neutral": "Building merchants close at 4. Ten minutes, then I'm gone.",
+            "negative": "Ten minutes I said. Council loves a small contractor, eh?",
+            "positive": "Cheers boss. Number 14 says hello — kitchen done by Friday."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:17",
+      "plate": "MN18 GTH",
+      "colour": "Green",
+      "model": "Hyundai i10",
+      "street": "highRoad",
+      "docs": []
+    },
+    {
+      "seenAt": "10:30",
+      "plate": "K194 ELS",
+      "colour": "Red",
+      "model": "Vauxhall Astra",
+      "street": "abbeyClose",
+      "residentId": "elsie-whittaker",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "K194 ELS", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "ELSIE WHITTAKER",
+          "variants": {
+            "neutral": "Just collecting my prescription from Boots. Knees aren't what they were.",
+            "negative": "I shan't park here again. Most disappointed in the council.",
+            "positive": "Such a kind young thing. There's a bag of pear drops in the door pocket if you'd like one."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:43",
+      "plate": "NC22 RWP",
+      "colour": "Grey",
+      "model": "Peugeot 208",
+      "street": "churchLane",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "VIVIENNE TREASURE",
+          "validUntil": "30/06/2027",
+          "clockShown": false,
+          "clockSetAt": null
+        }
+      ]
+    },
+    {
+      "seenAt": "10:56",
+      "plate": "TG17 HLA",
+      "colour": "Black",
+      "model": "VW Golf",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "11:30" }
+      ]
+    }
+  ]
+}

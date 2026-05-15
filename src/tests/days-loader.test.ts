@@ -18,33 +18,32 @@ describe("parseClock", () => {
   });
 });
 
-describe("Day 1 authored sequence", () => {
-  const day1 = DAYS[0]!;
-
-  it("loaded cars match the authored shape", () => {
-    expect(day1.cars).toBeDefined();
-    expect(day1.cars!.length).toBe(6);
-    expect(day1.cars![0]!.seenAt).toBe(9 * 60);
-    expect(day1.cars![0]!.plate).toBe("AB12 CDE");
-  });
-
-  it("seenAt is monotonic", () => {
-    const cars = day1.cars!;
-    for (let i = 1; i < cars.length; i++) {
-      expect(cars[i]!.seenAt).toBeGreaterThanOrEqual(cars[i - 1]!.seenAt);
+describe("Authored day sequences", () => {
+  it("every day loads with cars[] and monotonic seenAt", () => {
+    for (const def of DAYS) {
+      expect(def.cars, `day ${def.day} missing cars`).toBeDefined();
+      const cars = def.cars!;
+      expect(cars.length).toBeGreaterThan(0);
+      for (let i = 1; i < cars.length; i++) {
+        expect(cars[i]!.seenAt, `day ${def.day} car ${i} seenAt regression`).toBeGreaterThanOrEqual(cars[i - 1]!.seenAt);
+      }
     }
   });
 
-  it("buildCars produces the expected per-car truth", () => {
-    const built = buildCars(day1.cars!, 1);
-    const codes = built.map((c) => c.truth.map((t) => t.code).join(","));
-    expect(codes).toEqual([
-      "",      // valid PD
-      "01",    // expired
-      "01",    // no ticket
-      "",      // valid PD
-      "01",    // expired
-      "",      // valid PD
-    ]);
-  });
+  const expected: Record<number, string[]> = {
+    1: ["", "01", "01", "", "01", ""],
+    2: ["", "", "01", "12", "12", "01", "", "12"],
+    3: ["", "", "", "40", "01", "12", "40", "", "40", ""],
+    4: ["", "", "", "01", "12", "40", "01", "", "40", ""],
+    5: ["", "", "01", "01", "12", "", "40", "", "", "12", "", "40"],
+    6: ["", "", "", "25", "", "25", "01", "12", "40", "", "", ""],
+  };
+
+  for (const def of DAYS) {
+    it(`day ${def.day} buildCars truth matches authored intent`, () => {
+      const built = buildCars(def.cars!, def.day);
+      const codes = built.map((c) => c.truth.map((t) => t.code).join(","));
+      expect(codes).toEqual(expected[def.day]);
+    });
+  }
 });

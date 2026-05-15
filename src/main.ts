@@ -8,7 +8,7 @@ import {
   loadState,
   hydrate,
 } from "./game/state";
-import { generateCars, buildCars } from "./game/cars";
+import { buildCars } from "./game/cars";
 import { activeRules } from "./game/rules";
 import { getDay, DAYS } from "./game/days";
 import { reviewShift } from "./game/supervisor";
@@ -43,15 +43,7 @@ const FLAWLESS_BONUS = 10;
 function startDay(day: number): void {
   const def = getDay(day);
   const prev = getState();
-  const cars = def.cars
-    ? buildCars(def.cars, day, prev.residentHistory)
-    : generateCars({
-        day,
-        count: def.carCount ?? 0,
-        shiftStart: SHIFT_START,
-        seed: 1000 * day + Math.floor(Math.random() * 1000),
-        residentHistory: prev.residentHistory,
-      });
+  const cars = buildCars(def.cars, day, prev.residentHistory);
   setState({
     day,
     clock: cars[0]?.seenAt ?? SHIFT_START,

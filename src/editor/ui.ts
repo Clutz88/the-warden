@@ -1,4 +1,4 @@
-import type { CarSpecRaw, DocRaw, ZoneCode } from "../game/types";
+import type { CarSpecRaw, DocRaw, ToneCode, ZoneCode } from "../game/types";
 import { STREETS } from "../game/streets";
 import { RESIDENTS } from "../game/residents";
 import { getState, setState, updateCar, updateDraft } from "./state";
@@ -12,7 +12,9 @@ const DOC_TYPES: DocRaw["type"][] = [
   "blue-badge",
   "loading-slip",
   "note",
+  "reactive-note",
 ];
+const TONES: ToneCode[] = ["neutral", "positive", "negative"];
 const ZONES: ZoneCode[] = [null, "A", "B", "C"];
 
 export function render(root: HTMLElement): void {
@@ -364,6 +366,23 @@ function buildDocFields(carIdx: number, docIdx: number, doc: DocRaw): HTMLElemen
       g.appendChild(labeled("Text", ta));
       return g;
     }
+    case "reactive-note": {
+      const wrap = el("div");
+      wrap.appendChild(labeled("From", textInput(doc.from, (v) => replace({ from: v }))));
+      const variants = { ...doc.variants };
+      for (const tone of TONES) {
+        const ta = el("textarea", { rows: "2" }) as HTMLTextAreaElement;
+        ta.value = variants[tone] ?? "";
+        ta.addEventListener("input", () => {
+          const next = { ...variants };
+          if (ta.value) next[tone] = ta.value;
+          else delete next[tone];
+          replace({ variants: next });
+        });
+        wrap.appendChild(labeled(`${tone} variant`, ta));
+      }
+      return wrap;
+    }
     default:
       return el("div", {}, "(unknown doc type)");
   }
@@ -381,6 +400,8 @@ function defaultDoc(type: DocRaw["type"], car: CarSpecRaw): DocRaw {
       return { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: car.seenAt };
     case "note":
       return { type: "note", from: "", text: "" };
+    case "reactive-note":
+      return { type: "reactive-note", from: "", variants: { neutral: "" } };
   }
 }
 

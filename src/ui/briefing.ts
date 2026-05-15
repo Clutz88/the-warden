@@ -28,7 +28,7 @@ export function renderBriefing(
         <h3>Streets on patrol</h3>
         <ul>${d.streets.map((id) => `<li>${STREETS[id]?.name ?? id}</li>`).join("")}</ul>
         <h3>Quota</h3>
-        <p>${d.cars?.length ?? d.carCount} vehicles. Make rent of £${d.rent} or you're out.</p>
+        <p>${d.cars.length} vehicles. Make rent of £${d.rent} or you're out.</p>
         ${continueBtn}
         <button class="btn" data-action="start-shift">START SHIFT</button>
         ${statsBtn}

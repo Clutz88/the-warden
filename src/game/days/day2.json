@@ -1,0 +1,89 @@
+{
+  "day": 2,
+  "briefing": "New zones added to your patrol: Abbey Close (Zone A) and Victoria Terrace (Zone B). Residents must show a permit matching the zone of the street, AND the registration on the permit must match the car's plate. P&D rules still apply on the high streets.",
+  "newRuleSummary": [
+    "Permit zone letter must match the street's zone.",
+    "Plate on permit must match plate on car.",
+    "P&D rules still active on Pay & Display streets."
+  ],
+  "streets": ["highRoad", "marketSt", "abbeyClose", "victoriaTerr"],
+  "rent": 40,
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "KU13 HMC",
+      "colour": "Red",
+      "model": "Ford Fiesta",
+      "street": "highRoad",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "10:00" }
+      ]
+    },
+    {
+      "seenAt": "09:12",
+      "plate": "RY18 NBL",
+      "colour": "Silver",
+      "model": "VW Golf",
+      "street": "abbeyClose",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "RY18 NBL", "validUntil": "31/12/2026" }
+      ]
+    },
+    {
+      "seenAt": "09:24",
+      "plate": "FT64 LWP",
+      "colour": "Black",
+      "model": "BMW 3 Series",
+      "street": "marketSt",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:00" }
+      ]
+    },
+    {
+      "seenAt": "09:38",
+      "plate": "GS21 NPM",
+      "colour": "Blue",
+      "model": "Vauxhall Corsa",
+      "street": "victoriaTerr",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "GS21 NPM", "validUntil": "31/12/2026" }
+      ]
+    },
+    {
+      "seenAt": "09:50",
+      "plate": "BV17 KRT",
+      "colour": "White",
+      "model": "Hyundai i10",
+      "street": "abbeyClose",
+      "docs": []
+    },
+    {
+      "seenAt": "10:02",
+      "plate": "DH08 WCN",
+      "colour": "Green",
+      "model": "Nissan Qashqai",
+      "street": "highRoad",
+      "docs": []
+    },
+    {
+      "seenAt": "10:15",
+      "plate": "NL19 GRM",
+      "colour": "Grey",
+      "model": "Peugeot 208",
+      "street": "victoriaTerr",
+      "docs": [
+        { "type": "permit", "zone": "B", "plate": "NL19 GRM", "validUntil": "31/12/2026" }
+      ]
+    },
+    {
+      "seenAt": "10:28",
+      "plate": "EM22 PTA",
+      "colour": "Red",
+      "model": "Mini Cooper",
+      "street": "abbeyClose",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "EM22 PIA", "validUntil": "31/12/2026" }
+      ]
+    }
+  ]
+}
