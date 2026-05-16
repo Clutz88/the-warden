@@ -20,6 +20,7 @@ import {
 import { DAY_NUMBERS, RAW_DAYS, emptyDayRaw, nextDayNumber } from "./rawDays";
 import { previewDraft, type DraftPreview } from "./preview";
 import { saveDay, saveResidents, saveSpriteCategory, saveStreets, saveTuning } from "./save";
+import { findBrokenRefs, type IntegrityIssue } from "./integrity";
 import { carPalette } from "../ui/sprites/palette";
 import { spriteSvg } from "../ui/sprites/pixelArt";
 
@@ -228,7 +229,23 @@ function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
   return `error: ${s.message ?? ""}`;
 }
 
+function checkIntegrityOrConfirm(): boolean {
+  const s = getState();
+  // Only relevant when a save would affect cross-references: day saves, residents, streets.
+  if (s.mode !== "day" && s.mode !== "residents" && s.mode !== "streets") return true;
+  const issues = findBrokenRefs(s, DAY_NUMBERS, (n) => RAW_DAYS[n]);
+  if (issues.length === 0) return true;
+  const list = issues.slice(0, 20).map((i) => `• ${i.scope}: ${i.message}`).join("\n");
+  const more = issues.length > 20 ? `\n• … and ${issues.length - 20} more` : "";
+  return window.confirm(
+    `Saving will leave ${issues.length} broken reference${issues.length === 1 ? "" : "s"}.\n` +
+      `Day files referencing the missing id will fail to load and the game won't start.\n\n` +
+      `${list}${more}\n\nSave anyway?`,
+  );
+}
+
 async function onSave(): Promise<void> {
+  if (!checkIntegrityOrConfirm()) return;
   const s = getState();
   setState({ saveStatus: { kind: "saving" } });
   if (s.mode === "residents") {
@@ -314,7 +331,28 @@ function buildLeftColumn(preview: DraftPreview): HTMLElement {
 function buildRightColumn(preview: DraftPreview): HTMLElement {
   const col = el("div", { class: "column" });
   col.appendChild(buildTruthPanel(preview));
+  col.appendChild(buildDayIntegrityPanel());
   return col;
+}
+
+function buildDayIntegrityPanel(): HTMLElement {
+  const s = getState();
+  const card = el("div", { class: "card" });
+  card.appendChild(el("h2", {}, "References"));
+  // Only check this day's broken refs against the current drafts.
+  const issues: IntegrityIssue[] = findBrokenRefs(
+    s,
+    [s.day],
+    (n) => (n === s.day ? s.draft : RAW_DAYS[n]),
+  );
+  if (issues.length === 0) {
+    card.appendChild(el("div", { class: "banner ok" }, "All car refs resolve"));
+  } else {
+    for (const i of issues) {
+      card.appendChild(el("div", { class: "banner err" }, i.message));
+    }
+  }
+  return card;
 }
 
 // --- Day metadata ---
@@ -753,6 +791,18 @@ function buildResidentsValidation(): HTMLElement {
     else if (plates.has(r.plate)) errors.push(`Duplicate plate: ${r.plate}`);
     plates.add(r.plate);
     if (!r.name.trim()) errors.push(`Resident "${r.id}" has empty name`);
+  }
+
+  // Cross-day reference check: every car.residentId across all days must
+  // resolve in the current residents draft.
+  for (const dayNum of Object.keys(RAW_DAYS).map(Number)) {
+    const raw = RAW_DAYS[dayNum];
+    if (!raw) continue;
+    for (const c of raw.cars) {
+      if (c.residentId && !ids.has(c.residentId)) {
+        errors.push(`Day ${dayNum} car ${c.plate} references missing resident "${c.residentId}"`);
+      }
+    }
   }
 
   if (errors.length === 0) {

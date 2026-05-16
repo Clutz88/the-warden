@@ -60,6 +60,8 @@ function startDay(day: number): void {
 }
 
 function startShift(): void {
+  const s = getState();
+  if (s.cars.length === 0) return;
   setState({ phase: "shift" });
 }
 

@@ -10,6 +10,18 @@ export function renderBriefing(
   showStats: boolean,
 ): string {
   const d = getDay(day);
+  if (d.cars.length === 0) {
+    return `
+      <div class="modal-bg">
+        <div class="modal">
+          <h1>DAY ${day} — UNFINISHED</h1>
+          <p>This day has no authored cars yet.</p>
+          <p>Open the editor at <code>/editor.html</code> to add some, or restart from Day 1.</p>
+          <button class="btn" data-action="restart">RESTART</button>
+        </div>
+      </div>
+    `;
+  }
   const continueBtn =
     day === 1 && hasSave
       ? `<button class="btn" data-action="continue">CONTINUE PREVIOUS</button>`

@@ -1,5 +1,6 @@
 import type { CarSpecRaw, DayDefRaw, Street, TuningRaw } from "../game/types";
 import type { Resident } from "../game/residents";
+import { paintGridCell, resizeGridString } from "./gridOps";
 
 export type EditorMode = "day" | "residents" | "streets" | "tuning" | "sprites";
 
@@ -150,34 +151,19 @@ export function updateSprites(category: SpritesCategory, fn: (d: SpritesDraft[Sp
 
 export function updateGridCell(category: "cars" | "icons" | "doc", key: string, x: number, y: number, ch: string): void {
   updateSprites(category, (d) => {
-    const grid = (d as Record<string, string>)[key];
+    const map = d as Record<string, string>;
+    const grid = map[key];
     if (!grid) return;
-    const rows = grid.split("\n");
-    if (y < 0 || y >= rows.length) return;
-    const row = rows[y]!;
-    if (x < 0 || x >= row.length) return;
-    rows[y] = row.slice(0, x) + ch + row.slice(x + 1);
-    (d as Record<string, string>)[key] = rows.join("\n");
+    map[key] = paintGridCell(grid, x, y, ch);
   });
 }
 
 export function resizeGrid(category: "cars" | "icons" | "doc", key: string, deltaW: number, deltaH: number): void {
   updateSprites(category, (d) => {
-    const grid = (d as Record<string, string>)[key];
+    const map = d as Record<string, string>;
+    const grid = map[key];
     if (!grid) return;
-    let rows = grid.split("\n");
-    if (deltaH > 0) {
-      const w = rows.reduce((m, r) => Math.max(m, r.length), 0);
-      for (let i = 0; i < deltaH; i++) rows.push(".".repeat(w));
-    } else if (deltaH < 0) {
-      rows = rows.slice(0, Math.max(1, rows.length + deltaH));
-    }
-    if (deltaW > 0) {
-      rows = rows.map((r) => r + ".".repeat(deltaW));
-    } else if (deltaW < 0) {
-      rows = rows.map((r) => r.slice(0, Math.max(1, r.length + deltaW)));
-    }
-    (d as Record<string, string>)[key] = rows.join("\n");
+    map[key] = resizeGridString(grid, deltaW, deltaH);
   });
 }
 
