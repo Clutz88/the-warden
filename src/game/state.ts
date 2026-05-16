@@ -5,7 +5,7 @@ type Listener = (s: GameState) => void;
 const listeners: Set<Listener> = new Set();
 
 const SAVE_KEY = "warden:save";
-const SAVE_VERSION = 1;
+const SAVE_VERSION = 2;
 
 function initialState(): GameState {
   return {

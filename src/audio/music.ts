@@ -5,10 +5,10 @@ type Chord = number[];
 
 // Am — F — Cmaj7 — Esus4. Frequencies in Hz, low octave for pad feel.
 const PROGRESSION: Chord[] = [
-  [220.0, 261.63, 329.63],         // A3 C4 E4   (Am)
-  [174.61, 220.0, 261.63],         // F3 A3 C4   (F)
+  [220.0, 261.63, 329.63], // A3 C4 E4   (Am)
+  [174.61, 220.0, 261.63], // F3 A3 C4   (F)
   [261.63, 329.63, 392.0, 493.88], // C4 E4 G4 B4 (Cmaj7)
-  [164.81, 246.94, 329.63],        // E3 B3 E4   (Esus4-ish)
+  [164.81, 246.94, 329.63], // E3 B3 E4   (Esus4-ish)
 ];
 const CHORD_MS = 4000;
 
@@ -51,7 +51,8 @@ export function isMuted(): boolean {
 export function startMusic(): void {
   if (started) return;
   const Ctor: typeof AudioContext | undefined =
-    window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctor) return;
   ctx = new Ctor();
   masterGain = ctx.createGain();
@@ -139,8 +140,14 @@ function scheduleChord(idx: number): void {
 // A natural minor scale (octave 4/5). Lower register sits closer to the pad,
 // helping the lead blend with the underlying voicings instead of cutting over.
 const N = {
-  A4: 440.0, B4: 493.88, C5: 523.25, D5: 587.33,
-  E5: 659.25, F5: 698.46, G5: 784.0, A5: 880.0,
+  A4: 440.0,
+  B4: 493.88,
+  C5: 523.25,
+  D5: 587.33,
+  E5: 659.25,
+  F5: 698.46,
+  G5: 784.0,
+  A5: 880.0,
 };
 
 type Note = { f: number; beats: number };
@@ -158,21 +165,38 @@ type Note = { f: number; beats: number };
 //   H: half cadence, breath before loop (Esus4)
 const MELODY: Note[] = [
   // bar A — Am
-  { f: N.A4, beats: 2 }, { f: N.C5, beats: 1 }, { f: N.B4, beats: 1 },
+  { f: N.A4, beats: 2 },
+  { f: N.C5, beats: 1 },
+  { f: N.B4, beats: 1 },
   // bar B — F
-  { f: N.A4, beats: 1 }, { f: N.C5, beats: 1 }, { f: N.F5, beats: 2 },
+  { f: N.A4, beats: 1 },
+  { f: N.C5, beats: 1 },
+  { f: N.F5, beats: 2 },
   // bar C — Cmaj7
-  { f: N.E5, beats: 1 }, { f: N.D5, beats: 0.5 }, { f: N.C5, beats: 0.5 }, { f: N.D5, beats: 2 },
+  { f: N.E5, beats: 1 },
+  { f: N.D5, beats: 0.5 },
+  { f: N.C5, beats: 0.5 },
+  { f: N.D5, beats: 2 },
   // bar D — Esus4
-  { f: N.E5, beats: 2 }, { f: N.B4, beats: 1 }, { f: N.A4, beats: 1 },
+  { f: N.E5, beats: 2 },
+  { f: N.B4, beats: 1 },
+  { f: N.A4, beats: 1 },
   // bar E — Am (answer, higher)
-  { f: N.C5, beats: 1 }, { f: N.E5, beats: 1 }, { f: N.A5, beats: 2 },
+  { f: N.C5, beats: 1 },
+  { f: N.E5, beats: 1 },
+  { f: N.A5, beats: 2 },
   // bar F — F
-  { f: N.G5, beats: 1 }, { f: N.F5, beats: 0.5 }, { f: N.E5, beats: 0.5 }, { f: N.F5, beats: 2 },
+  { f: N.G5, beats: 1 },
+  { f: N.F5, beats: 0.5 },
+  { f: N.E5, beats: 0.5 },
+  { f: N.F5, beats: 2 },
   // bar G — Cmaj7
-  { f: N.E5, beats: 1 }, { f: N.D5, beats: 1 }, { f: N.C5, beats: 2 },
+  { f: N.E5, beats: 1 },
+  { f: N.D5, beats: 1 },
+  { f: N.C5, beats: 2 },
   // bar H — Esus4 (half cadence)
-  { f: N.B4, beats: 2 }, { f: N.A4, beats: 2 },
+  { f: N.B4, beats: 2 },
+  { f: N.A4, beats: 2 },
 ];
 
 function maybeScheduleMelody(chordIdx: number, startAt: number, chordDur: number): void {

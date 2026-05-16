@@ -1,0 +1,8 @@
+{
+  "shiftStart": "09:00",
+  "wages": {
+    "correct": 10,
+    "wrong": -8,
+    "flawlessBonus": 10
+  }
+}

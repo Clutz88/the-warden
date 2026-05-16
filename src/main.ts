@@ -8,7 +8,8 @@ import {
   loadState,
   hydrate,
 } from "./game/state";
-import { generateCars } from "./game/cars";
+import { buildCars } from "./game/cars";
+import { TUNING } from "./game/tuning";
 import { activeRules } from "./game/rules";
 import { getDay, DAYS } from "./game/days";
 import { reviewShift } from "./game/supervisor";
@@ -35,25 +36,18 @@ inject({
   mode: import.meta.env.MODE === "production" ? "production" : "development",
 });
 
-const SHIFT_START = 9 * 60;
-const PER_CAR_MINUTES = 12;
-const WAGE_CORRECT = 10;
-const WAGE_WRONG = -8;
-const FLAWLESS_BONUS = 10;
+const SHIFT_START = TUNING.shiftStart;
+const WAGE_CORRECT = TUNING.wages.correct;
+const WAGE_WRONG = TUNING.wages.wrong;
+const FLAWLESS_BONUS = TUNING.wages.flawlessBonus;
 
 function startDay(day: number): void {
   const def = getDay(day);
   const prev = getState();
-  const cars = generateCars({
-    day,
-    count: def.carCount,
-    shiftStart: SHIFT_START,
-    seed: 1000 * day + Math.floor(Math.random() * 1000),
-    residentHistory: prev.residentHistory,
-  });
+  const cars = buildCars(def.cars, day, prev.residentHistory);
   setState({
     day,
-    clock: SHIFT_START,
+    clock: cars[0]?.seenAt ?? SHIFT_START,
     cars,
     carIndex: 0,
     wages: 0,
@@ -66,6 +60,8 @@ function startDay(day: number): void {
 }
 
 function startShift(): void {
+  const s = getState();
+  if (s.cars.length === 0) return;
   setState({ phase: "shift" });
 }
 
@@ -87,7 +83,7 @@ function judge(action: PlayerAction): void {
   const wages = s.wages + (correct ? WAGE_CORRECT : WAGE_WRONG);
   const mistakes = s.mistakes + (correct ? 0 : 1);
   const carIndex = s.carIndex + 1;
-  const clock = s.clock + PER_CAR_MINUTES;
+  const clock = s.cars[carIndex]?.seenAt ?? car.seenAt;
 
   let residentHistory = s.residentHistory;
   if (car.residentId) {
@@ -184,7 +180,8 @@ function flashFeedback(
   const el = document.createElement("div");
   el.className = `feedback ${correct ? "good" : "bad"}`;
   if (correct) {
-    el.textContent = action.kind === "pass" ? "✓ Correct — clean car" : `✓ Correct — PCN ${action.code}`;
+    el.textContent =
+      action.kind === "pass" ? "✓ Correct — clean car" : `✓ Correct — PCN ${action.code}`;
   } else {
     if (action.kind === "pass" && truth.length) {
       el.textContent = `✗ Missed PCN ${truth[0]!.code}: ${truth[0]!.label}`;
@@ -236,7 +233,7 @@ function render(): void {
   const s = getState();
   const root = document.getElementById("app");
   if (!root) return;
-  const car = s.phase === "shift" ? s.cars[s.carIndex] ?? null : null;
+  const car = s.phase === "shift" ? (s.cars[s.carIndex] ?? null) : null;
 
   root.innerHTML = [
     renderHud(s),
@@ -252,10 +249,7 @@ function render(): void {
     if (s.day > 1) persistState();
     const hasSave = s.day === 1 && loadState() !== null;
     const showStats = s.day === 1 && hasStats();
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      renderBriefing(s.day, hasSave, showStats),
-    );
+    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day, hasSave, showStats));
   }
   if (s.phase === "summary") {
     const def = getDay(s.day);
@@ -327,9 +321,7 @@ function renderTutorialCard(): string {
 
 function removeOverlays(): void {
   // Only clear non-transient overlays. Help/stats overlays manage themselves.
-  document
-    .querySelectorAll(".modal-bg:not([data-overlay])")
-    .forEach((n) => n.remove());
+  document.querySelectorAll(".modal-bg:not([data-overlay])").forEach((n) => n.remove());
 }
 
 function showOverlay(kind: "help" | "stats"): void {
@@ -417,10 +409,7 @@ function bindGlobalEvents(): void {
     if (action === "restart") {
       playClick();
       const s = getState();
-      if (
-        (s.phase === "summary" || s.phase === "supervisor") &&
-        s.log.length > 0
-      ) {
+      if ((s.phase === "summary" || s.phase === "supervisor") && s.log.length > 0) {
         const correct = s.log.filter((l) => l.correct).length;
         const wrong = s.log.length - correct;
         recordDay({ day: s.day, correct, wrong, wages: s.wages });
@@ -479,8 +468,7 @@ function bindGlobalEvents(): void {
         if (s.phase === "briefing") {
           startMusic();
           startShift();
-        }
-        else if (s.phase === "summary") {
+        } else if (s.phase === "summary") {
           const def = getDay(s.day);
           if (s.wages >= def.rent) advanceFromSummary();
         } else if (s.phase === "supervisor") {
@@ -504,7 +492,9 @@ function activePcnCodes(day: number): string[] {
 }
 
 declare global {
-  interface Window { __wardenBound?: boolean }
+  interface Window {
+    __wardenBound?: boolean;
+  }
 }
 
 subscribe(render);

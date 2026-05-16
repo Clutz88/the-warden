@@ -1,0 +1,119 @@
+{
+  "day": 3,
+  "briefing": "Council added Church Lane to your patrol — DOUBLE YELLOWS. No parking, except Blue Badge holders who may park up to 3 hours with their badge AND time clock displayed. All previous rules still apply. Inspector Harding will pull ONE of your decisions for a courtesy review at end of shift — light penalty, but a warning shot.",
+  "newRuleSummary": [
+    "Double yellows: PCN unless Blue Badge with clock displayed.",
+    "Blue Badge holder must not exceed 3 hours from clock-set time.",
+    "Permit + P&D rules still active.",
+    "Trial supervisor review: 1 decision sampled, £2 if it's wrong."
+  ],
+  "streets": ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane"],
+  "rent": 55,
+  "supervisor": { "sampleSize": 1, "penaltyPerWrong": 2 },
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "LH63 GRM",
+      "colour": "Black",
+      "model": "Ford Focus",
+      "street": "highRoad",
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:30" }]
+    },
+    {
+      "seenAt": "09:10",
+      "plate": "RV21 KMP",
+      "colour": "Silver",
+      "model": "Honda Jazz",
+      "street": "churchLane",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "DEREK PEMBERTON",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "08:30"
+        }
+      ]
+    },
+    {
+      "seenAt": "09:22",
+      "plate": "TY68 WKN",
+      "colour": "Blue",
+      "model": "Toyota Yaris",
+      "street": "abbeyClose",
+      "docs": [{ "type": "permit", "zone": "A", "plate": "TY68 WKN", "validUntil": "31/12/2026" }]
+    },
+    {
+      "seenAt": "09:34",
+      "plate": "BN18 RHK",
+      "colour": "White",
+      "model": "BMW 3 Series",
+      "street": "churchLane",
+      "docs": []
+    },
+    {
+      "seenAt": "09:46",
+      "plate": "CR22 LPS",
+      "colour": "Red",
+      "model": "Vauxhall Corsa",
+      "street": "marketSt",
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "09:15" }]
+    },
+    {
+      "seenAt": "09:58",
+      "plate": "YK13 TWF",
+      "colour": "Grey",
+      "model": "Audi A3",
+      "street": "victoriaTerr",
+      "docs": [{ "type": "permit", "zone": "A", "plate": "YK13 TWF", "validUntil": "31/12/2026" }]
+    },
+    {
+      "seenAt": "10:10",
+      "plate": "MV66 HRB",
+      "colour": "Green",
+      "model": "Skoda Fabia",
+      "street": "churchLane",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "IRENE MARLOW",
+          "validUntil": "30/06/2027",
+          "clockShown": false,
+          "clockSetAt": null
+        }
+      ]
+    },
+    {
+      "seenAt": "10:22",
+      "plate": "EJ24 LTH",
+      "colour": "Silver",
+      "model": "Land Rover Discovery",
+      "street": "highRoad",
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "11:00" }]
+    },
+    {
+      "seenAt": "10:34",
+      "plate": "ZP09 RYC",
+      "colour": "Black",
+      "model": "Mazda 3",
+      "street": "churchLane",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "HAROLD ASHWORTH",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "07:00"
+        }
+      ]
+    },
+    {
+      "seenAt": "10:48",
+      "plate": "DW17 GMS",
+      "colour": "Blue",
+      "model": "Mini Cooper",
+      "street": "abbeyClose",
+      "docs": [{ "type": "permit", "zone": "A", "plate": "DW17 GMS", "validUntil": "31/12/2026" }]
+    }
+  ]
+}

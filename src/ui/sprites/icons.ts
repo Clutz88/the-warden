@@ -1,144 +1,37 @@
 import { BASE_PALETTE } from "./palette";
 import { spriteSvg } from "./pixelArt";
+import iconGrids from "../../data/sprites/icons.json";
 
-const LAMPPOST = `
-.OOOOOO.
-OYYYYYYO
-OYYYYYYO
-OYYYYYYO
-.OOOOOO.
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-...MM...
-.OMMMMO.
-.OMMMMO.
-OOOOOOOO
-`;
+const ICONS: Record<string, string> = iconGrids as Record<string, string>;
 
-const TICKET_MACHINE = `
-.OOOOOOOOOO.
-OKKKKKKKKKKO
-OKWWWWWWWWKO
-OKWXXXXXXWKO
-OKWXXXXXXWKO
-OKWWWWWWWWKO
-OKKKKKKKKKKO
-OKYYYYYYYYKO
-OKYYYYYYYYKO
-OKKKKKKKKKKO
-OKKKKKKKKKKO
-.OOOOOOOOOO.
-....OOOO....
-....OOOO....
-....OOOO....
-....OOOO....
-....OOOO....
-...OOOOOO...
-`;
-
-const ZONE_SIGN = `
-OOOOOOOOOOO
-OYYYYYYYYYO
-OYpppppppYO
-OYpYYYYYpYO
-OYpYpppYpYO
-OYpYYYYYpYO
-OYpppppppYO
-OYYYYYYYYYO
-OOOOOOOOOOO
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-....MMM....
-...OMMMO...
-`;
-
-const LOADING_SIGN = `
-OOOOOOOOOOO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OSSSSSSSSSO
-OOOOOOOOOOO
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-.....M.....
-....MMM....
-...OMMMO...
-`;
-
-const STAMP_TICK = `
-.....GG.
-....GGG.
-...GGG..
-GGGGG...
-.GGG....
-..G.....
-`;
-
-const STAMP_X = `
-JJ....JJ
-.JJ..JJ.
-..JJJJ..
-...JJ...
-..JJJJ..
-.JJ..JJ.
-JJ....JJ
-`;
-
-const ARROW_RIGHT = `
-.....OO.
-....OOO.
-OOOOOOOO
-OOOOOOOO
-....OOO.
-.....OO.
-`;
+function render(key: string, className: string): string {
+  return spriteSvg(ICONS[key] ?? "", BASE_PALETTE, { className });
+}
 
 export function lamppost(): string {
-  return spriteSvg(LAMPPOST, BASE_PALETTE, { className: "spr lamppost" });
+  return render("lamppost", "spr lamppost");
 }
 
 export function ticketMachine(): string {
-  return spriteSvg(TICKET_MACHINE, BASE_PALETTE, { className: "spr ticket-machine" });
+  return render("ticketMachine", "spr ticket-machine");
 }
 
 export function zoneSign(zone: string): string {
-  return `<div class="zone-sign">${spriteSvg(ZONE_SIGN, BASE_PALETTE, { className: "spr zone-sign-svg" })}<span class="zone-sign-label">ZONE&nbsp;${zone}</span></div>`;
+  return `<div class="zone-sign">${render("zoneSign", "spr zone-sign-svg")}<span class="zone-sign-label">ZONE&nbsp;${zone}</span></div>`;
 }
 
 export function loadingSign(): string {
-  return `<div class="zone-sign loading-sign">${spriteSvg(LOADING_SIGN, BASE_PALETTE, { className: "spr zone-sign-svg" })}<span class="zone-sign-label">LOADING</span></div>`;
+  return `<div class="zone-sign loading-sign">${render("loadingSign", "spr zone-sign-svg")}<span class="zone-sign-label">LOADING</span></div>`;
 }
 
 export function stampTick(): string {
-  return spriteSvg(STAMP_TICK, BASE_PALETTE, { className: "spr stamp" });
+  return render("stampTick", "spr stamp");
 }
 
 export function stampX(): string {
-  return spriteSvg(STAMP_X, BASE_PALETTE, { className: "spr stamp" });
+  return render("stampX", "spr stamp");
 }
 
 export function arrowRight(): string {
-  return spriteSvg(ARROW_RIGHT, BASE_PALETTE, { className: "spr arrow" });
+  return render("arrowRight", "spr arrow");
 }

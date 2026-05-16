@@ -4,12 +4,20 @@ import type { ShiftLog, StoredSupervisorReview } from "../game/types";
 import { residentById } from "../game/residents";
 import type { CareerStats } from "../game/stats";
 
-export function renderBriefing(
-  day: number,
-  hasSave: boolean,
-  showStats: boolean,
-): string {
+export function renderBriefing(day: number, hasSave: boolean, showStats: boolean): string {
   const d = getDay(day);
+  if (d.cars.length === 0) {
+    return `
+      <div class="modal-bg">
+        <div class="modal">
+          <h1>DAY ${day} — UNFINISHED</h1>
+          <p>This day has no authored cars yet.</p>
+          <p>Open the editor at <code>/editor.html</code> to add some, or restart from Day 1.</p>
+          <button class="btn" data-action="restart">RESTART</button>
+        </div>
+      </div>
+    `;
+  }
   const continueBtn =
     day === 1 && hasSave
       ? `<button class="btn" data-action="continue">CONTINUE PREVIOUS</button>`
@@ -28,7 +36,7 @@ export function renderBriefing(
         <h3>Streets on patrol</h3>
         <ul>${d.streets.map((id) => `<li>${STREETS[id]?.name ?? id}</li>`).join("")}</ul>
         <h3>Quota</h3>
-        <p>${d.carCount} vehicles. Make rent of £${d.rent} or you're out.</p>
+        <p>${d.cars.length} vehicles. Make rent of £${d.rent} or you're out.</p>
         ${continueBtn}
         <button class="btn" data-action="start-shift">START SHIFT</button>
         ${statsBtn}
@@ -146,14 +154,13 @@ function renderCase(l: ShiftLog): string {
   const verdictText = verdictGood
     ? "Decision upheld."
     : l.playerAction.kind === "pass" && l.truth.length
-    ? `Missed PCN ${l.truth[0]!.code} — ${l.truth[0]!.label}.`
-    : l.playerAction.kind === "pcn" && !l.truth.length
-    ? `Wrongful PCN — vehicle was clean.`
-    : `Wrong code (you used ${
-        l.playerAction.kind === "pcn" ? l.playerAction.code : "—"
-      }, actual ${l.truth.map((t) => t.code).join(", ")}).`;
-  const decision =
-    l.playerAction.kind === "pass" ? "PASS" : `PCN ${l.playerAction.code}`;
+      ? `Missed PCN ${l.truth[0]!.code} — ${l.truth[0]!.label}.`
+      : l.playerAction.kind === "pcn" && !l.truth.length
+        ? `Wrongful PCN — vehicle was clean.`
+        : `Wrong code (you used ${
+            l.playerAction.kind === "pcn" ? l.playerAction.code : "—"
+          }, actual ${l.truth.map((t) => t.code).join(", ")}).`;
+  const decision = l.playerAction.kind === "pass" ? "PASS" : `PCN ${l.playerAction.code}`;
   const driver = resident
     ? `<div class="row"><span>Driver:</span><b>${resident.name}</b></div>
        <div class="row"><span>Note:</span><b>${resident.bio}</b></div>`
@@ -185,9 +192,7 @@ export function renderStatsModal(stats: CareerStats): string {
   const accuracy =
     stats.totalCorrect + stats.totalWrong === 0
       ? 0
-      : Math.round(
-          (stats.totalCorrect / (stats.totalCorrect + stats.totalWrong)) * 100,
-        );
+      : Math.round((stats.totalCorrect / (stats.totalCorrect + stats.totalWrong)) * 100);
   return `
     <div class="modal-bg" data-overlay="stats">
       <div class="modal">

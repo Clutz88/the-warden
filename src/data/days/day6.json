@@ -1,0 +1,176 @@
+{
+  "day": 6,
+  "briefing": "New beat: Bishop's Way loading bay. Delivery vehicles only — drivers must show a loading slip and may not overstay 30 minutes from the arrival time on the slip. No slip, or a slip more than 30 minutes old, means PCN 25.",
+  "newRuleSummary": [
+    "Loading bay: PCN 25 unless a loading slip is on the dashboard.",
+    "Slip's ARRIVED time must be within the last 30 minutes (vs your shift clock).",
+    "All Day 1–5 rules remain in force."
+  ],
+  "streets": ["highRoad", "marketSt", "abbeyClose", "victoriaTerr", "churchLane", "bishopsWay"],
+  "rent": 90,
+  "supervisor": { "sampleSize": 4, "penaltyPerWrong": 6 },
+  "cars": [
+    {
+      "seenAt": "09:00",
+      "plate": "HC22 NEM",
+      "colour": "Red",
+      "model": "Ford Fiesta",
+      "street": "highRoad",
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:00" }]
+    },
+    {
+      "seenAt": "09:10",
+      "plate": "LR67 RTB",
+      "colour": "White",
+      "model": "Mercedes Sprinter",
+      "street": "bishopsWay",
+      "docs": [{ "type": "loading-slip", "firm": "PARCELFLEET LTD", "arrivedAt": "08:55" }]
+    },
+    {
+      "seenAt": "09:22",
+      "plate": "MD51 GET",
+      "colour": "Silver",
+      "model": "Vauxhall Astra",
+      "street": "churchLane",
+      "residentId": "margaret-dawes",
+      "docs": [
+        {
+          "type": "blue-badge",
+          "holder": "WALTER DAWES",
+          "validUntil": "30/06/2027",
+          "clockShown": true,
+          "clockSetAt": "09:00"
+        },
+        {
+          "type": "reactive-note",
+          "from": "MARGARET DAWES",
+          "variants": {
+            "neutral": "Sorry — appointment ran over. Walter needed help back to the car.",
+            "negative": "Please reconsider, Warden. Walter's hospital bill arrived this morning. I'll set my watch from now on.",
+            "positive": "Thank you for the kindness yesterday. God bless you."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:34",
+      "plate": "JM18 KRP",
+      "colour": "Blue",
+      "model": "Ford Transit",
+      "street": "bishopsWay",
+      "docs": []
+    },
+    {
+      "seenAt": "09:46",
+      "plate": "BH18 KAB",
+      "colour": "Black",
+      "model": "Toyota Prius",
+      "street": "abbeyClose",
+      "residentId": "bernard-holland",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "BH18 KAB", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "BERNARD HOLLAND",
+          "variants": {
+            "neutral": "Just dropping a fare. Out in two minutes — promise.",
+            "negative": "Cheers for the £80 ticket, mate. Paperwork's at DVLA — take it up with them.",
+            "positive": "Appreciate the leniency. New permit through next week, promise."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "09:58",
+      "plate": "TY13 ALP",
+      "colour": "Grey",
+      "model": "Iveco Daily",
+      "street": "bishopsWay",
+      "docs": [{ "type": "loading-slip", "firm": "GREENVAN HAULAGE", "arrivedAt": "08:30" }]
+    },
+    {
+      "seenAt": "10:10",
+      "plate": "SM21 GLA",
+      "colour": "Blue",
+      "model": "Ford Focus",
+      "street": "marketSt",
+      "residentId": "stuart-mclean",
+      "docs": [
+        { "type": "pd", "zone": null, "expiresAt": "09:30" },
+        {
+          "type": "reactive-note",
+          "from": "STUART McLEAN",
+          "variants": {
+            "neutral": "From up the road. Lass has her grade three exam Friday.",
+            "negative": "Drove 200 miles for this, did I? Brilliant.",
+            "positive": "Cheers, pal. Ailsa says she'll dedicate her recorder solo to you."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:22",
+      "plate": "FR70 MED",
+      "colour": "Red",
+      "model": "Honda Civic",
+      "street": "victoriaTerr",
+      "residentId": "fatima-rahman",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "FR70 MED", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "FATIMA RAHMAN",
+          "variants": {
+            "neutral": "Off a 12-hour shift. Permit renewal in the post — please bear with me.",
+            "negative": "I worked till 6am. Surely there's some grace for nurses and doctors?",
+            "positive": "Bless you. Renewal posted yesterday — should be on the dashboard tomorrow."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "10:34",
+      "plate": "BD22 HOX",
+      "colour": "White",
+      "model": "BMW 3 Series",
+      "street": "churchLane",
+      "docs": []
+    },
+    {
+      "seenAt": "10:46",
+      "plate": "ZW16 NMC",
+      "colour": "Green",
+      "model": "Mercedes Sprinter",
+      "street": "bishopsWay",
+      "docs": [{ "type": "loading-slip", "firm": "ASHBRIDGE COURIERS", "arrivedAt": "10:30" }]
+    },
+    {
+      "seenAt": "10:58",
+      "plate": "K194 ELS",
+      "colour": "Red",
+      "model": "Vauxhall Astra",
+      "street": "abbeyClose",
+      "residentId": "elsie-whittaker",
+      "docs": [
+        { "type": "permit", "zone": "A", "plate": "K194 ELS", "validUntil": "31/12/2026" },
+        {
+          "type": "reactive-note",
+          "from": "ELSIE WHITTAKER",
+          "variants": {
+            "neutral": "Just collecting my prescription from Boots. Knees aren't what they were.",
+            "negative": "I shan't park here again. Most disappointed in the council.",
+            "positive": "Such a kind young thing. There's a bag of pear drops in the door pocket if you'd like one."
+          }
+        }
+      ]
+    },
+    {
+      "seenAt": "11:10",
+      "plate": "RH08 PWB",
+      "colour": "Black",
+      "model": "Audi A3",
+      "street": "highRoad",
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "12:00" }]
+    }
+  ]
+}
