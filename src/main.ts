@@ -27,6 +27,8 @@ import {
   renderStatsModal,
   renderHelpModal,
 } from "./ui/briefing";
+import { renderMainMenu } from "./ui/mainmenu";
+import { renderMistake } from "./ui/mistake";
 import { startMusic, setMuted, isMuted } from "./audio/music";
 import { playPass, playPcn, playMistake, playClick } from "./audio/sfx";
 import { recordDay, loadStats, hasStats } from "./game/stats";
@@ -82,8 +84,6 @@ function judge(action: PlayerAction): void {
   const log: ShiftLog = { car, truth, playerAction: action, correct };
   const wages = s.wages + (correct ? WAGE_CORRECT : WAGE_WRONG);
   const mistakes = s.mistakes + (correct ? 0 : 1);
-  const carIndex = s.carIndex + 1;
-  const clock = s.cars[carIndex]?.seenAt ?? car.seenAt;
 
   let residentHistory = s.residentHistory;
   if (car.residentId) {
@@ -103,32 +103,66 @@ function judge(action: PlayerAction): void {
       playPcn();
       flashStamp("pcn");
     }
-  } else {
-    playMistake();
-    flashStamp("miss");
+    flashFeedback(correct, truth, action);
+    const carIndex = s.carIndex + 1;
+    const clock = s.cars[carIndex]?.seenAt ?? car.seenAt;
+    if (carIndex >= s.cars.length) {
+      const flawless = mistakes === 0;
+      const finalWages = flawless ? wages + FLAWLESS_BONUS : wages;
+      setState({
+        log: [...s.log, log],
+        wages: finalWages,
+        mistakes,
+        carIndex,
+        clock,
+        phase: "summary",
+        residentHistory,
+      });
+    } else {
+      setState({
+        log: [...s.log, log],
+        wages,
+        mistakes,
+        carIndex,
+        clock,
+        residentHistory,
+      });
+      persistState();
+    }
+    return;
   }
-  flashFeedback(correct, truth, action);
 
+  playMistake();
+  flashStamp("miss");
+  setState({
+    log: [...s.log, log],
+    wages,
+    mistakes,
+    phase: "mistake",
+    residentHistory,
+    lastLog: log,
+  });
+  persistState();
+}
+
+function ackMistake(): void {
+  const s = getState();
+  if (s.phase !== "mistake") return;
+  const carIndex = s.carIndex + 1;
+  const clock = s.cars[carIndex]?.seenAt ?? s.clock;
   if (carIndex >= s.cars.length) {
-    const flawless = mistakes === 0;
-    const finalWages = flawless ? wages + FLAWLESS_BONUS : wages;
     setState({
-      log: [...s.log, log],
-      wages: finalWages,
-      mistakes,
       carIndex,
       clock,
       phase: "summary",
-      residentHistory,
+      lastLog: undefined,
     });
   } else {
     setState({
-      log: [...s.log, log],
-      wages,
-      mistakes,
       carIndex,
       clock,
-      residentHistory,
+      phase: "shift",
+      lastLog: undefined,
     });
     persistState();
   }
@@ -233,7 +267,17 @@ function render(): void {
   const s = getState();
   const root = document.getElementById("app");
   if (!root) return;
-  const car = s.phase === "shift" ? (s.cars[s.carIndex] ?? null) : null;
+
+  if (s.phase === "mainmenu") {
+    root.innerHTML = renderMainMenu(loadState() !== null, hasStats());
+    removeOverlays();
+    document.querySelectorAll(".tutorial-card").forEach((n) => n.remove());
+    focusFirstMenuButton();
+    return;
+  }
+
+  const car =
+    s.phase === "shift" || s.phase === "mistake" ? (s.cars[s.carIndex] ?? null) : null;
 
   root.innerHTML = [
     renderHud(s),
@@ -247,9 +291,11 @@ function render(): void {
 
   if (s.phase === "briefing") {
     if (s.day > 1) persistState();
-    const hasSave = s.day === 1 && loadState() !== null;
-    const showStats = s.day === 1 && hasStats();
-    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day, hasSave, showStats));
+    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day));
+  }
+  if (s.phase === "mistake" && s.lastLog) {
+    const isLast = s.carIndex + 1 >= s.cars.length;
+    document.body.insertAdjacentHTML("beforeend", renderMistake(s.lastLog, isLast));
   }
   if (s.phase === "summary") {
     const def = getDay(s.day);
@@ -332,6 +378,16 @@ function showOverlay(kind: "help" | "stats"): void {
   focusTopModal();
 }
 
+function focusFirstMenuButton(): void {
+  const page = document.querySelector<HTMLElement>(".mainmenu-page");
+  if (!page) return;
+  if (page.contains(document.activeElement)) return;
+  const first = page.querySelector<HTMLElement>(
+    'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+  );
+  first?.focus();
+}
+
 function focusTopModal(): void {
   const modals = document.querySelectorAll<HTMLElement>(".modal-bg");
   if (!modals.length) return;
@@ -406,6 +462,17 @@ function bindGlobalEvents(): void {
       playClick();
       return continuePrevious();
     }
+    if (action === "start-new") {
+      playClick();
+      document.querySelectorAll(".modal-bg").forEach((n) => n.remove());
+      resetGame();
+      startDay(1);
+      return;
+    }
+    if (action === "ack-mistake") {
+      playClick();
+      return ackMistake();
+    }
     if (action === "restart") {
       playClick();
       const s = getState();
@@ -465,9 +532,20 @@ function bindGlobalEvents(): void {
     }
     if (s.phase !== "shift") {
       if (e.key === "Enter") {
-        if (s.phase === "briefing") {
+        if (s.phase === "mainmenu") {
+          startMusic();
+          if (loadState() !== null) {
+            continuePrevious();
+          } else {
+            document.querySelectorAll(".modal-bg").forEach((n) => n.remove());
+            resetGame();
+            startDay(1);
+          }
+        } else if (s.phase === "briefing") {
           startMusic();
           startShift();
+        } else if (s.phase === "mistake") {
+          ackMistake();
         } else if (s.phase === "summary") {
           const def = getDay(s.day);
           if (s.wages >= def.rent) advanceFromSummary();
@@ -502,4 +580,3 @@ if (!window.__wardenBound) {
   bindGlobalEvents();
   window.__wardenBound = true;
 }
-startDay(1);

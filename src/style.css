@@ -833,6 +833,106 @@ body {
   margin-top: 12px;
 }
 
+/* MAIN MENU */
+.mainmenu-page {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(circle at 50% 30%, #2a2620 0%, #0f0d0a 70%),
+    #0f0d0a;
+  box-sizing: border-box;
+  animation: modal-bg-in 240ms ease-out;
+}
+.mainmenu-art {
+  /* Placeholder for future artwork. */
+  width: min(420px, 70vw);
+  height: 160px;
+  margin-bottom: 28px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(184, 168, 114, 0.05),
+    rgba(184, 168, 114, 0.05) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  border: 2px dashed rgba(184, 168, 114, 0.25);
+}
+.mainmenu-panel {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  color: var(--paper);
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.mainmenu-panel h1 {
+  font-family: "Silkscreen", "Courier New", monospace, fantasy;
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--paper);
+  margin: 0 0 6px;
+}
+.mainmenu-panel .subtitle {
+  font-family: "Silkscreen", "Courier New", monospace, fantasy;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #b8a872;
+  margin: 0 0 28px;
+}
+.mainmenu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.mainmenu-buttons .btn {
+  display: block;
+  width: 100%;
+  background: #b8a872;
+  color: #1a1a17;
+  border-color: #1a1a17;
+}
+.mainmenu-buttons .btn:hover {
+  background: #d4be7e;
+  color: #1a1a17;
+}
+.mainmenu-footer {
+  font-family: "Silkscreen", "Courier New", monospace, fantasy;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #6a5a3a;
+  margin-top: 28px;
+}
+.mainmenu-footer .kbd {
+  font-size: 10px;
+}
+
+/* MISTAKE GATE */
+.mistake h1 {
+  color: var(--bad);
+  border-bottom-color: var(--bad);
+}
+.mistake .verdict {
+  font-family: "Silkscreen", "Courier New", monospace, fantasy;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin: 12px 0 4px;
+  padding: 8px 10px;
+  border: 1px dashed var(--bad);
+  background: rgba(154, 58, 44, 0.08);
+}
+.mistake .verdict.bad {
+  color: var(--bad);
+}
+
 /* FEEDBACK */
 .feedback {
   position: fixed;

@@ -5,7 +5,7 @@ type Listener = (s: GameState) => void;
 const listeners: Set<Listener> = new Set();
 
 const SAVE_KEY = "warden:save";
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3;
 
 function initialState(): GameState {
   return {
@@ -16,7 +16,7 @@ function initialState(): GameState {
     wages: 0,
     mistakes: 0,
     log: [],
-    phase: "briefing",
+    phase: "mainmenu",
     residentHistory: {},
   };
 }
