@@ -188,7 +188,8 @@ export type GameState = {
   wages: number;
   mistakes: number;
   log: ShiftLog[];
-  phase: "briefing" | "shift" | "summary" | "supervisor" | "gameover";
+  phase: "mainmenu" | "briefing" | "shift" | "mistake" | "summary" | "supervisor" | "gameover";
   residentHistory: Record<string, ResidentEncounter[]>;
   supervisorReview?: StoredSupervisorReview;
+  lastLog?: ShiftLog;
 };

@@ -4,7 +4,7 @@ import type { ShiftLog, StoredSupervisorReview } from "../game/types";
 import { residentById } from "../game/residents";
 import type { CareerStats } from "../game/stats";
 
-export function renderBriefing(day: number, hasSave: boolean, showStats: boolean): string {
+export function renderBriefing(day: number): string {
   const d = getDay(day);
   if (d.cars.length === 0) {
     return `
@@ -18,14 +18,6 @@ export function renderBriefing(day: number, hasSave: boolean, showStats: boolean
       </div>
     `;
   }
-  const continueBtn =
-    day === 1 && hasSave
-      ? `<button class="btn" data-action="continue">CONTINUE PREVIOUS</button>`
-      : "";
-  const statsBtn =
-    day === 1 && showStats
-      ? `<button class="btn" data-action="show-stats">CAREER STATS</button>`
-      : "";
   return `
     <div class="modal-bg">
       <div class="modal">
@@ -37,9 +29,7 @@ export function renderBriefing(day: number, hasSave: boolean, showStats: boolean
         <ul>${d.streets.map((id) => `<li>${STREETS[id]?.name ?? id}</li>`).join("")}</ul>
         <h3>Quota</h3>
         <p>${d.cars.length} vehicles. Make rent of £${d.rent} or you're out.</p>
-        ${continueBtn}
         <button class="btn" data-action="start-shift">START SHIFT</button>
-        ${statsBtn}
       </div>
     </div>
   `;

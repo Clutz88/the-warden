@@ -4,6 +4,17 @@ All notable changes to **The Warden**. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-05-16
+
+### Added
+
+- **Main menu screen.** Page load now opens to a dedicated menu (THE WARDEN / Borough of Ashbridge) with START NEW SHIFT, CONTINUE PREVIOUS (when a save exists), CAREER STATS (when stats exist), and CONTROLS & HELP. Enter on the menu auto-picks Continue if available, otherwise Start. The Day-1 briefing no longer doubles as a save/menu screen.
+- **Mistake gate (Papers-Please style).** Wrong calls no longer auto-advance. A modal shows the plate, your decision, and the actual verdict (reusing supervisor-review wording: "Missed PCN X", "Wrongful PCN", "Wrong code"), with NEXT VEHICLE (or FINISH SHIFT on the last car). Correct calls still auto-advance.
+
+### Save format
+
+- `SAVE_VERSION` bumped to **3** (new `phase` variants, optional `lastLog`). Pre-0.11 saves are discarded on load.
+
 ## [0.10.0] — 2026-05-16
 
 ### Added
