@@ -850,18 +850,45 @@ body {
   animation: modal-bg-in 240ms ease-out;
 }
 .mainmenu-art {
-  /* Placeholder for future artwork. */
-  width: min(420px, 70vw);
-  height: 160px;
+  width: min(760px, 96vw);
   margin-bottom: 28px;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(184, 168, 114, 0.05),
-    rgba(184, 168, 114, 0.05) 8px,
-    transparent 8px,
-    transparent 16px
-  );
-  border: 2px dashed rgba(184, 168, 114, 0.25);
+}
+.kerb-scene.menu {
+  min-height: 240px;
+  grid-template-rows: 120px 8px 1fr;
+  box-shadow: 4px 4px 0 #000;
+}
+.kerb-scene.menu .kerb-road {
+  padding-bottom: 14px;
+}
+.kerb-scene.menu .menu-cars {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  width: 100%;
+  justify-content: space-around;
+  padding: 0 12px;
+}
+.kerb-scene.menu .menu-car .car-svg {
+  width: 180px;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55));
+}
+.kerb-scene.menu .machine-mount {
+  left: auto;
+  right: 32%;
+}
+.kerb-scene.menu .sign-mount.menu-zone {
+  right: 24px;
+  bottom: 0;
+}
+@media (max-width: 700px) {
+  .kerb-scene.menu .menu-car .car-svg {
+    width: 110px;
+  }
+  .kerb-scene.menu {
+    min-height: 180px;
+    grid-template-rows: 90px 6px 1fr;
+  }
 }
 .mainmenu-panel {
   max-width: 480px;
