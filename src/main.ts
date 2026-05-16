@@ -276,8 +276,7 @@ function render(): void {
     return;
   }
 
-  const car =
-    s.phase === "shift" || s.phase === "mistake" ? (s.cars[s.carIndex] ?? null) : null;
+  const car = s.phase === "shift" || s.phase === "mistake" ? (s.cars[s.carIndex] ?? null) : null;
 
   root.innerHTML = [
     renderHud(s),
