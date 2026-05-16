@@ -130,10 +130,16 @@ describe("findBrokenRefs", () => {
     const s = makeState({
       draft: makeDay(1, {
         streets: ["highRoad"],
-        cars: [{
-          seenAt: "09:00", plate: "AB12 CDE", colour: "Red", model: "F",
-          street: "highRoad", docs: [],
-        }],
+        cars: [
+          {
+            seenAt: "09:00",
+            plate: "AB12 CDE",
+            colour: "Red",
+            model: "F",
+            street: "highRoad",
+            docs: [],
+          },
+        ],
       }),
     });
     const issues = findBrokenRefs(s, [1], () => undefined);
@@ -146,33 +152,46 @@ describe("findBrokenRefs", () => {
     });
     const issues = findBrokenRefs(s, [1], () => undefined);
     expect(issues).toHaveLength(1);
-    expect(issues[0]!.message).toContain("missing street \"ghost\"");
+    expect(issues[0]!.message).toContain('missing street "ghost"');
   });
 
   it("flags car.street pointing at a missing street", () => {
     const s = makeState({
       draft: makeDay(1, {
-        cars: [{
-          seenAt: "09:00", plate: "AB12 CDE", colour: "Red", model: "F",
-          street: "ghost", docs: [],
-        }],
+        cars: [
+          {
+            seenAt: "09:00",
+            plate: "AB12 CDE",
+            colour: "Red",
+            model: "F",
+            street: "ghost",
+            docs: [],
+          },
+        ],
       }),
     });
     const issues = findBrokenRefs(s, [1], () => undefined);
-    expect(issues.some((i) => i.message.includes("missing street \"ghost\""))).toBe(true);
+    expect(issues.some((i) => i.message.includes('missing street "ghost"'))).toBe(true);
   });
 
   it("flags car.residentId pointing at a missing resident", () => {
     const s = makeState({
       draft: makeDay(1, {
-        cars: [{
-          seenAt: "09:00", plate: "BB00 BBB", colour: "Red", model: "F",
-          street: "highRoad", docs: [], residentId: "bob",
-        }],
+        cars: [
+          {
+            seenAt: "09:00",
+            plate: "BB00 BBB",
+            colour: "Red",
+            model: "F",
+            street: "highRoad",
+            docs: [],
+            residentId: "bob",
+          },
+        ],
       }),
     });
     const issues = findBrokenRefs(s, [1], () => undefined);
-    expect(issues.some((i) => i.message.includes("missing resident \"bob\""))).toBe(true);
+    expect(issues.some((i) => i.message.includes('missing resident "bob"'))).toBe(true);
   });
 
   it("uses the draft for the currently-edited day and the lookup for others", () => {

@@ -4,11 +4,7 @@ import type { ShiftLog, StoredSupervisorReview } from "../game/types";
 import { residentById } from "../game/residents";
 import type { CareerStats } from "../game/stats";
 
-export function renderBriefing(
-  day: number,
-  hasSave: boolean,
-  showStats: boolean,
-): string {
+export function renderBriefing(day: number, hasSave: boolean, showStats: boolean): string {
   const d = getDay(day);
   if (d.cars.length === 0) {
     return `
@@ -158,14 +154,13 @@ function renderCase(l: ShiftLog): string {
   const verdictText = verdictGood
     ? "Decision upheld."
     : l.playerAction.kind === "pass" && l.truth.length
-    ? `Missed PCN ${l.truth[0]!.code} — ${l.truth[0]!.label}.`
-    : l.playerAction.kind === "pcn" && !l.truth.length
-    ? `Wrongful PCN — vehicle was clean.`
-    : `Wrong code (you used ${
-        l.playerAction.kind === "pcn" ? l.playerAction.code : "—"
-      }, actual ${l.truth.map((t) => t.code).join(", ")}).`;
-  const decision =
-    l.playerAction.kind === "pass" ? "PASS" : `PCN ${l.playerAction.code}`;
+      ? `Missed PCN ${l.truth[0]!.code} — ${l.truth[0]!.label}.`
+      : l.playerAction.kind === "pcn" && !l.truth.length
+        ? `Wrongful PCN — vehicle was clean.`
+        : `Wrong code (you used ${
+            l.playerAction.kind === "pcn" ? l.playerAction.code : "—"
+          }, actual ${l.truth.map((t) => t.code).join(", ")}).`;
+  const decision = l.playerAction.kind === "pass" ? "PASS" : `PCN ${l.playerAction.code}`;
   const driver = resident
     ? `<div class="row"><span>Driver:</span><b>${resident.name}</b></div>
        <div class="row"><span>Note:</span><b>${resident.bio}</b></div>`
@@ -197,9 +192,7 @@ export function renderStatsModal(stats: CareerStats): string {
   const accuracy =
     stats.totalCorrect + stats.totalWrong === 0
       ? 0
-      : Math.round(
-          (stats.totalCorrect / (stats.totalCorrect + stats.totalWrong)) * 100,
-        );
+      : Math.round((stats.totalCorrect / (stats.totalCorrect + stats.totalWrong)) * 100);
   return `
     <div class="modal-bg" data-overlay="stats">
       <div class="modal">

@@ -4,9 +4,7 @@ import streetsRaw from "../data/streets.json";
 
 const list = streetsRaw as Street[];
 
-export const STREETS: Record<string, Street> = Object.fromEntries(
-  list.map((s) => [s.id, s]),
-);
+export const STREETS: Record<string, Street> = Object.fromEntries(list.map((s) => [s.id, s]));
 
 export function streetsForDay(day: number): Street[] {
   return getDay(day).streets.map((id) => {

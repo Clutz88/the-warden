@@ -25,7 +25,10 @@ if (!import.meta.env.DEV) {
 } else {
   const rawMode = sessionStorage.getItem("editor:mode");
   const persistedMode =
-    rawMode === "residents" || rawMode === "streets" || rawMode === "tuning" || rawMode === "sprites"
+    rawMode === "residents" ||
+    rawMode === "streets" ||
+    rawMode === "tuning" ||
+    rawMode === "sprites"
       ? rawMode
       : "day";
   const persistedDay = Number(sessionStorage.getItem("editor:day"));
@@ -34,16 +37,23 @@ if (!import.meta.env.DEV) {
   const persistedStreetIdx = Number(sessionStorage.getItem("editor:streetIdx"));
   const initialDay = RAW_DAYS[persistedDay] ? persistedDay : 1;
   const raw = RAW_DAYS[initialDay]!;
-  const initialCarIdx = Number.isFinite(persistedCarIdx) && persistedCarIdx >= 0 && persistedCarIdx < raw.cars.length
-    ? persistedCarIdx
-    : 0;
-  const initialResidentIdx = Number.isFinite(persistedResidentIdx) && persistedResidentIdx >= 0 && persistedResidentIdx < RESIDENTS.length
-    ? persistedResidentIdx
-    : 0;
+  const initialCarIdx =
+    Number.isFinite(persistedCarIdx) && persistedCarIdx >= 0 && persistedCarIdx < raw.cars.length
+      ? persistedCarIdx
+      : 0;
+  const initialResidentIdx =
+    Number.isFinite(persistedResidentIdx) &&
+    persistedResidentIdx >= 0 &&
+    persistedResidentIdx < RESIDENTS.length
+      ? persistedResidentIdx
+      : 0;
   const streetsList = Object.values(STREETS) as Street[];
-  const initialStreetIdx = Number.isFinite(persistedStreetIdx) && persistedStreetIdx >= 0 && persistedStreetIdx < streetsList.length
-    ? persistedStreetIdx
-    : 0;
+  const initialStreetIdx =
+    Number.isFinite(persistedStreetIdx) &&
+    persistedStreetIdx >= 0 &&
+    persistedStreetIdx < streetsList.length
+      ? persistedStreetIdx
+      : 0;
 
   initState({
     mode: persistedMode,
@@ -65,7 +75,8 @@ if (!import.meta.env.DEV) {
       doc: docSprites,
       palette: paletteSprites,
     }) as SpritesDraft,
-    spritesSubMode: (sessionStorage.getItem("editor:spritesSub") === "palette" ? "palette" : "sprite"),
+    spritesSubMode:
+      sessionStorage.getItem("editor:spritesSub") === "palette" ? "palette" : "sprite",
     spriteSelection: { category: "cars", key: Object.keys(carsSprites)[0]! },
     spriteBrush: "O",
     spritePreviewColour: "Red",

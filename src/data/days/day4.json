@@ -42,9 +42,7 @@
       "colour": "White",
       "model": "Ford Fiesta",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:30" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:30" }]
     },
     {
       "seenAt": "09:25",
@@ -72,9 +70,7 @@
       "colour": "Red",
       "model": "Mazda 3",
       "street": "marketSt",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "09:00" }]
     },
     {
       "seenAt": "09:51",
@@ -153,9 +149,7 @@
       "colour": "Black",
       "model": "VW Golf",
       "street": "marketSt",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "11:30" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "11:30" }]
     }
   ]
 }

@@ -92,7 +92,11 @@ describe("pickReactiveVariant", () => {
   });
 
   it("falls back to neutral when requested tone missing", () => {
-    const partial: DocReactiveNote = { type: "reactive-note", from: "X", variants: { neutral: "n" } };
+    const partial: DocReactiveNote = {
+      type: "reactive-note",
+      from: "X",
+      variants: { neutral: "n" },
+    };
     expect(pickReactiveVariant(partial, "positive")).toBe("n");
     expect(pickReactiveVariant(partial, "negative")).toBe("n");
   });
@@ -119,16 +123,16 @@ describe("buildCars resolves reactive-note based on history", () => {
 
   it("picks negative variant when last encounter was PCN", () => {
     const built = buildCars(
-      [spec("margaret-dawes", {
-        neutral: "baseline",
-        positive: "thanks",
-        negative: "Walter's hospital bill",
-      })],
+      [
+        spec("margaret-dawes", {
+          neutral: "baseline",
+          positive: "thanks",
+          negative: "Walter's hospital bill",
+        }),
+      ],
       5,
       {
-        "margaret-dawes": [
-          { day: 4, action: { kind: "pcn", code: "40" }, correct: true },
-        ],
+        "margaret-dawes": [{ day: 4, action: { kind: "pcn", code: "40" }, correct: true }],
       },
     );
     const note = built[0]!.docs.find((d) => d.type === "note");
@@ -137,11 +141,13 @@ describe("buildCars resolves reactive-note based on history", () => {
 
   it("picks positive variant when last encounter was PASS", () => {
     const built = buildCars(
-      [spec("bernard-holland", {
-        neutral: "baseline",
-        positive: "leniency, thanks",
-        negative: "your fault",
-      })],
+      [
+        spec("bernard-holland", {
+          neutral: "baseline",
+          positive: "leniency, thanks",
+          negative: "your fault",
+        }),
+      ],
       5,
       {
         "bernard-holland": [{ day: 4, action: { kind: "pass" }, correct: true }],
@@ -163,15 +169,17 @@ describe("buildCars resolves reactive-note based on history", () => {
   it("drops the note entirely if no matching variant and no neutral fallback", () => {
     const r = residentById("priya-shah")!;
     const built = buildCars(
-      [{
-        seenAt: 9 * 60,
-        plate: r.plate,
-        colour: "Blue",
-        model: "Mini",
-        street: "victoriaTerr",
-        docs: [{ type: "reactive-note", from: r.name, variants: { positive: "only positive" } }],
-        residentId: r.id,
-      }],
+      [
+        {
+          seenAt: 9 * 60,
+          plate: r.plate,
+          colour: "Blue",
+          model: "Mini",
+          street: "victoriaTerr",
+          docs: [{ type: "reactive-note", from: r.name, variants: { positive: "only positive" } }],
+          residentId: r.id,
+        },
+      ],
       5,
       { "priya-shah": [{ day: 4, action: { kind: "pcn", code: "12" }, correct: true }] },
     );

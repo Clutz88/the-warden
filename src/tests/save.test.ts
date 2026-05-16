@@ -1,12 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  persistState,
-  loadState,
-  clearSave,
-  setState,
-  hydrate,
-  getState,
-} from "../game/state";
+import { persistState, loadState, clearSave, setState, hydrate, getState } from "../game/state";
 
 function memStorage(): Storage {
   const map = new Map<string, string>();

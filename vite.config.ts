@@ -17,7 +17,12 @@ function dayEditorPlugin(): Plugin {
           for await (const chunk of req) body += chunk;
           const parsed = JSON.parse(body) as { category?: unknown; data?: unknown };
           const category = parsed.category;
-          if (category !== "cars" && category !== "icons" && category !== "doc" && category !== "palette") {
+          if (
+            category !== "cars" &&
+            category !== "icons" &&
+            category !== "doc" &&
+            category !== "palette"
+          ) {
             res.statusCode = 400;
             res.setHeader("content-type", "application/json");
             res.end(JSON.stringify({ error: "category must be cars|icons|doc|palette" }));
@@ -33,7 +38,12 @@ function dayEditorPlugin(): Plugin {
           const data = parsed.data as Record<string, unknown>;
           if (category === "palette") {
             const pd = data as { base?: unknown; carColours?: unknown };
-            if (!pd.base || typeof pd.base !== "object" || !pd.carColours || typeof pd.carColours !== "object") {
+            if (
+              !pd.base ||
+              typeof pd.base !== "object" ||
+              !pd.carColours ||
+              typeof pd.carColours !== "object"
+            ) {
               res.statusCode = 400;
               res.setHeader("content-type", "application/json");
               res.end(JSON.stringify({ error: "palette needs base + carColours objects" }));
@@ -75,7 +85,10 @@ function dayEditorPlugin(): Plugin {
           for await (const chunk of req) body += chunk;
           const parsed = JSON.parse(body) as { tuning?: unknown };
           const t = parsed.tuning as
-            | { shiftStart?: unknown; wages?: { correct?: unknown; wrong?: unknown; flawlessBonus?: unknown } }
+            | {
+                shiftStart?: unknown;
+                wages?: { correct?: unknown; wrong?: unknown; flawlessBonus?: unknown };
+              }
             | undefined;
           if (
             !t ||
@@ -88,7 +101,11 @@ function dayEditorPlugin(): Plugin {
           ) {
             res.statusCode = 400;
             res.setHeader("content-type", "application/json");
-            res.end(JSON.stringify({ error: "tuning needs shiftStart HH:MM + wages.correct/wrong/flawlessBonus numbers" }));
+            res.end(
+              JSON.stringify({
+                error: "tuning needs shiftStart HH:MM + wages.correct/wrong/flawlessBonus numbers",
+              }),
+            );
             return;
           }
           const root = server.config.root;
@@ -139,7 +156,8 @@ function dayEditorPlugin(): Plugin {
           const ALLOWED_ZONES = new Set([null, "A", "B", "C"]);
           for (const s of parsed.streets) {
             if (
-              !s || typeof s !== "object" ||
+              !s ||
+              typeof s !== "object" ||
               typeof (s as { id?: unknown }).id !== "string" ||
               typeof (s as { name?: unknown }).name !== "string" ||
               !ALLOWED_KINDS.has((s as { kind?: unknown }).kind as string) ||
@@ -147,7 +165,11 @@ function dayEditorPlugin(): Plugin {
             ) {
               res.statusCode = 400;
               res.setHeader("content-type", "application/json");
-              res.end(JSON.stringify({ error: "each street needs id, name (strings), valid kind, zone null|A|B|C" }));
+              res.end(
+                JSON.stringify({
+                  error: "each street needs id, name (strings), valid kind, zone null|A|B|C",
+                }),
+              );
               return;
             }
           }
@@ -183,7 +205,8 @@ function dayEditorPlugin(): Plugin {
           }
           for (const r of parsed.residents) {
             if (
-              !r || typeof r !== "object" ||
+              !r ||
+              typeof r !== "object" ||
               typeof (r as { id?: unknown }).id !== "string" ||
               typeof (r as { name?: unknown }).name !== "string" ||
               typeof (r as { plate?: unknown }).plate !== "string" ||
@@ -191,7 +214,9 @@ function dayEditorPlugin(): Plugin {
             ) {
               res.statusCode = 400;
               res.setHeader("content-type", "application/json");
-              res.end(JSON.stringify({ error: "each resident needs id, name, plate, bio (strings)" }));
+              res.end(
+                JSON.stringify({ error: "each resident needs id, name, plate, bio (strings)" }),
+              );
               return;
             }
           }

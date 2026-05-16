@@ -58,9 +58,7 @@ describe("Day 2 — permit zone", () => {
 
   it("PCN when permit zone wrong", () => {
     const v = validate(
-      carOn("abbeyClose", [
-        { type: "permit", zone: "B", plate: "AB12 CDE", validUntil: "x" },
-      ]),
+      carOn("abbeyClose", [{ type: "permit", zone: "B", plate: "AB12 CDE", validUntil: "x" }]),
       rules,
       NOW,
     );
@@ -82,9 +80,7 @@ describe("Day 2 — permit zone", () => {
 
   it("PASS when permit zone + plate match", () => {
     const v = validate(
-      carOn("abbeyClose", [
-        { type: "permit", zone: "A", plate: "AB12 CDE", validUntil: "x" },
-      ]),
+      carOn("abbeyClose", [{ type: "permit", zone: "A", plate: "AB12 CDE", validUntil: "x" }]),
       rules,
       NOW,
     );
@@ -171,9 +167,7 @@ describe("Day 6 — loading bay", () => {
 
   it("PCN when loading slip is over 30 minutes old", () => {
     const v = validate(
-      carOn("bishopsWay", [
-        { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 45 },
-      ]),
+      carOn("bishopsWay", [{ type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 45 }]),
       rules,
       NOW,
     );
@@ -182,9 +176,7 @@ describe("Day 6 — loading bay", () => {
 
   it("PASS with a fresh loading slip", () => {
     const v = validate(
-      carOn("bishopsWay", [
-        { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 10 },
-      ]),
+      carOn("bishopsWay", [{ type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: NOW - 10 }]),
       rules,
       NOW,
     );

@@ -16,9 +16,7 @@
       "colour": "Blue",
       "model": "Honda Jazz",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:00" }]
     },
     {
       "seenAt": "09:10",
@@ -52,9 +50,7 @@
       "colour": "Red",
       "model": "Ford Fiesta",
       "street": "marketSt",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "09:00" }]
     },
     {
       "seenAt": "09:32",
@@ -82,9 +78,7 @@
       "colour": "Grey",
       "model": "Skoda Fabia",
       "street": "abbeyClose",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "JM21 RPT", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "JM21 RPT", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "09:56",
@@ -120,9 +114,7 @@
       "colour": "Green",
       "model": "Land Rover Discovery",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "11:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "11:00" }]
     },
     {
       "seenAt": "10:32",
@@ -150,9 +142,7 @@
       "colour": "Red",
       "model": "Audi A3",
       "street": "victoriaTerr",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "KE19 TPB", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "KE19 TPB", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "10:56",

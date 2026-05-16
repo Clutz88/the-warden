@@ -2,9 +2,7 @@ import type { CarSpecRaw, DayDefRaw } from "../game/types";
 import { loadDay } from "../game/days";
 import { buildCars } from "../game/cars";
 
-export type CarTruth =
-  | { kind: "ok"; codes: string[] }
-  | { kind: "error"; message: string };
+export type CarTruth = { kind: "ok"; codes: string[] } | { kind: "error"; message: string };
 
 export type DraftPreview = {
   load: { kind: "ok" } | { kind: "error"; message: string };

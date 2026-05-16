@@ -103,11 +103,15 @@ function buildHeader(): HTMLElement {
   const s = getState();
   const header = el("header", { class: "editor-header" });
   const headerTitle =
-    s.mode === "residents" ? "THE WARDEN — RESIDENTS"
-    : s.mode === "streets" ? "THE WARDEN — STREETS"
-    : s.mode === "tuning" ? "THE WARDEN — TUNING"
-    : s.mode === "sprites" ? "THE WARDEN — SPRITES"
-    : "THE WARDEN — DAY EDITOR";
+    s.mode === "residents"
+      ? "THE WARDEN — RESIDENTS"
+      : s.mode === "streets"
+        ? "THE WARDEN — STREETS"
+        : s.mode === "tuning"
+          ? "THE WARDEN — TUNING"
+          : s.mode === "sprites"
+            ? "THE WARDEN — SPRITES"
+            : "THE WARDEN — DAY EDITOR";
   header.appendChild(el("h1", {}, headerTitle));
 
   const modeToggle = el("div", { class: "mode-toggle" });
@@ -123,12 +127,17 @@ function buildHeader(): HTMLElement {
     b.addEventListener("click", () => {
       if (m.key === s.mode) return;
       const currentDirty =
-        s.mode === "day" ? s.dirty
-        : s.mode === "residents" ? s.residentsDirty
-        : s.mode === "streets" ? s.streetsDirty
-        : s.mode === "tuning" ? s.tuningDirty
-        : spritesAnyDirty(s);
-      if (currentDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?")) return;
+        s.mode === "day"
+          ? s.dirty
+          : s.mode === "residents"
+            ? s.residentsDirty
+            : s.mode === "streets"
+              ? s.streetsDirty
+              : s.mode === "tuning"
+                ? s.tuningDirty
+                : spritesAnyDirty(s);
+      if (currentDirty && !window.confirm("Unsaved changes will be lost. Switch mode anyway?"))
+        return;
       switchMode(m.key);
     });
     modeToggle.appendChild(b);
@@ -158,9 +167,7 @@ function buildHeader(): HTMLElement {
     newDayBtn.addEventListener("click", onCreateDay);
     header.appendChild(newDayBtn);
 
-    header.appendChild(
-      el("span", { class: "muted small" }, `${s.draft.cars.length} cars`),
-    );
+    header.appendChild(el("span", { class: "muted small" }, `${s.draft.cars.length} cars`));
   } else if (s.mode === "residents") {
     const newResidentBtn = el("button", { title: "Add a new resident" }, "+ New resident");
     newResidentBtn.addEventListener("click", onAddResident);
@@ -172,19 +179,21 @@ function buildHeader(): HTMLElement {
     const newStreetBtn = el("button", { title: "Add a new street" }, "+ New street");
     newStreetBtn.addEventListener("click", onAddStreet);
     header.appendChild(newStreetBtn);
-    header.appendChild(
-      el("span", { class: "muted small" }, `${s.streetsDraft.length} streets`),
-    );
+    header.appendChild(el("span", { class: "muted small" }, `${s.streetsDraft.length} streets`));
   } else if (s.mode === "tuning") {
-    header.appendChild(
-      el("span", { class: "muted small" }, "Global game balance"),
-    );
+    header.appendChild(el("span", { class: "muted small" }, "Global game balance"));
   } else {
     // sprites mode
     const sub = el("div", { class: "mode-toggle" });
     for (const m of ["sprite", "palette"] as const) {
-      const b = el("button", { class: s.spritesSubMode === m ? "primary" : "" }, m === "sprite" ? "Sprite" : "Palette");
-      b.addEventListener("click", () => setState({ spritesSubMode: m, saveStatus: { kind: "idle" } }));
+      const b = el(
+        "button",
+        { class: s.spritesSubMode === m ? "primary" : "" },
+        m === "sprite" ? "Sprite" : "Palette",
+      );
+      b.addEventListener("click", () =>
+        setState({ spritesSubMode: m, saveStatus: { kind: "idle" } }),
+      );
       sub.appendChild(b);
     }
     header.appendChild(sub);
@@ -192,9 +201,13 @@ function buildHeader(): HTMLElement {
 
   header.appendChild(el("div", { class: "spacer" }));
 
-  const status = el("span", {
-    class: `status ${statusClass(s.saveStatus.kind)}`,
-  }, statusText(s.saveStatus));
+  const status = el(
+    "span",
+    {
+      class: `status ${statusClass(s.saveStatus.kind)}`,
+    },
+    statusText(s.saveStatus),
+  );
   header.appendChild(status);
 
   const openGame = el("a", { href: "/", target: "_blank", class: "muted small" }, "Open game ↗");
@@ -217,11 +230,15 @@ function statusText(s: ReturnType<typeof getState>["saveStatus"]): string {
   if (s.kind === "idle") {
     const st = getState();
     const dirty =
-      st.mode === "residents" ? st.residentsDirty
-      : st.mode === "streets" ? st.streetsDirty
-      : st.mode === "tuning" ? st.tuningDirty
-      : st.mode === "sprites" ? spritesAnyDirty(st)
-      : st.dirty;
+      st.mode === "residents"
+        ? st.residentsDirty
+        : st.mode === "streets"
+          ? st.streetsDirty
+          : st.mode === "tuning"
+            ? st.tuningDirty
+            : st.mode === "sprites"
+              ? spritesAnyDirty(st)
+              : st.dirty;
     return dirty ? "● unsaved changes" : "saved";
   }
   if (s.kind === "saving") return "saving…";
@@ -235,7 +252,10 @@ function checkIntegrityOrConfirm(): boolean {
   if (s.mode !== "day" && s.mode !== "residents" && s.mode !== "streets") return true;
   const issues = findBrokenRefs(s, DAY_NUMBERS, (n) => RAW_DAYS[n]);
   if (issues.length === 0) return true;
-  const list = issues.slice(0, 20).map((i) => `• ${i.scope}: ${i.message}`).join("\n");
+  const list = issues
+    .slice(0, 20)
+    .map((i) => `• ${i.scope}: ${i.message}`)
+    .join("\n");
   const more = issues.length > 20 ? `\n• … and ${issues.length - 20} more` : "";
   return window.confirm(
     `Saving will leave ${issues.length} broken reference${issues.length === 1 ? "" : "s"}.\n` +
@@ -301,9 +321,13 @@ async function onSave(): Promise<void> {
 
 async function onCreateDay(): Promise<void> {
   const s = getState();
-  if (s.dirty && !window.confirm("Unsaved changes will be lost. Continue creating a new day?")) return;
+  if (s.dirty && !window.confirm("Unsaved changes will be lost. Continue creating a new day?"))
+    return;
   const day = nextDayNumber();
-  if (!window.confirm(`Create Day ${day}? An empty day${day}.json will be written to src/game/days/.`)) return;
+  if (
+    !window.confirm(`Create Day ${day}? An empty day${day}.json will be written to src/game/days/.`)
+  )
+    return;
   setState({ saveStatus: { kind: "saving" } });
   const res = await saveDay(day, emptyDayRaw(day));
   if (!res.ok) {
@@ -340,10 +364,8 @@ function buildDayIntegrityPanel(): HTMLElement {
   const card = el("div", { class: "card" });
   card.appendChild(el("h2", {}, "References"));
   // Only check this day's broken refs against the current drafts.
-  const issues: IntegrityIssue[] = findBrokenRefs(
-    s,
-    [s.day],
-    (n) => (n === s.day ? s.draft : RAW_DAYS[n]),
+  const issues: IntegrityIssue[] = findBrokenRefs(s, [s.day], (n) =>
+    n === s.day ? s.draft : RAW_DAYS[n],
   );
   if (issues.length === 0) {
     card.appendChild(el("div", { class: "banner ok" }, "All car refs resolve"));
@@ -364,20 +386,33 @@ function buildDayMeta(): HTMLElement {
 
   const briefing = el("textarea", { rows: "3" }) as HTMLTextAreaElement;
   briefing.value = s.draft.briefing;
-  briefing.addEventListener("input", () => updateDraft((d) => { d.briefing = briefing.value; }));
+  briefing.addEventListener("input", () =>
+    updateDraft((d) => {
+      d.briefing = briefing.value;
+    }),
+  );
   card.appendChild(labeled("Briefing", briefing));
 
   card.appendChild(el("h3", {}, "Rule summary (one per line)"));
   const rules = el("textarea", { rows: "4" }) as HTMLTextAreaElement;
   rules.value = s.draft.newRuleSummary.join("\n");
-  rules.addEventListener("input", () => updateDraft((d) => {
-    d.newRuleSummary = rules.value.split("\n").map((x) => x.trim()).filter(Boolean);
-  }));
+  rules.addEventListener("input", () =>
+    updateDraft((d) => {
+      d.newRuleSummary = rules.value
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }),
+  );
   card.appendChild(rules);
 
   const rent = el("input", { type: "number", min: "0" }) as HTMLInputElement;
   rent.value = String(s.draft.rent);
-  rent.addEventListener("input", () => updateDraft((d) => { d.rent = Number(rent.value) || 0; }));
+  rent.addEventListener("input", () =>
+    updateDraft((d) => {
+      d.rent = Number(rent.value) || 0;
+    }),
+  );
   const rentWrap = el("div", { style: "max-width: 160px" });
   rentWrap.appendChild(labeled("Rent (£)", rent));
   card.appendChild(rentWrap);
@@ -388,11 +423,14 @@ function buildDayMeta(): HTMLElement {
     const lab = el("label");
     const cb = el("input", { type: "checkbox" }) as HTMLInputElement;
     cb.checked = s.draft.streets.includes(key);
-    cb.addEventListener("change", () => updateDraft((d) => {
-      const set = new Set(d.streets);
-      if (cb.checked) set.add(key); else set.delete(key);
-      d.streets = STREET_KEYS.filter((k) => set.has(k));
-    }));
+    cb.addEventListener("change", () =>
+      updateDraft((d) => {
+        const set = new Set(d.streets);
+        if (cb.checked) set.add(key);
+        else set.delete(key);
+        d.streets = STREET_KEYS.filter((k) => set.has(k));
+      }),
+    );
     lab.appendChild(cb);
     const name = STREETS[key]?.name ?? key;
     lab.appendChild(el("span", { class: "small" }, `${name} (${key})`));
@@ -417,7 +455,9 @@ function buildCarsTable(preview: DraftPreview): HTMLElement {
   const table = el("table", { class: "cars" });
   const thead = el("thead");
   const trH = el("tr");
-  ["#", "Seen", "Plate", "Street", "Docs", "Truth", ""].forEach((h) => trH.appendChild(el("th", {}, h)));
+  ["#", "Seen", "Plate", "Street", "Docs", "Truth", ""].forEach((h) =>
+    trH.appendChild(el("th", {}, h)),
+  );
   thead.appendChild(trH);
   table.appendChild(thead);
 
@@ -482,13 +522,17 @@ function onAddCar(): void {
     street,
     docs: [],
   };
-  updateDraft((d) => { d.cars.push(newCar); });
+  updateDraft((d) => {
+    d.cars.push(newCar);
+  });
   setState({ selectedCarIdx: getState().draft.cars.length - 1 });
 }
 
 function onDeleteCar(idx: number): void {
   if (!confirm(`Delete car ${idx + 1}?`)) return;
-  updateDraft((d) => { d.cars.splice(idx, 1); });
+  updateDraft((d) => {
+    d.cars.splice(idx, 1);
+  });
   const s = getState();
   if (s.selectedCarIdx >= s.draft.cars.length) {
     setState({ selectedCarIdx: s.draft.cars.length - 1 });
@@ -528,18 +572,74 @@ function buildCarDetail(idx: number, preview: DraftPreview): HTMLElement {
   }
 
   const grid = el("div", { class: "grid-4" });
-  grid.appendChild(labeled("Seen at (HH:MM)", textInput(car.seenAt, (v) => updateCar(idx, (c) => { c.seenAt = v; }), !/^\d\d:\d\d$/.test(car.seenAt))));
-  grid.appendChild(labeled("Plate", textInput(car.plate, (v) => updateCar(idx, (c) => { c.plate = v; }))));
-  grid.appendChild(labeled("Colour", textInput(car.colour, (v) => updateCar(idx, (c) => { c.colour = v; }))));
-  grid.appendChild(labeled("Model", textInput(car.model, (v) => updateCar(idx, (c) => { c.model = v; }))));
+  grid.appendChild(
+    labeled(
+      "Seen at (HH:MM)",
+      textInput(
+        car.seenAt,
+        (v) =>
+          updateCar(idx, (c) => {
+            c.seenAt = v;
+          }),
+        !/^\d\d:\d\d$/.test(car.seenAt),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Plate",
+      textInput(car.plate, (v) =>
+        updateCar(idx, (c) => {
+          c.plate = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Colour",
+      textInput(car.colour, (v) =>
+        updateCar(idx, (c) => {
+          c.colour = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Model",
+      textInput(car.model, (v) =>
+        updateCar(idx, (c) => {
+          c.model = v;
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid);
 
   const grid2 = el("div", { class: "grid-2" });
-  grid2.appendChild(labeled("Street", selectInput(STREET_KEYS, car.street, (v) => updateCar(idx, (c) => { c.street = v; }))));
+  grid2.appendChild(
+    labeled(
+      "Street",
+      selectInput(STREET_KEYS, car.street, (v) =>
+        updateCar(idx, (c) => {
+          c.street = v;
+        }),
+      ),
+    ),
+  );
   const residentOpts = ["", ...getState().residentsDraft.map((r) => r.id)];
-  grid2.appendChild(labeled("Resident (optional)", selectInput(residentOpts, car.residentId ?? "", (v) => updateCar(idx, (c) => {
-    if (v) c.residentId = v; else delete c.residentId;
-  }))));
+  grid2.appendChild(
+    labeled(
+      "Resident (optional)",
+      selectInput(residentOpts, car.residentId ?? "", (v) =>
+        updateCar(idx, (c) => {
+          if (v) c.residentId = v;
+          else delete c.residentId;
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid2);
 
   card.appendChild(el("h3", {}, `Docs (${car.docs.length})`));
@@ -552,7 +652,9 @@ function buildCarDetail(idx: number, preview: DraftPreview): HTMLElement {
   for (const t of DOC_TYPES) typeSel.appendChild(el("option", { value: t }, t));
   const addDoc = el("button", {}, "+ Add doc");
   addDoc.addEventListener("click", () => {
-    updateCar(idx, (c) => { c.docs.push(defaultDoc(typeSel.value as DocRaw["type"], c)); });
+    updateCar(idx, (c) => {
+      c.docs.push(defaultDoc(typeSel.value as DocRaw["type"], c));
+    });
   });
   addDocRow.appendChild(typeSel);
   addDocRow.appendChild(addDoc);
@@ -566,7 +668,9 @@ function buildDocRow(carIdx: number, docIdx: number, doc: DocRaw): HTMLElement {
   head.appendChild(el("span", { class: "doc-type" }, doc.type));
   const rm = el("button", { class: "danger" }, "Remove");
   rm.addEventListener("click", () => {
-    updateCar(carIdx, (c) => { c.docs.splice(docIdx, 1); });
+    updateCar(carIdx, (c) => {
+      c.docs.splice(docIdx, 1);
+    });
   });
   head.appendChild(rm);
   row.appendChild(head);
@@ -585,34 +689,106 @@ function buildDocFields(carIdx: number, docIdx: number, doc: DocRaw): HTMLElemen
   switch (doc.type) {
     case "pd": {
       const g = el("div", { class: "grid-2" });
-      g.appendChild(labeled("Zone", selectInput(ZONES.map(zoneLabel), zoneLabel(doc.zone), (v) => replace({ zone: parseZone(v) }))));
-      g.appendChild(labeled("Expires at (HH:MM)", textInput(doc.expiresAt, (v) => replace({ expiresAt: v }), !/^\d\d:\d\d$/.test(doc.expiresAt))));
+      g.appendChild(
+        labeled(
+          "Zone",
+          selectInput(ZONES.map(zoneLabel), zoneLabel(doc.zone), (v) =>
+            replace({ zone: parseZone(v) }),
+          ),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Expires at (HH:MM)",
+          textInput(
+            doc.expiresAt,
+            (v) => replace({ expiresAt: v }),
+            !/^\d\d:\d\d$/.test(doc.expiresAt),
+          ),
+        ),
+      );
       return g;
     }
     case "permit": {
       const g = el("div", { class: "grid-3" });
-      g.appendChild(labeled("Zone", selectInput(ZONES.map(zoneLabel), zoneLabel(doc.zone), (v) => replace({ zone: parseZone(v) }))));
-      g.appendChild(labeled("Plate on permit", textInput(doc.plate, (v) => replace({ plate: v }))));
-      g.appendChild(labeled("Valid until (DD/MM/YYYY)", textInput(doc.validUntil, (v) => replace({ validUntil: v }))));
+      g.appendChild(
+        labeled(
+          "Zone",
+          selectInput(ZONES.map(zoneLabel), zoneLabel(doc.zone), (v) =>
+            replace({ zone: parseZone(v) }),
+          ),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Plate on permit",
+          textInput(doc.plate, (v) => replace({ plate: v })),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Valid until (DD/MM/YYYY)",
+          textInput(doc.validUntil, (v) => replace({ validUntil: v })),
+        ),
+      );
       return g;
     }
     case "blue-badge": {
       const g = el("div", { class: "grid-4" });
-      g.appendChild(labeled("Holder", textInput(doc.holder, (v) => replace({ holder: v }))));
-      g.appendChild(labeled("Valid until", textInput(doc.validUntil, (v) => replace({ validUntil: v }))));
-      g.appendChild(labeled("Clock shown", checkboxInput(doc.clockShown, (v) => replace({ clockShown: v }))));
-      g.appendChild(labeled("Clock set at (HH:MM, blank for none)", textInput(doc.clockSetAt ?? "", (v) => replace({ clockSetAt: v ? v : null }))));
+      g.appendChild(
+        labeled(
+          "Holder",
+          textInput(doc.holder, (v) => replace({ holder: v })),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Valid until",
+          textInput(doc.validUntil, (v) => replace({ validUntil: v })),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Clock shown",
+          checkboxInput(doc.clockShown, (v) => replace({ clockShown: v })),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Clock set at (HH:MM, blank for none)",
+          textInput(doc.clockSetAt ?? "", (v) => replace({ clockSetAt: v ? v : null })),
+        ),
+      );
       return g;
     }
     case "loading-slip": {
       const g = el("div", { class: "grid-2" });
-      g.appendChild(labeled("Firm", textInput(doc.firm, (v) => replace({ firm: v }))));
-      g.appendChild(labeled("Arrived at (HH:MM)", textInput(doc.arrivedAt, (v) => replace({ arrivedAt: v }), !/^\d\d:\d\d$/.test(doc.arrivedAt))));
+      g.appendChild(
+        labeled(
+          "Firm",
+          textInput(doc.firm, (v) => replace({ firm: v })),
+        ),
+      );
+      g.appendChild(
+        labeled(
+          "Arrived at (HH:MM)",
+          textInput(
+            doc.arrivedAt,
+            (v) => replace({ arrivedAt: v }),
+            !/^\d\d:\d\d$/.test(doc.arrivedAt),
+          ),
+        ),
+      );
       return g;
     }
     case "note": {
       const g = el("div", { class: "grid-2" });
-      g.appendChild(labeled("From", textInput(doc.from, (v) => replace({ from: v }))));
+      g.appendChild(
+        labeled(
+          "From",
+          textInput(doc.from, (v) => replace({ from: v })),
+        ),
+      );
       const ta = el("textarea", { rows: "2" }) as HTMLTextAreaElement;
       ta.value = doc.text;
       ta.addEventListener("input", () => replace({ text: ta.value }));
@@ -621,7 +797,12 @@ function buildDocFields(carIdx: number, docIdx: number, doc: DocRaw): HTMLElemen
     }
     case "reactive-note": {
       const wrap = el("div");
-      wrap.appendChild(labeled("From", textInput(doc.from, (v) => replace({ from: v }))));
+      wrap.appendChild(
+        labeled(
+          "From",
+          textInput(doc.from, (v) => replace({ from: v })),
+        ),
+      );
       const variants = { ...doc.variants };
       for (const tone of TONES) {
         const ta = el("textarea", { rows: "2" }) as HTMLTextAreaElement;
@@ -648,7 +829,13 @@ function defaultDoc(type: DocRaw["type"], car: CarSpecRaw): DocRaw {
     case "permit":
       return { type: "permit", zone: "A", plate: car.plate, validUntil: "31/12/2026" };
     case "blue-badge":
-      return { type: "blue-badge", holder: "HOLDER NAME", validUntil: "30/06/2027", clockShown: true, clockSetAt: car.seenAt };
+      return {
+        type: "blue-badge",
+        holder: "HOLDER NAME",
+        validUntil: "30/06/2027",
+        clockShown: true,
+        clockSetAt: car.seenAt,
+      };
     case "loading-slip":
       return { type: "loading-slip", firm: "PARCELFLEET LTD", arrivedAt: car.seenAt };
     case "note":
@@ -759,17 +946,56 @@ function buildResidentDetail(idx: number): HTMLElement {
   card.appendChild(el("h2", {}, `Resident ${idx + 1} — ${r.name}`));
 
   const grid = el("div", { class: "grid-2" });
-  grid.appendChild(labeled("ID (referenced from day JSON)", textInput(r.id, (v) => updateResident(idx, (x) => { x.id = v; }))));
-  grid.appendChild(labeled("Name", textInput(r.name, (v) => updateResident(idx, (x) => { x.name = v; }))));
-  grid.appendChild(labeled("Plate", textInput(r.plate, (v) => updateResident(idx, (x) => { x.plate = v; }))));
-  grid.appendChild(labeled("Home street (free text, optional)", textInput(r.homeStreetId ?? "", (v) => updateResident(idx, (x) => {
-    if (v) x.homeStreetId = v; else delete x.homeStreetId;
-  }))));
+  grid.appendChild(
+    labeled(
+      "ID (referenced from day JSON)",
+      textInput(r.id, (v) =>
+        updateResident(idx, (x) => {
+          x.id = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Name",
+      textInput(r.name, (v) =>
+        updateResident(idx, (x) => {
+          x.name = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Plate",
+      textInput(r.plate, (v) =>
+        updateResident(idx, (x) => {
+          x.plate = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Home street (free text, optional)",
+      textInput(r.homeStreetId ?? "", (v) =>
+        updateResident(idx, (x) => {
+          if (v) x.homeStreetId = v;
+          else delete x.homeStreetId;
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid);
 
   const bioTa = el("textarea", { rows: "3" }) as HTMLTextAreaElement;
   bioTa.value = r.bio;
-  bioTa.addEventListener("input", () => updateResident(idx, (x) => { x.bio = bioTa.value; }));
+  bioTa.addEventListener("input", () =>
+    updateResident(idx, (x) => {
+      x.bio = bioTa.value;
+    }),
+  );
   card.appendChild(labeled("Bio", bioTa));
 
   return card;
@@ -836,8 +1062,15 @@ function onAddResident(): void {
 function onDeleteResident(idx: number): void {
   const r = getState().residentsDraft[idx];
   if (!r) return;
-  if (!window.confirm(`Delete resident "${r.id}" (${r.name})? Any day JSON referencing this id will fail to load.`)) return;
-  updateResidents((rs) => { rs.splice(idx, 1); });
+  if (
+    !window.confirm(
+      `Delete resident "${r.id}" (${r.name})? Any day JSON referencing this id will fail to load.`,
+    )
+  )
+    return;
+  updateResidents((rs) => {
+    rs.splice(idx, 1);
+  });
   const s = getState();
   if (s.selectedResidentIdx >= s.residentsDraft.length) {
     setState({ selectedResidentIdx: Math.max(0, s.residentsDraft.length - 1) });
@@ -910,13 +1143,49 @@ function buildStreetDetail(idx: number): HTMLElement {
   card.appendChild(el("h2", {}, `Street ${idx + 1} — ${street.name}`));
 
   const grid = el("div", { class: "grid-2" });
-  grid.appendChild(labeled("ID (referenced from day JSON)", textInput(street.id, (v) => updateStreet(idx, (x) => { x.id = v; }))));
-  grid.appendChild(labeled("Display name", textInput(street.name, (v) => updateStreet(idx, (x) => { x.name = v; }))));
+  grid.appendChild(
+    labeled(
+      "ID (referenced from day JSON)",
+      textInput(street.id, (v) =>
+        updateStreet(idx, (x) => {
+          x.id = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Display name",
+      textInput(street.name, (v) =>
+        updateStreet(idx, (x) => {
+          x.name = v;
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid);
 
   const grid2 = el("div", { class: "grid-2" });
-  grid2.appendChild(labeled("Kind", selectInput(STREET_KINDS as string[], street.kind, (v) => updateStreet(idx, (x) => { x.kind = v as StreetKind; }))));
-  grid2.appendChild(labeled("Zone", selectInput(ZONES.map(zoneLabel), zoneLabel(street.zone), (v) => updateStreet(idx, (x) => { x.zone = parseZone(v); }))));
+  grid2.appendChild(
+    labeled(
+      "Kind",
+      selectInput(STREET_KINDS as string[], street.kind, (v) =>
+        updateStreet(idx, (x) => {
+          x.kind = v as StreetKind;
+        }),
+      ),
+    ),
+  );
+  grid2.appendChild(
+    labeled(
+      "Zone",
+      selectInput(ZONES.map(zoneLabel), zoneLabel(street.zone), (v) =>
+        updateStreet(idx, (x) => {
+          x.zone = parseZone(v);
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid2);
 
   return card;
@@ -951,7 +1220,8 @@ function buildStreetsValidation(): HTMLElement {
       if (!ids.has(sid)) errors.push(`Day ${dayNum} streets[] references missing street "${sid}"`);
     }
     for (const c of raw.cars) {
-      if (!ids.has(c.street)) errors.push(`Day ${dayNum} car ${c.plate} references missing street "${c.street}"`);
+      if (!ids.has(c.street))
+        errors.push(`Day ${dayNum} car ${c.plate} references missing street "${c.street}"`);
     }
   }
 
@@ -998,7 +1268,9 @@ function onDeleteStreet(idx: number): void {
     msg += "\n\nDay files will fail to load until you fix them.";
   }
   if (!window.confirm(msg)) return;
-  updateStreets((xs) => { xs.splice(idx, 1); });
+  updateStreets((xs) => {
+    xs.splice(idx, 1);
+  });
   const s = getState();
   if (s.selectedStreetIdx >= s.streetsDraft.length) {
     setState({ selectedStreetIdx: Math.max(0, s.streetsDraft.length - 1) });
@@ -1026,26 +1298,53 @@ function buildTuningForm(): HTMLElement {
 
   card.appendChild(el("h3", {}, "Shift"));
   const shiftBox = el("div", { style: "max-width: 200px" });
-  shiftBox.appendChild(labeled(
-    "Shift start (HH:MM)",
-    textInput(t.shiftStart, (v) => updateTuning((x) => { x.shiftStart = v; }), !/^\d\d:\d\d$/.test(t.shiftStart)),
-  ));
+  shiftBox.appendChild(
+    labeled(
+      "Shift start (HH:MM)",
+      textInput(
+        t.shiftStart,
+        (v) =>
+          updateTuning((x) => {
+            x.shiftStart = v;
+          }),
+        !/^\d\d:\d\d$/.test(t.shiftStart),
+      ),
+    ),
+  );
   card.appendChild(shiftBox);
 
   card.appendChild(el("h3", {}, "Wages"));
   const grid = el("div", { class: "grid-3" });
-  grid.appendChild(labeled(
-    "Correct decision (£)",
-    numberInput(t.wages.correct, (v) => updateTuning((x) => { x.wages.correct = v; })),
-  ));
-  grid.appendChild(labeled(
-    "Wrong decision (£)",
-    numberInput(t.wages.wrong, (v) => updateTuning((x) => { x.wages.wrong = v; })),
-  ));
-  grid.appendChild(labeled(
-    "Flawless-shift bonus (£)",
-    numberInput(t.wages.flawlessBonus, (v) => updateTuning((x) => { x.wages.flawlessBonus = v; })),
-  ));
+  grid.appendChild(
+    labeled(
+      "Correct decision (£)",
+      numberInput(t.wages.correct, (v) =>
+        updateTuning((x) => {
+          x.wages.correct = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Wrong decision (£)",
+      numberInput(t.wages.wrong, (v) =>
+        updateTuning((x) => {
+          x.wages.wrong = v;
+        }),
+      ),
+    ),
+  );
+  grid.appendChild(
+    labeled(
+      "Flawless-shift bonus (£)",
+      numberInput(t.wages.flawlessBonus, (v) =>
+        updateTuning((x) => {
+          x.wages.flawlessBonus = v;
+        }),
+      ),
+    ),
+  );
   card.appendChild(grid);
 
   return card;
@@ -1059,14 +1358,18 @@ function buildTuningPreview(): HTMLElement {
 
   const formatClock = /^\d\d:\d\d$/.test(t.shiftStart);
   if (!formatClock) {
-    card.appendChild(el("div", { class: "banner err" }, `Shift start "${t.shiftStart}" is not HH:MM`));
+    card.appendChild(
+      el("div", { class: "banner err" }, `Shift start "${t.shiftStart}" is not HH:MM`),
+    );
     return card;
   }
   card.appendChild(el("div", { class: "banner ok" }, "Tuning valid"));
 
   // Show shift earnings projection for each authored day.
   const list = el("div", { class: "truth-list" });
-  const sortedDays = Object.keys(RAW_DAYS).map(Number).sort((a, b) => a - b);
+  const sortedDays = Object.keys(RAW_DAYS)
+    .map(Number)
+    .sort((a, b) => a - b);
   for (const dayNum of sortedDays) {
     const day = RAW_DAYS[dayNum];
     if (!day) continue;
@@ -1077,8 +1380,11 @@ function buildTuningPreview(): HTMLElement {
     row.appendChild(el("span", { class: "when" }, `Day ${dayNum}`));
     row.appendChild(el("span", { class: "plate" }, `${carCount}c`));
     row.appendChild(el("span", { class: "muted" }, `rent £${day.rent}`));
-    const verdict = el("span", { class: flawless >= day.rent ? "codes pass" : "codes pcn" },
-      `flawless £${flawless} · all wrong £${allWrong}`);
+    const verdict = el(
+      "span",
+      { class: flawless >= day.rent ? "codes pass" : "codes pcn" },
+      `flawless £${flawless} · all wrong £${allWrong}`,
+    );
     row.appendChild(verdict);
     list.appendChild(row);
   }
@@ -1119,7 +1425,8 @@ function buildSpriteEditorLeft(): HTMLElement {
       const opt = document.createElement("option");
       opt.value = `${category}::${key}`;
       opt.textContent = key;
-      if (s.spriteSelection.category === category && s.spriteSelection.key === key) opt.selected = true;
+      if (s.spriteSelection.category === category && s.spriteSelection.key === key)
+        opt.selected = true;
       og.appendChild(opt);
     }
     pickerSel.appendChild(og);
@@ -1166,13 +1473,17 @@ function buildSpriteCanvas(grid: string): HTMLElement {
   const s = getState();
   const card = el("div", { class: "card" });
   card.appendChild(el("h2", {}, "Canvas"));
-  const help = el("div", { class: "muted small", style: "margin-bottom: 8px" },
-    "Left-click to paint with the active brush. Right-click to erase to '.'.");
+  const help = el(
+    "div",
+    { class: "muted small", style: "margin-bottom: 8px" },
+    "Left-click to paint with the active brush. Right-click to erase to '.'.",
+  );
   card.appendChild(help);
 
-  const palette = s.spriteSelection.category === "cars"
-    ? carPalette(s.spritesDraft.palette.carColours[s.spritePreviewColour] ?? "#888")
-    : s.spritesDraft.palette.base;
+  const palette =
+    s.spriteSelection.category === "cars"
+      ? carPalette(s.spritesDraft.palette.carColours[s.spritePreviewColour] ?? "#888")
+      : s.spritesDraft.palette.base;
 
   const rows = grid.split("\n");
   const wrap = el("div", { class: "sprite-canvas" });
@@ -1195,7 +1506,13 @@ function buildSpriteCanvas(grid: string): HTMLElement {
       });
       cell.addEventListener("mouseenter", (e) => {
         if ((e as MouseEvent).buttons === 1) {
-          updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, getState().spriteBrush);
+          updateGridCell(
+            s.spriteSelection.category,
+            s.spriteSelection.key,
+            x,
+            y,
+            getState().spriteBrush,
+          );
         } else if ((e as MouseEvent).buttons === 2) {
           updateGridCell(s.spriteSelection.category, s.spriteSelection.key, x, y, ".");
         }
@@ -1213,7 +1530,9 @@ function buildBrushPalette(): HTMLElement {
   const card = el("div", { class: "card" });
   card.appendChild(el("h2", {}, "Brush"));
   const subRow = el("div", { class: "row small muted", style: "margin-bottom: 8px; gap: 12px" });
-  subRow.appendChild(el("span", {}, `Active: ${s.spriteBrush === "." ? "(erase)" : s.spriteBrush}`));
+  subRow.appendChild(
+    el("span", {}, `Active: ${s.spriteBrush === "." ? "(erase)" : s.spriteBrush}`),
+  );
   if (s.spriteSelection.category === "cars") {
     const sel = el("select", { style: "width: auto" }) as HTMLSelectElement;
     for (const c of Object.keys(s.spritesDraft.palette.carColours)) {
@@ -1283,7 +1602,9 @@ function buildSpriteEditorRight(): HTMLElement {
   wrap.innerHTML = svg;
   card.appendChild(wrap);
 
-  const note = el("div", { class: "muted small", style: "margin-top: 10px" },
+  const note = el(
+    "div",
+    { class: "muted small", style: "margin-top: 10px" },
     sel.category === "cars"
       ? `Previewing ${sel.key} in ${s.spritePreviewColour}. Save writes src/data/sprites/cars.json.`
       : `Previewing ${sel.key}. Save writes src/data/sprites/${sel.category}.json.`,
@@ -1301,8 +1622,13 @@ function buildPaletteEditor(): HTMLElement {
 
   const baseCard = el("div", { class: "card" });
   baseCard.appendChild(el("h2", {}, "Base palette"));
-  baseCard.appendChild(el("div", { class: "muted small", style: "margin-bottom: 8px" },
-    "Each character maps to a hex colour. Used by all non-body pixels in every sprite."));
+  baseCard.appendChild(
+    el(
+      "div",
+      { class: "muted small", style: "margin-bottom: 8px" },
+      "Each character maps to a hex colour. Used by all non-body pixels in every sprite.",
+    ),
+  );
   const baseGrid = el("div", { class: "palette-edit-grid" });
   for (const [ch, hex] of Object.entries(s.spritesDraft.palette.base)) {
     baseGrid.appendChild(buildPaletteEditRow(ch, hex, "base"));
@@ -1310,16 +1636,35 @@ function buildPaletteEditor(): HTMLElement {
   baseCard.appendChild(baseGrid);
 
   const addBaseRow = el("div", { class: "row", style: "margin-top: 12px; gap: 6px" });
-  const newCh = el("input", { type: "text", placeholder: "char", style: "width: 60px" }) as HTMLInputElement;
-  const newHex = el("input", { type: "text", placeholder: "#RRGGBB", style: "width: 120px" }) as HTMLInputElement;
+  const newCh = el("input", {
+    type: "text",
+    placeholder: "char",
+    style: "width: 60px",
+  }) as HTMLInputElement;
+  const newHex = el("input", {
+    type: "text",
+    placeholder: "#RRGGBB",
+    style: "width: 120px",
+  }) as HTMLInputElement;
   const addBtn = el("button", {}, "+ Add char");
   addBtn.addEventListener("click", () => {
     const c = newCh.value.trim();
     const h = newHex.value.trim();
-    if (c.length !== 1) { alert("Character must be exactly 1"); return; }
-    if (!/^#[0-9a-f]{6}$/i.test(h)) { alert("Hex must be #RRGGBB"); return; }
-    if (s.spritesDraft.palette.base[c]) { alert(`Char "${c}" already exists`); return; }
-    updateSprites("palette", (p) => { (p as typeof s.spritesDraft.palette).base[c] = h; });
+    if (c.length !== 1) {
+      alert("Character must be exactly 1");
+      return;
+    }
+    if (!/^#[0-9a-f]{6}$/i.test(h)) {
+      alert("Hex must be #RRGGBB");
+      return;
+    }
+    if (s.spritesDraft.palette.base[c]) {
+      alert(`Char "${c}" already exists`);
+      return;
+    }
+    updateSprites("palette", (p) => {
+      (p as typeof s.spritesDraft.palette).base[c] = h;
+    });
   });
   addBaseRow.appendChild(newCh);
   addBaseRow.appendChild(newHex);
@@ -1329,8 +1674,13 @@ function buildPaletteEditor(): HTMLElement {
 
   const carCard = el("div", { class: "card" });
   carCard.appendChild(el("h2", {}, "Car body colours"));
-  carCard.appendChild(el("div", { class: "muted small", style: "margin-bottom: 8px" },
-    "Each car colour name maps to a hex. Used as the B body fill (with D and d as auto-darkened shades)."));
+  carCard.appendChild(
+    el(
+      "div",
+      { class: "muted small", style: "margin-bottom: 8px" },
+      "Each car colour name maps to a hex. Used as the B body fill (with D and d as auto-darkened shades).",
+    ),
+  );
   const carGrid = el("div", { class: "palette-edit-grid" });
   for (const [name, hex] of Object.entries(s.spritesDraft.palette.carColours)) {
     carGrid.appendChild(buildPaletteEditRow(name, hex, "carColours"));
@@ -1341,7 +1691,11 @@ function buildPaletteEditor(): HTMLElement {
   return col;
 }
 
-function buildPaletteEditRow(key: string, hex: string, section: "base" | "carColours"): HTMLElement {
+function buildPaletteEditRow(
+  key: string,
+  hex: string,
+  section: "base" | "carColours",
+): HTMLElement {
   const row = el("div", { class: "palette-edit-row" });
   const swatch = el("span", { class: "swatch-mini", title: hex });
   swatch.style.background = hex;
@@ -1405,11 +1759,21 @@ function buildPaletteLegendCol(): HTMLElement {
 
   const orphans = chars.filter((c) => (tally[c] ?? 0) === 0);
   if (orphans.length) {
-    card.appendChild(el("div", { class: "banner", style: "margin-top: 12px" },
-      `⚠ Unused base chars: ${orphans.join(" ")}`));
+    card.appendChild(
+      el(
+        "div",
+        { class: "banner", style: "margin-top: 12px" },
+        `⚠ Unused base chars: ${orphans.join(" ")}`,
+      ),
+    );
   } else {
-    card.appendChild(el("div", { class: "banner ok", style: "margin-top: 12px" },
-      "All base chars used by at least one sprite"));
+    card.appendChild(
+      el(
+        "div",
+        { class: "banner ok", style: "margin-top: 12px" },
+        "All base chars used by at least one sprite",
+      ),
+    );
   }
   col.appendChild(card);
   return col;
@@ -1451,7 +1815,11 @@ function numberInput(value: number, onChange: (v: number) => void): HTMLInputEle
   return i;
 }
 
-function selectInput(options: string[], value: string, onChange: (v: string) => void): HTMLSelectElement {
+function selectInput(
+  options: string[],
+  value: string,
+  onChange: (v: string) => void,
+): HTMLSelectElement {
   const s = el("select") as HTMLSelectElement;
   for (const o of options) {
     const opt = el("option", { value: o }, o || "(none)") as HTMLOptionElement;

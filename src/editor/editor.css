@@ -12,14 +12,20 @@
   --ok: #7fc96a;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font: 14px/1.4 ui-monospace, "Courier New", monospace;
+  font:
+    14px/1.4 ui-monospace,
+    "Courier New",
+    monospace;
 }
 
 #editor-root {
@@ -45,13 +51,19 @@ html, body {
   color: var(--accent);
   letter-spacing: 0.1em;
 }
-.editor-header .spacer { flex: 1; }
+.editor-header .spacer {
+  flex: 1;
+}
 .editor-header .status {
   font-size: 12px;
   color: var(--muted);
 }
-.editor-header .status.ok { color: var(--ok); }
-.editor-header .status.err { color: var(--danger); }
+.editor-header .status.ok {
+  color: var(--ok);
+}
+.editor-header .status.err {
+  color: var(--danger);
+}
 
 .mode-toggle {
   display: inline-flex;
@@ -78,7 +90,11 @@ html, body {
   padding: 16px 20px;
 }
 
-.column { display: flex; flex-direction: column; gap: 16px; }
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .card {
   background: var(--panel);
@@ -108,9 +124,14 @@ label {
   font-size: 12px;
   color: var(--muted);
 }
-label > span { color: var(--muted); }
+label > span {
+  color: var(--muted);
+}
 
-input[type="text"], input[type="number"], select, textarea {
+input[type="text"],
+input[type="number"],
+select,
+textarea {
   background: var(--panel-2);
   color: var(--text);
   border: 1px solid var(--line);
@@ -119,12 +140,18 @@ input[type="text"], input[type="number"], select, textarea {
   font: inherit;
   width: 100%;
 }
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: 1px solid var(--accent);
   border-color: var(--accent);
 }
-textarea { resize: vertical; }
-input.bad { border-color: var(--danger); }
+textarea {
+  resize: vertical;
+}
+input.bad {
+  border-color: var(--danger);
+}
 
 button {
   background: var(--panel-2);
@@ -135,25 +162,46 @@ button {
   font: inherit;
   cursor: pointer;
 }
-button:hover { border-color: var(--accent); }
+button:hover {
+  border-color: var(--accent);
+}
 button.primary {
   background: var(--accent);
   color: #1f2120;
   border-color: var(--accent);
 }
-button.danger { color: var(--danger); }
+button.danger {
+  color: var(--danger);
+}
 
-.row { display: flex; gap: 8px; align-items: center; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
 
 table.cars {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
-table.cars th, table.cars td {
+table.cars th,
+table.cars td {
   text-align: left;
   padding: 6px 8px;
   border-bottom: 1px solid var(--line);
@@ -166,8 +214,12 @@ table.cars th {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-table.cars tr.selected { background: var(--panel-2); }
-table.cars tr:hover { background: rgba(255,255,255,0.03); }
+table.cars tr.selected {
+  background: var(--panel-2);
+}
+table.cars tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
 table.cars td button {
   padding: 2px 8px;
   font-size: 12px;
@@ -211,11 +263,22 @@ table.cars td button {
   font-size: 12px;
   align-items: baseline;
 }
-.truth-row .codes.pass { color: var(--ok); }
-.truth-row .codes.pcn { color: var(--danger); }
-.truth-row .codes.err { color: var(--accent); }
-.truth-row .plate { font-weight: bold; color: var(--text); }
-.truth-row .when { color: var(--muted); }
+.truth-row .codes.pass {
+  color: var(--ok);
+}
+.truth-row .codes.pcn {
+  color: var(--danger);
+}
+.truth-row .codes.err {
+  color: var(--accent);
+}
+.truth-row .plate {
+  font-weight: bold;
+  color: var(--text);
+}
+.truth-row .when {
+  color: var(--muted);
+}
 
 .banner {
   padding: 8px 12px;
@@ -223,11 +286,23 @@ table.cars td button {
   font-size: 12px;
   margin-bottom: 10px;
 }
-.banner.err { background: rgba(201,106,106,0.15); border: 1px solid var(--danger); color: var(--danger); }
-.banner.ok { background: rgba(127,201,106,0.12); border: 1px solid var(--ok); color: var(--ok); }
+.banner.err {
+  background: rgba(201, 106, 106, 0.15);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+.banner.ok {
+  background: rgba(127, 201, 106, 0.12);
+  border: 1px solid var(--ok);
+  color: var(--ok);
+}
 
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 12px;
+}
 
 .checkbox-list {
   display: flex;
@@ -278,7 +353,7 @@ button.small {
 .sprite-cell {
   width: 18px;
   height: 18px;
-  border: 1px solid rgba(255,255,255,0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 .sprite-cell:hover {
   outline: 1px solid var(--accent);
@@ -297,24 +372,38 @@ button.small {
   border-radius: 3px;
   border: 2px solid transparent;
   color: var(--text);
-  font: bold 14px ui-monospace, "Courier New", monospace;
-  text-shadow: 0 0 2px #000, 0 0 2px #000;
+  font:
+    bold 14px ui-monospace,
+    "Courier New",
+    monospace;
+  text-shadow:
+    0 0 2px #000,
+    0 0 2px #000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.swatch:hover { border-color: var(--muted); }
-.swatch.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-.swatch.readonly { cursor: default; }
-.swatch.readonly:hover { border-color: transparent; }
+.swatch:hover {
+  border-color: var(--muted);
+}
+.swatch.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.swatch.readonly {
+  cursor: default;
+}
+.swatch.readonly:hover {
+  border-color: transparent;
+}
 .swatch-count {
   position: absolute;
   right: 2px;
   bottom: 0;
   font-size: 9px;
   color: var(--text);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   padding: 0 3px;
   border-radius: 2px;
 }

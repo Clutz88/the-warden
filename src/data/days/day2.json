@@ -15,9 +15,7 @@
       "colour": "Red",
       "model": "Ford Fiesta",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:00" }]
     },
     {
       "seenAt": "09:12",
@@ -25,9 +23,7 @@
       "colour": "Silver",
       "model": "VW Golf",
       "street": "abbeyClose",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "RY18 NBL", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "RY18 NBL", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "09:24",
@@ -35,9 +31,7 @@
       "colour": "Black",
       "model": "BMW 3 Series",
       "street": "marketSt",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "09:00" }]
     },
     {
       "seenAt": "09:38",
@@ -45,9 +39,7 @@
       "colour": "Blue",
       "model": "Vauxhall Corsa",
       "street": "victoriaTerr",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "GS21 NPM", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "GS21 NPM", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "09:50",
@@ -71,9 +63,7 @@
       "colour": "Grey",
       "model": "Peugeot 208",
       "street": "victoriaTerr",
-      "docs": [
-        { "type": "permit", "zone": "B", "plate": "NL19 GRM", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "B", "plate": "NL19 GRM", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "10:28",
@@ -81,9 +71,7 @@
       "colour": "Red",
       "model": "Mini Cooper",
       "street": "abbeyClose",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "EM22 PIA", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "EM22 PIA", "validUntil": "31/12/2026" }]
     }
   ]
 }

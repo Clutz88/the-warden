@@ -11,7 +11,6 @@ export const RULES: Rule[] = [
       const pd = car.docs.find((d) => d.type === "pd");
       if (!pd) return true;
       return pd.expiresAt < clock;
-
     },
   },
   {
@@ -25,7 +24,6 @@ export const RULES: Rule[] = [
       if (!permit) return true;
       if (permit.zone !== car.street.zone) return true;
       return permit.plate !== car.plate;
-
     },
   },
   {
@@ -40,7 +38,6 @@ export const RULES: Rule[] = [
       if (!badge.clockShown || badge.clockSetAt == null) return true;
       const minutesParked = clock - badge.clockSetAt;
       return minutesParked > 180;
-
     },
   },
   {
@@ -54,7 +51,6 @@ export const RULES: Rule[] = [
       if (!slip) return true;
       const minutesParked = clock - slip.arrivedAt;
       return minutesParked > 30;
-
     },
   },
 ];

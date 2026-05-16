@@ -17,7 +17,11 @@ export type IntegrityIssue = {
 export type DayLookup = (dayNum: number) => DayDefRaw | undefined;
 
 /** Find references that would be broken if the current drafts were saved. */
-export function findBrokenRefs(s: EditorState, dayNumbers: number[], rawDayLookup: DayLookup): IntegrityIssue[] {
+export function findBrokenRefs(
+  s: EditorState,
+  dayNumbers: number[],
+  rawDayLookup: DayLookup,
+): IntegrityIssue[] {
   const issues: IntegrityIssue[] = [];
   const validStreetIds = new Set(s.streetsDraft.map((x) => x.id));
   const validResidentIds = new Set(s.residentsDraft.map((x) => x.id));
@@ -25,8 +29,7 @@ export function findBrokenRefs(s: EditorState, dayNumbers: number[], rawDayLooku
   for (const dayNum of dayNumbers) {
     // For the currently edited day, use the live draft (its unsaved changes
     // would land too). For every other day, use RAW_DAYS.
-    const day =
-      s.mode === "day" && s.day === dayNum ? s.draft : rawDayLookup(dayNum);
+    const day = s.mode === "day" && s.day === dayNum ? s.draft : rawDayLookup(dayNum);
     if (!day) continue;
 
     for (const sid of day.streets) {

@@ -141,7 +141,10 @@ export function updateTuning(fn: (t: TuningRaw) => void): void {
 
 type SpritesCategory = keyof SpritesDraft;
 
-export function updateSprites(category: SpritesCategory, fn: (d: SpritesDraft[SpritesCategory]) => void): void {
+export function updateSprites(
+  category: SpritesCategory,
+  fn: (d: SpritesDraft[SpritesCategory]) => void,
+): void {
   const s = getState();
   const spritesDraft = structuredClone(s.spritesDraft);
   fn(spritesDraft[category] as never);
@@ -149,7 +152,13 @@ export function updateSprites(category: SpritesCategory, fn: (d: SpritesDraft[Sp
   setState({ spritesDraft, spritesDirtyCats, saveStatus: { kind: "idle" } });
 }
 
-export function updateGridCell(category: "cars" | "icons" | "doc", key: string, x: number, y: number, ch: string): void {
+export function updateGridCell(
+  category: "cars" | "icons" | "doc",
+  key: string,
+  x: number,
+  y: number,
+  ch: string,
+): void {
   updateSprites(category, (d) => {
     const map = d as Record<string, string>;
     const grid = map[key];
@@ -158,7 +167,12 @@ export function updateGridCell(category: "cars" | "icons" | "doc", key: string, 
   });
 }
 
-export function resizeGrid(category: "cars" | "icons" | "doc", key: string, deltaW: number, deltaH: number): void {
+export function resizeGrid(
+  category: "cars" | "icons" | "doc",
+  key: string,
+  deltaW: number,
+  deltaH: number,
+): void {
   updateSprites(category, (d) => {
     const map = d as Record<string, string>;
     const grid = map[key];

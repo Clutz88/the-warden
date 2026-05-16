@@ -21,7 +21,10 @@ export async function saveTuning(tuning: TuningRaw): Promise<SaveResult> {
 
 export type SpriteCategory = "cars" | "icons" | "doc" | "palette";
 
-export async function saveSpriteCategory(category: SpriteCategory, data: unknown): Promise<SaveResult> {
+export async function saveSpriteCategory(
+  category: SpriteCategory,
+  data: unknown,
+): Promise<SaveResult> {
   return post("/__editor/save-sprites", { category, data });
 }
 

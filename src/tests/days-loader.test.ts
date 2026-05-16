@@ -25,7 +25,9 @@ describe("Authored day sequences", () => {
       const cars = def.cars!;
       expect(cars.length).toBeGreaterThan(0);
       for (let i = 1; i < cars.length; i++) {
-        expect(cars[i]!.seenAt, `day ${def.day} car ${i} seenAt regression`).toBeGreaterThanOrEqual(cars[i - 1]!.seenAt);
+        expect(cars[i]!.seenAt, `day ${def.day} car ${i} seenAt regression`).toBeGreaterThanOrEqual(
+          cars[i - 1]!.seenAt,
+        );
       }
     }
   });

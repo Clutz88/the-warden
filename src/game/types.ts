@@ -166,9 +166,7 @@ export type ShiftLog = {
   correct: boolean;
 };
 
-export type PlayerAction =
-  | { kind: "pass" }
-  | { kind: "pcn"; code: string };
+export type PlayerAction = { kind: "pass" } | { kind: "pcn"; code: string };
 
 export type ResidentEncounter = {
   day: number;

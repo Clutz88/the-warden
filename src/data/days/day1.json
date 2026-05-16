@@ -5,10 +5,7 @@
     "Pay & Display required on High Road and Market Street.",
     "Ticket must not be expired (compare against your shift clock)."
   ],
-  "streets": [
-    "highRoad",
-    "marketSt"
-  ],
+  "streets": ["highRoad", "marketSt"],
   "rent": 30,
   "cars": [
     {

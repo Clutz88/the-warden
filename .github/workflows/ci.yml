@@ -6,14 +6,18 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel an in-progress run when a newer commit arrives for the same ref.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    name: Test + build
+  check:
+    name: Lint + format + audit
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -24,8 +28,54 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
+      - name: Prettier format check
+        run: npm run format:check
 
-      - name: Build (tsc + vite)
-        run: npm run build
+      - name: ESLint
+        run: npm run lint
+
+      - name: npm audit (high+)
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  test:
+    name: Test + build (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test -- --reporter=github-actions --reporter=default
+
+      - name: Coverage (Node 22 only)
+        if: matrix.node == 22
+        run: npm run test:coverage -- --reporter=default
+        continue-on-error: true
+
+      - name: Build (vite)
+        run: npx vite build
+
+      - name: Upload dist artifact (Node 22 only)
+        if: matrix.node == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7

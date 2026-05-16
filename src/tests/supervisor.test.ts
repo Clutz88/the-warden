@@ -26,12 +26,7 @@ function entry(plate: string, correct: boolean): ShiftLog {
 
 describe("reviewShift", () => {
   it("penalty = wrongInSample * penaltyPerWrong", () => {
-    const log = [
-      entry("A", true),
-      entry("B", false),
-      entry("C", false),
-      entry("D", true),
-    ];
+    const log = [entry("A", true), entry("B", false), entry("C", false), entry("D", true)];
     const r = reviewShift(log, { sampleSize: 4, penaltyPerWrong: 5 }, () => 0);
     expect(r.sample.length).toBe(4);
     expect(r.wrongInSample).toBe(2);

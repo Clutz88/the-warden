@@ -1,11 +1,4 @@
-import type {
-  Car,
-  CarSpec,
-  Doc,
-  DocReactiveNote,
-  ResidentEncounter,
-  ToneCode,
-} from "./types";
+import type { Car, CarSpec, Doc, DocReactiveNote, ResidentEncounter, ToneCode } from "./types";
 import { STREETS } from "./streets";
 import { activeRules } from "./rules";
 import { validate } from "./validate";
@@ -17,10 +10,7 @@ export function toneFromHistory(history: ResidentEncounter[] | undefined): ToneC
   return last.action.kind === "pcn" ? "negative" : "positive";
 }
 
-export function pickReactiveVariant(
-  doc: DocReactiveNote,
-  tone: ToneCode,
-): string | null {
+export function pickReactiveVariant(doc: DocReactiveNote, tone: ToneCode): string | null {
   return doc.variants[tone] ?? doc.variants.neutral ?? null;
 }
 

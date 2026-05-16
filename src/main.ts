@@ -180,7 +180,8 @@ function flashFeedback(
   const el = document.createElement("div");
   el.className = `feedback ${correct ? "good" : "bad"}`;
   if (correct) {
-    el.textContent = action.kind === "pass" ? "✓ Correct — clean car" : `✓ Correct — PCN ${action.code}`;
+    el.textContent =
+      action.kind === "pass" ? "✓ Correct — clean car" : `✓ Correct — PCN ${action.code}`;
   } else {
     if (action.kind === "pass" && truth.length) {
       el.textContent = `✗ Missed PCN ${truth[0]!.code}: ${truth[0]!.label}`;
@@ -232,7 +233,7 @@ function render(): void {
   const s = getState();
   const root = document.getElementById("app");
   if (!root) return;
-  const car = s.phase === "shift" ? s.cars[s.carIndex] ?? null : null;
+  const car = s.phase === "shift" ? (s.cars[s.carIndex] ?? null) : null;
 
   root.innerHTML = [
     renderHud(s),
@@ -248,10 +249,7 @@ function render(): void {
     if (s.day > 1) persistState();
     const hasSave = s.day === 1 && loadState() !== null;
     const showStats = s.day === 1 && hasStats();
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      renderBriefing(s.day, hasSave, showStats),
-    );
+    document.body.insertAdjacentHTML("beforeend", renderBriefing(s.day, hasSave, showStats));
   }
   if (s.phase === "summary") {
     const def = getDay(s.day);
@@ -323,9 +321,7 @@ function renderTutorialCard(): string {
 
 function removeOverlays(): void {
   // Only clear non-transient overlays. Help/stats overlays manage themselves.
-  document
-    .querySelectorAll(".modal-bg:not([data-overlay])")
-    .forEach((n) => n.remove());
+  document.querySelectorAll(".modal-bg:not([data-overlay])").forEach((n) => n.remove());
 }
 
 function showOverlay(kind: "help" | "stats"): void {
@@ -413,10 +409,7 @@ function bindGlobalEvents(): void {
     if (action === "restart") {
       playClick();
       const s = getState();
-      if (
-        (s.phase === "summary" || s.phase === "supervisor") &&
-        s.log.length > 0
-      ) {
+      if ((s.phase === "summary" || s.phase === "supervisor") && s.log.length > 0) {
         const correct = s.log.filter((l) => l.correct).length;
         const wrong = s.log.length - correct;
         recordDay({ day: s.day, correct, wrong, wages: s.wages });
@@ -475,8 +468,7 @@ function bindGlobalEvents(): void {
         if (s.phase === "briefing") {
           startMusic();
           startShift();
-        }
-        else if (s.phase === "summary") {
+        } else if (s.phase === "summary") {
           const def = getDay(s.day);
           if (s.wages >= def.rent) advanceFromSummary();
         } else if (s.phase === "supervisor") {
@@ -500,7 +492,9 @@ function activePcnCodes(day: number): string[] {
 }
 
 declare global {
-  interface Window { __wardenBound?: boolean }
+  interface Window {
+    __wardenBound?: boolean;
+  }
 }
 
 subscribe(render);

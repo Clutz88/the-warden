@@ -17,9 +17,7 @@
       "colour": "Black",
       "model": "Ford Focus",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "10:30" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "10:30" }]
     },
     {
       "seenAt": "09:10",
@@ -43,9 +41,7 @@
       "colour": "Blue",
       "model": "Toyota Yaris",
       "street": "abbeyClose",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "TY68 WKN", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "TY68 WKN", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "09:34",
@@ -61,9 +57,7 @@
       "colour": "Red",
       "model": "Vauxhall Corsa",
       "street": "marketSt",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "09:15" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "09:15" }]
     },
     {
       "seenAt": "09:58",
@@ -71,9 +65,7 @@
       "colour": "Grey",
       "model": "Audi A3",
       "street": "victoriaTerr",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "YK13 TWF", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "YK13 TWF", "validUntil": "31/12/2026" }]
     },
     {
       "seenAt": "10:10",
@@ -97,9 +89,7 @@
       "colour": "Silver",
       "model": "Land Rover Discovery",
       "street": "highRoad",
-      "docs": [
-        { "type": "pd", "zone": null, "expiresAt": "11:00" }
-      ]
+      "docs": [{ "type": "pd", "zone": null, "expiresAt": "11:00" }]
     },
     {
       "seenAt": "10:34",
@@ -123,9 +113,7 @@
       "colour": "Blue",
       "model": "Mini Cooper",
       "street": "abbeyClose",
-      "docs": [
-        { "type": "permit", "zone": "A", "plate": "DW17 GMS", "validUntil": "31/12/2026" }
-      ]
+      "docs": [{ "type": "permit", "zone": "A", "plate": "DW17 GMS", "validUntil": "31/12/2026" }]
     }
   ]
 }

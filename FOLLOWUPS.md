@@ -6,6 +6,7 @@ small enough to land on its own; rough priority ordered, not strict.
 ## Correctness
 
 ### Reactive notes silently drop when no neutral fallback
+
 `pickReactiveVariant` returns `null` if the requested tone is missing AND there's
 no `neutral` variant — the engine then omits the note entirely. An author who
 forgets `neutral` on a one-off resident will get no note shown and no warning.
@@ -15,6 +16,7 @@ sprite-style check on reactive-note docs), flag any reactive-note without a
 `neutral` variant.
 
 ### HMR-eats-drafts in the editor
+
 Editor draft state lives in module memory. Unrelated HMR (e.g. someone edits a
 TS file) replaces the module and the draft is gone. Only `mode` and selection
 survive via `sessionStorage`.
@@ -24,6 +26,7 @@ survive via `sessionStorage`.
 to work because draft is cleared on successful save.
 
 ### Game tab doesn't auto-refresh on editor save
+
 Editing in `/editor.html`, save, then switching back to the open game tab — the
 game is still using the old data until you manually refresh.
 
@@ -34,6 +37,7 @@ the current day's data without losing state.
 ## Authoring UX
 
 ### Can't add new sprite entries via the editor
+
 The sprite dropdown only lists existing keys in cars/icons/doc. To add a new
 car model you have to hand-edit the JSON.
 
@@ -42,6 +46,7 @@ key + initial size, creates an empty grid, marks the category dirty, selects
 the new entry.
 
 ### No rename-with-propagation for ids
+
 Renaming an id (resident, street, sprite key, car model) breaks every reference
 to the old id. The editor doesn't propagate the rename.
 
@@ -50,6 +55,7 @@ resident/street, day JSON for car model on `car.model`) and updates references.
 Show a diff preview before committing.
 
 ### No Ctrl+S / undo / redo
+
 Standard editor expectations. Undo is particularly useful given the canvas's
 drag-paint can do mass edits.
 
@@ -60,6 +66,7 @@ redo.
 ## Quality
 
 ### JSON has no schema validation at load
+
 `loadDay` parses days carefully and throws on bad shapes. `residents.ts`,
 `streets.ts`, `tuning.ts`, and the sprite loaders are bare `as` casts. Bad
 JSON only surfaces when something downstream blows up.
@@ -68,6 +75,7 @@ JSON only surfaces when something downstream blows up.
 runtime schema lib (zod / valibot / arktype) for everything under `src/data/`.
 
 ### Editor save endpoints have no rate limiting / queueing
+
 Two saves in flight at once race on disk write order. Not exploitable for a
 solo dev tool but flagged for completeness.
 
@@ -75,6 +83,7 @@ solo dev tool but flagged for completeness.
 `requestIdleCallback`-style debouncing in `onSave`.
 
 ### CI is minimal
+
 Single Node version (22), no lint, no coverage. Build covers `tsc` so type
 errors are caught.
 
@@ -85,10 +94,12 @@ investment), add coverage upload (Codecov / Coveralls), matrix across Node
 ## Documentation
 
 ### README doesn't mention the editor
+
 Newcomer-friendly: a one-liner under "Commands" pointing at
 `npm run dev` + `/editor.html`, gated to dev mode.
 
 ### No mention of LAN exposure
+
 `vite --host` would expose the save endpoints to anyone on the network. Cheap
 README warning is enough.
 

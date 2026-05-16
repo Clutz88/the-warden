@@ -110,8 +110,8 @@ Five modes via header toggle:
 - **Streets** — list + per-street form (kind dropdown, zone). Delete confirms with a list of every day/car referencing the id; it does NOT auto-rename references.
 - **Tuning** — shiftStart (HH:MM) and 3 wage values. Right-side preview shows each day's flawless / all-wrong totals vs rent.
 - **Sprites** — sub-toggle for Sprite vs Palette.
-  - *Sprite*: dropdown grouped by Cars/Icons/Doc, clickable pixel canvas (left-click paint, right-click erase, drag), `+col/-col/+row/-row` resize, brush swatches showing every palette char. Live SVG preview.
-  - *Palette*: per-char hex editor for `base` and `carColours`. Right-side legend tallies pixel usage and flags unused chars.
+  - _Sprite_: dropdown grouped by Cars/Icons/Doc, clickable pixel canvas (left-click paint, right-click erase, drag), `+col/-col/+row/-row` resize, brush swatches showing every palette char. Live SVG preview.
+  - _Palette_: per-char hex editor for `base` and `carColours`. Right-side legend tallies pixel usage and flags unused chars.
 
 State is in `src/editor/state.ts`. Selection / mode are persisted to `sessionStorage` so a Vite HMR reload (triggered when the editor saves a watched JSON) lands you back where you were.
 
@@ -128,6 +128,7 @@ State is in `src/editor/state.ts`. Selection / mode are persisted to `sessionSto
 ## Versioning
 
 Bump `package.json` (and matching `package-lock.json` entries) on meaningful change:
+
 - **Minor** (`0.X.0`) — new Day shipped, new rule/mechanic, new doc type, or other player-visible feature slice.
 - **Patch** (`0.x.Y`) — bug fixes, balance tweaks, copy edits, refactors with no player-visible change.
 - Pre-1.0 while gameplay scope still in flux. `1.0.0` reserved for the first "complete" release.
